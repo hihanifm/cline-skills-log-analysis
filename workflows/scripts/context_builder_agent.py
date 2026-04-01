@@ -189,33 +189,25 @@ def _load_skill_module(skill_name: str, module_name: str):
 
 # ── Pattern template loader ───────────────────────────────────────────────────
 
-def _load_pattern_template(template_name: str, skill_name: str) -> list:
-    """Load a shared pattern template YAML from skill's patterns/ dir."""
-    skill_dir = os.path.join(os.path.expanduser("~"), ".cline", "skills", skill_name)
-    pattern_path = os.path.join(skill_dir, "patterns", f"{template_name}.yaml")
-
-    if not os.path.isfile(pattern_path):
-        # Fallback: repo mode
-        here = os.path.dirname(os.path.abspath(__file__))
-        repo_root = os.path.dirname(os.path.dirname(here))
-        pattern_path = os.path.join(repo_root, "skills", skill_name, "patterns", f"{template_name}.yaml")
-
-    if not os.path.isfile(pattern_path):
-        print(f"  [WARN] Pattern template '{template_name}' not found, skipping.", file=sys.stderr)
+def _load_template_file(path: str, workflow_dir: str) -> list:
+    """Load a template YAML by path. Relative paths resolve against workflow_dir."""
+    if not os.path.isabs(path):
+        path = os.path.join(workflow_dir, path)
+    path = os.path.normpath(path)
+    if not os.path.isfile(path):
+        print(f"  [WARN] Template '{path}' not found, skipping.", file=sys.stderr)
         return []
-
-    with open(pattern_path, encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = _parse_yaml_block(f.read())
-
     return data.get("templates", [])
 
 
-def _resolve_patterns(input_entry: dict, skill_name: str) -> list:
-    """Merge included templates + inline patterns. Inline wins on id clash."""
+def _resolve_patterns(input_entry: dict, skill_name: str, workflow_dir: str = "") -> list:
+    """Merge included templates + inline definitions. Inline wins on id clash."""
     merged = {}
 
-    for template_name in (input_entry.get("include") or []):
-        for p in _load_pattern_template(template_name, skill_name):
+    for template_path in (input_entry.get("include") or []):
+        for p in _load_template_file(template_path, workflow_dir):
             merged[p["id"]] = p
 
     for p in (input_entry.get("templates") or []):
@@ -450,12 +442,12 @@ def main():
         # Select skill from explicit declaration; fall back to pattern-structure heuristic
         skill_name = input_entry.get("skill")
         if not skill_name:
-            all_patterns = _resolve_patterns(input_entry, "android-log-analysis")
+            all_patterns = _resolve_patterns(input_entry, "android-log-analysis", workflow_dir)
             skill_name = "android-pcap-analysis" if any(
                 "filter" in p and "fields" in p for p in all_patterns
             ) else "android-log-analysis"
         is_pcap = skill_name == "android-pcap-analysis"
-        all_patterns = _resolve_patterns(input_entry, skill_name)
+        all_patterns = _resolve_patterns(input_entry, skill_name, workflow_dir)
 
         # Script search dirs for post_process resolution
         skill_scripts_dir = os.path.join(

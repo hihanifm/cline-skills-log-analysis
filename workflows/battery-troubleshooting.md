@@ -12,7 +12,9 @@ default_max_lines: 200
 input:
   - path: "logcat*.txt"
     skill: android-log-analysis
-    include: [wakelock, power]
+    include:
+      - ../templates/log/wakelock.yaml
+      - ../templates/log/power.yaml
     templates:
       - id: high_drain
         pattern: "drain_rate.*[5-9][0-9]%|mDischargeCurrentLevel.*[5-9][0-9]"
@@ -35,7 +37,8 @@ input:
 
   - path: "bugreport*.txt"
     skill: android-log-analysis
-    include: [ril]
+    include:
+      - ../templates/log/ril.yaml
     templates:
       - id: modem_wakeup
         pattern: "modem.*wakeup|wakeup.*modem|WAKEUP.*RIL"

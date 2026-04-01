@@ -20,6 +20,10 @@ The context builder auto-detects whether to use ripgrep (logs) or tshark (PCAP)
 based on the pattern structure defined in the workflow file — no manual selection
 needed.
 
+Workflow `include:` entries accept paths to template YAML files, resolved relative
+to the workflow file. This means anyone can bring their own templates from any
+location and reference them by path.
+
 ---
 
 ## Step 1 — Ask for Input
