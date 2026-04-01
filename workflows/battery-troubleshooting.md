@@ -1,5 +1,6 @@
 ---
 workflow: battery-troubleshooting
+skill: workflow-orchestrator
 description: Battery drain and power management analysis for Android devices
 
 output:

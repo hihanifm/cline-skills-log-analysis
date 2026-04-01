@@ -1,5 +1,6 @@
 ---
 workflow: emergency-call-troubleshooting
+skill: workflow-orchestrator
 description: Emergency call (E911/SOS) failure analysis for Android devices
 
 output:

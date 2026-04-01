@@ -1,5 +1,6 @@
 ---
 workflow: ims-pcap-troubleshooting
+skill: workflow-orchestrator
 description: IMS/VoLTE network capture analysis — SIP signaling and DNS for call and registration issues
 
 output:
