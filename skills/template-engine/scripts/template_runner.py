@@ -112,16 +112,28 @@ def _parse_yaml_list(text: str) -> list:
         stripped = line.strip()
         if stripped.startswith("- "):
             if current:
-                items.append(_parse_yaml_block("\n".join(current)))
+                first = current[0].strip() if current else ""
+                if ":" in first or len(current) > 1:
+                    items.append(_parse_yaml_block("\n".join(current)))
+                else:
+                    items.append(_parse_scalar(first))
             current = [stripped[2:]]
         elif stripped.startswith("-") and len(stripped) == 1:
             if current:
-                items.append(_parse_yaml_block("\n".join(current)))
+                first = current[0].strip() if current else ""
+                if ":" in first or len(current) > 1:
+                    items.append(_parse_yaml_block("\n".join(current)))
+                else:
+                    items.append(_parse_scalar(first))
             current = []
         elif current is not None:
             current.append(line)
     if current:
-        items.append(_parse_yaml_block("\n".join(current)))
+        first = current[0].strip() if current else ""
+        if ":" in first or len(current) > 1:
+            items.append(_parse_yaml_block("\n".join(current)))
+        else:
+            items.append(_parse_scalar(first))
     return items
 
 

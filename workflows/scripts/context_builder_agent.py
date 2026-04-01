@@ -121,7 +121,11 @@ def _parse_yaml_list(lines: list) -> list:
     for line in lines:
         if line.startswith("- "):
             if current_item_lines:
-                items.append(_parse_yaml_block("\n".join(current_item_lines)))
+                first = current_item_lines[0].strip() if current_item_lines else ""
+                if ":" in first or len(current_item_lines) > 1:
+                    items.append(_parse_yaml_block("\n".join(current_item_lines)))
+                else:
+                    items.append(_parse_scalar(first))
                 current_item_lines = []
             rest = line[2:].strip()
             if rest:
@@ -130,7 +134,11 @@ def _parse_yaml_list(lines: list) -> list:
             current_item_lines.append(line)
 
     if current_item_lines:
-        items.append(_parse_yaml_block("\n".join(current_item_lines)))
+        first = current_item_lines[0].strip() if current_item_lines else ""
+        if ":" in first or len(current_item_lines) > 1:
+            items.append(_parse_yaml_block("\n".join(current_item_lines)))
+        else:
+            items.append(_parse_scalar(first))
 
     return items
 
