@@ -78,7 +78,7 @@ default_max_lines: 200                  # cap per pattern; overridable per patte
 input:
   - path: "logcat*.txt"                 # each input has its own patterns
     include: [wakelock, power]
-    patterns:
+    templates:
       - id: high_drain
         pattern: "drain_rate.*[5-9][0-9]%"
         context_lines: 5
@@ -93,7 +93,7 @@ input:
 
   - path: "bugreport*.txt"
     include: [ril]
-    patterns:
+    templates:
       - id: ril_errors
         pattern: "RIL.*(error|fail|exception)"
         context_lines: 3
@@ -157,7 +157,7 @@ Zip extraction: `unzip -j archive.zip "<matched_file>" -d <extract_dir>/`
 ```yaml
 # wakelock.yaml
 id: wakelock
-patterns:
+templates:
   - id: wakelock_lifecycle
     pattern: "WakeLock.*(acquire|release|LEAK)"
     context_lines: 5
@@ -177,7 +177,7 @@ patterns:
 ```yaml
 # sip.yaml
 id: sip
-patterns:
+templates:
   - id: sip_transactions
     filter: "sip.Method"
     fields: [frame.number, frame.time, sip.Method, sip.r-uri, sip.Status-Code]

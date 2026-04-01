@@ -1,7 +1,7 @@
 id: power
 description: PowerManager, BatteryStats, and battery drain patterns
 
-patterns:
+templates:
   - id: battery_stats
     pattern: "BatteryStats.*(discharge|drain|level|charging|plugged)"
     context_lines: 3

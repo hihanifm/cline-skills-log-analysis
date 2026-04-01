@@ -13,7 +13,7 @@ input:
   - path: "logcat*.txt"
     skill: android-log-analysis
     include: [wakelock, power]
-    patterns:
+    templates:
       - id: high_drain
         pattern: "drain_rate.*[5-9][0-9]%|mDischargeCurrentLevel.*[5-9][0-9]"
         context_lines: 5
@@ -36,7 +36,7 @@ input:
   - path: "bugreport*.txt"
     skill: android-log-analysis
     include: [ril]
-    patterns:
+    templates:
       - id: modem_wakeup
         pattern: "modem.*wakeup|wakeup.*modem|WAKEUP.*RIL"
         context_lines: 5

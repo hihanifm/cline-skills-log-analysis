@@ -1,7 +1,7 @@
 id: dns
 description: DNS query and response patterns for network connectivity analysis
 
-patterns:
+templates:
   - id: dns_queries
     filter: "dns"
     fields:

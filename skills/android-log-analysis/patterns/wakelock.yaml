@@ -1,7 +1,7 @@
 id: wakelock
 description: WakeLock acquisition, release, and leak detection patterns
 
-patterns:
+templates:
   - id: wakelock_lifecycle
     pattern: "WakeLock.*(acquire|release|LEAK)"
     context_lines: 5

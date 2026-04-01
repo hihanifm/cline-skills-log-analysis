@@ -157,7 +157,7 @@ default_max_lines: 200           # max lines per pattern section
 input:
   - path: "logcat*.txt"          # glob/regex to match files
     include: [wakelock, power]   # shared pattern templates
-    patterns:
+    templates:
       - id: my_pattern
         pattern: "regex here"
         context_lines: 5

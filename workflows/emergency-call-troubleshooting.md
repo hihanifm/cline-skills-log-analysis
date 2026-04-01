@@ -13,7 +13,7 @@ input:
   - path: "logcat*.txt"
     skill: android-log-analysis
     include: [ims-sip, ril]
-    patterns:
+    templates:
       - id: emergency_call_attempt
         pattern: "EmergencyCall|emergency.*call|EMERGENCY_CALL|dial.*911|dial.*112|dial.*SOS"
         context_lines: 10
@@ -51,7 +51,7 @@ input:
   - path: "bugreport*.txt"
     skill: android-log-analysis
     include: [ril]
-    patterns:
+    templates:
       - id: no_service
         pattern: "no.*service|NO_SERVICE|OUT_OF_SERVICE|signal.*lost|NETWORK_TYPE_UNKNOWN"
         context_lines: 5

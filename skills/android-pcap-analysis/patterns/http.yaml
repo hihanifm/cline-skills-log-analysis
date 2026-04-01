@@ -1,7 +1,7 @@
 id: http
 description: HTTP/HTTPS request and response patterns for connectivity and API analysis
 
-patterns:
+templates:
   - id: http_requests
     filter: "http.request"
     fields:

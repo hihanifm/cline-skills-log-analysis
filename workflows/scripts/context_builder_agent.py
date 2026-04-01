@@ -207,7 +207,7 @@ def _load_pattern_template(template_name: str, skill_name: str) -> list:
     with open(pattern_path, encoding="utf-8") as f:
         data = _parse_yaml_block(f.read())
 
-    return data.get("patterns", [])
+    return data.get("templates", [])
 
 
 def _resolve_patterns(input_entry: dict, skill_name: str) -> list:
@@ -218,7 +218,7 @@ def _resolve_patterns(input_entry: dict, skill_name: str) -> list:
         for p in _load_pattern_template(template_name, skill_name):
             merged[p["id"]] = p
 
-    for p in (input_entry.get("patterns") or []):
+    for p in (input_entry.get("templates") or []):
         merged[p["id"]] = p  # inline overrides
 
     return list(merged.values())

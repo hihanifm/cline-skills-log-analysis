@@ -1,7 +1,7 @@
 id: ril
 description: RIL (Radio Interface Layer) network, data, and call handling patterns
 
-patterns:
+templates:
   - id: ril_requests
     pattern: "RIL.*(REQUEST|RESPONSE).*(CALL|DATA|NETWORK|SIGNAL|EMERGENCY)"
     context_lines: 3

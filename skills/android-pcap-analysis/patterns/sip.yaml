@@ -1,7 +1,7 @@
 id: sip
 description: SIP (Session Initiation Protocol) signaling patterns for IMS/VoLTE analysis
 
-patterns:
+templates:
   - id: sip_transactions
     filter: "sip"
     fields:

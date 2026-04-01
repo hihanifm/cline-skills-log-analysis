@@ -1,7 +1,7 @@
 id: ims-sip
 description: IMS (IP Multimedia Subsystem) SIP signaling and registration patterns
 
-patterns:
+templates:
   - id: ims_registration
     pattern: "IMS.*(register|REGISTER|registered|deregister|unregister)"
     context_lines: 5
