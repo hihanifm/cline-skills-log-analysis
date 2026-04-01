@@ -4,6 +4,8 @@ skill: workflow-orchestrator
 description: Emergency call (E911/SOS) failure analysis for Android devices
 
 output:
+  # Relative subdirectory under WORKFLOW_OUTPUT_DIR (if set),
+  # otherwise relative to the input file location.
   dir: ./emergency-call-analysis-output
   filename: "emergency_call_{{timestamp}}.txt"
 

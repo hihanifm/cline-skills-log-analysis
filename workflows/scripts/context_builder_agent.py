@@ -22,17 +22,19 @@ import re
 import sys
 import zipfile
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 import sys as _sys
 
-# Add repo root to sys.path so yaml_utils can be imported when this script
-# is run directly.
+# Add repo root to sys.path so yaml_utils and workflow_paths can be imported
+# when this script is run directly.
 _HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
 import yaml_utils
+from workflow_paths import ensure_output_dir, resolve_output_dir
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -233,10 +235,19 @@ def main():
 
     # Resolve output dir
     output_cfg = config.get("output", {})
-    out_dir = args.output_dir or output_cfg.get("dir", "./output")
-    if not os.path.isabs(out_dir):
-        out_dir = os.path.join(os.path.dirname(input_path), out_dir)
-    os.makedirs(out_dir, exist_ok=True)
+
+    if args.output_dir:
+        # Explicit CLI override wins and is used as-is (absolute or relative).
+        out_dir_path = Path(args.output_dir)
+        if not out_dir_path.is_absolute():
+            out_dir_path = Path(os.path.dirname(input_path)) / out_dir_path
+    else:
+        md_subdir = output_cfg.get("dir", "./output")
+        # Historically, relative paths were resolved under the input directory.
+        default_base = Path(os.path.dirname(input_path))
+        out_dir_path = resolve_output_dir(md_subdir, default_base=default_base)
+
+    out_dir_path = ensure_output_dir(out_dir_path)
 
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_filename = output_cfg.get("filename", "context_{{timestamp}}.yaml")
@@ -245,7 +256,7 @@ def main():
     out_filename = re.sub(r"\.(txt|md)$", ".yaml", out_filename)
     if not out_filename.endswith(".yaml"):
         out_filename = os.path.splitext(out_filename)[0] + f"_context_{ts}.yaml"
-    context_path = os.path.join(out_dir, out_filename)
+    context_path = str(out_dir_path / out_filename)
 
     # Load template engine
     template_runner = _load_skill_module("template-engine", "template_runner")

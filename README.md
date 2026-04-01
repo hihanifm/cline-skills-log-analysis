@@ -74,6 +74,26 @@ You can also invoke directly:
 /battery-troubleshooting.md /path/to/logcat.txt
 ```
 
+### Controlling output locations with WORKFLOW_OUTPUT_DIR
+
+By default, workflow outputs are written to a subdirectory (from the workflow
+frontmatter `output.dir`) relative to the **input file location**.
+
+If you set the `WORKFLOW_OUTPUT_DIR` environment variable, all workflows will
+instead write to:
+
+- `WORKFLOW_OUTPUT_DIR/<output.dir>`
+
+For example:
+
+```bash
+export WORKFLOW_OUTPUT_DIR=~/analysis-outputs
+# Battery workflow will write under:
+#   ~/analysis-outputs/battery-analysis-output/...
+```
+
+If `WORKFLOW_OUTPUT_DIR` is not set, behavior remains the same as before.
+
 ---
 
 ## Structure
@@ -149,7 +169,9 @@ workflow: my-workflow
 description: What this workflow does
 
 output:
-  dir: ./output-dir              # relative to input file location
+  # `dir` is a relative subdirectory under WORKFLOW_OUTPUT_DIR (if set),
+  # otherwise relative to the input file location.
+  dir: ./output-dir
   filename: "out_{{timestamp}}.txt"
 
 default_max_lines: 200           # max lines per pattern section
