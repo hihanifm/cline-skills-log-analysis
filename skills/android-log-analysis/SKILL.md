@@ -2,147 +2,69 @@
 name: android-log-analysis
 description: >-
   Analyzes Android logcat files using ripgrep. Given a log file, zip archive,
-  or folder and a workflow pattern config, filters log lines per pattern and
-  writes a structured output file with descriptions, filtered sections,
-  per-pattern LLM summaries, and a final summary. Use when asked to filter,
-  analyze, or troubleshoot an Android log file.
+  or folder and a workflow config, builds a structured context file and
+  generates a final analysis report. Use when asked to filter, analyze, or
+  troubleshoot an Android log file.
 ---
 
 # Android Log Analysis Skill
 
-## Prerequisites
+## What This Skill Does
 
-Check that `rg` (ripgrep) is installed:
-
-```
-rg --version
-```
-
-If missing, stop and print these install instructions:
-- macOS: `brew install ripgrep`
-- Linux (Debian/Ubuntu): `sudo apt install ripgrep`
-- Linux (Fedora/RHEL): `sudo dnf install ripgrep`
-- Windows: `winget install BurntSushi.ripgrep.MSVC`
-
-Also check Python 3 is available: `python3 --version`
+This skill delegates all mechanical filtering to `context_builder_agent.py` and
+all synthesis to `log_synthesizer_agent.py`. Cline's role is just to invoke the
+two scripts and present the result.
 
 ---
 
-## Step 1 — Resolve Input Files
+## Step 1 — Ask for Input
 
-The workflow frontmatter has an `input` list. Each entry has:
-- `path`: a glob/regex pattern to match filenames
-- `include`: shared pattern template names to load
-- `patterns`: inline pattern definitions
-
-Detect what the user provided:
-
-**Single file** — use it directly, match against each `input[].path`.
-
-**Folder** — list files, match each against `input[].path` globs. All matches run.
-
-**Zip archive** — do:
-1. List zip contents (cross-platform, no unzip needed):
-   `python3 -c "import zipfile,sys; [print(f.filename) for f in zipfile.ZipFile(sys.argv[1]).infolist()]" <archive.zip>`
-2. Match filenames against each `input[].path`
-3. Extract only matched files. Skip if `<zip_dir>/<archive_name>_extracted/` already exists:
-   `python3 -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extract(sys.argv[2], sys.argv[3])" <archive.zip> <matched_file> <extract_dir>`
-4. Use extracted files as input
+If the user has not already provided a log file, zip archive, or folder path, ask for it now.
 
 ---
 
-## Step 2 — Resolve Patterns Per Input Entry
+## Step 2 — Build Context
 
-For each `input[]` entry:
-1. Resolve the skill's install directory (cross-platform):
-   - macOS/Linux: `~/.cline/skills/android-log-analysis/`
-   - Windows: `%USERPROFILE%\.cline\skills\android-log-analysis\`
-   Use `python3 -c "import os; print(os.path.join(os.path.expanduser('~'), '.cline', 'skills', 'android-log-analysis'))"` to get the correct path at runtime.
-2. Load each name in `include` from `<skill_dir>/patterns/<name>.yaml`
-3. Merge with inline `patterns` defined in that input entry
-4. Final pattern list = included patterns + inline patterns (inline takes precedence on id clash)
+Run the context builder. It handles input resolution (file/folder/zip), pattern
+loading, ripgrep filtering, and output — all deterministically.
+
+Resolve the workflow scripts directory:
+```
+python3 -c "import os; print(os.path.join(os.path.dirname(os.path.abspath('<this_workflow_file>')), 'scripts'))"
+```
+
+Then run:
+```
+python3 <workflow_scripts_dir>/context_builder_agent.py \
+  --workflow <path_to_this_workflow_file> \
+  --input <user_provided_path>
+```
+
+Capture stdout — it prints the path to the generated `context.yaml`.
+
+If exit code is non-zero, show the stderr output and stop.
 
 ---
 
-## Step 3 — Create Output File
+## Step 3 — Synthesize Report
 
-Create the output directory from `output.dir` (relative to the provided log path).
-Output filename: `output.filename` with `{{timestamp}}` replaced by current datetime (`YYYYMMDD_HHMMSS`).
+Run the synthesizer against the context file:
+
+```
+python3 <workflow_scripts_dir>/log_synthesizer_agent.py \
+  --context <context_yaml_path>
+```
+
+Capture stdout — it prints the path to the generated report `.md` file.
+
+**If `LLM_BACKEND=cline`** (default when no `.env` or no API key):
+The report will contain `<!-- SUMMARY_PROMPT: <id> ... -->` markers.
+Fill in each marker: read the log context in the code block above it and replace
+the marker with a `**SUMMARY:**` section containing your analysis.
 
 ---
 
-## Step 4 — For Each Input Entry × Each Matched File × Each Pattern
+## Step 4 — Present Report
 
-Write input group header to output file:
-```
-=== INPUT: <input.path> ===
-```
-
-For each pattern in this input entry, for each matched source file:
-
-**4a. Run rg:**
-```
-rg --context <context_lines> --line-number --no-heading "<pattern>" <file>
-```
-
-**4b. Apply max_lines cap** (most specific wins: pattern `max_lines` → workflow `default_max_lines` → default 200).
-Resolve `tail_lines.py` path using `<skill_dir>/scripts/tail_lines.py`:
-```
-rg ... | python3 <skill_dir>/scripts/tail_lines.py --max-lines <M>
-```
-
-**4c. If `post_process` defined**, resolve script path:
-- Check `<workflow_dir>/scripts/<script>` first
-- Fall back to `<skill_dir>/scripts/<script>`
-```
-rg ... | python3 <skill_dir>/scripts/tail_lines.py --max-lines <M> | python3 <script> --source-file <file>
-```
-
-**4d. Write section to output file:**
-```
----
-PATTERN: <pattern.id>  |  SOURCE: <filename>  |  MATCHES: <N>(showing last <M> if capped)
-<pattern.description>
----
-
-<filtered output lines>
-
-```
-
-If no matches:
-```
----
-PATTERN: <pattern.id>  |  SOURCE: <filename>  |  MATCHES: 0
----
-
-[No matches found]
-
-```
-
-**4e. If pattern has `summary_prompt`:**
-Read the filtered lines just written for this pattern+source. Generate a concise LLM summary using the `summary_prompt` as instruction. Append to output file:
-```
-SUMMARY:
-<generated summary>
-
-```
-
----
-
-## Step 5 — Final Summary
-
-After all patterns for all input entries are written, if `final_summary_prompt` is defined in the workflow frontmatter:
-
-Read the entire output file. Generate a final summary using `final_summary_prompt` as instruction. Append:
-```
----
-FINAL SUMMARY
----
-<generated final summary>
-```
-
----
-
-## Step 6 — Report
-
-Tell the user the output file path and a one-line summary of what was found (e.g. "Found 47 wakelock matches, 0 drain anomalies. Output saved to ./battery-analysis-output/battery_20240115_103045.txt").
+Read the final report file and present it to the user.
+Tell the user the report path and a brief summary of findings.
