@@ -26,7 +26,9 @@ from typing import Optional
 
 import sys as _sys
 
-_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Add repo root to sys.path so yaml_utils can be imported when this script
+# is run directly.
+_HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 

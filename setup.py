@@ -161,6 +161,22 @@ def _linux_distro():
     return "unknown"
 
 
+def install_python_deps():
+    """
+    Deprecated: previously attempted to auto-install Python dependencies.
+
+    We now expect callers to manage their own virtualenv and install required
+    packages (notably PyYAML) explicitly, e.g.:
+
+        pip install PyYAML
+
+    This function is kept only to avoid breaking older scripts that might
+    import it; it is intentionally a no-op.
+    """
+    section("Python dependencies")
+    info("Skipped. Please ensure PyYAML is installed in your environment (e.g. `pip install PyYAML`).")
+
+
 # ── File installation ─────────────────────────────────────────────────────────
 
 def install_skills():
@@ -226,6 +242,9 @@ def main():
             errors.append("ripgrep install failed — log analysis workflows will not work")
         if not install_tshark():
             errors.append("tshark install failed — PCAP analysis workflows will not work")
+
+    # Python dependencies (PyYAML etc.) are now caller-managed.
+    install_python_deps()
 
     section("Installing Cline skills")
     install_skills()
