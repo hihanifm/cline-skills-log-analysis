@@ -2,12 +2,15 @@
 log_filter.py — Importable skill module for Android log filtering via ripgrep.
 
 Exposes a clean Python API used by context_builder_agent.py.
-No CLI — this is a library, not a standalone script.
+Can also be run directly as a CLI tool.
 
-Usage (from context_builder_agent.py):
+Usage (library):
     import sys, os
     sys.path.insert(0, '<skill_dir>/scripts')
     from log_filter import filter_file, count_matches, check_dependencies, ToolNotFoundError
+
+Usage (CLI):
+    python3 log_filter.py --file <log_file> --pattern "<regex>" [--context-lines N] [--max-lines N]
 """
 
 import os
@@ -241,3 +244,35 @@ def _run_post_process(script_path: str, text: str, source_file: str) -> str:
     if result.returncode != 0:
         return f"[WARNING: post_process script failed: {result.stderr.strip()}]\n" + text
     return result.stdout
+
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Filter Android log files using ripgrep")
+    parser.add_argument("--file", required=True, help="Path to the log file")
+    parser.add_argument("--pattern", required=True, help="Regex pattern to match")
+    parser.add_argument("--context-lines", type=int, default=0, help="Lines of context around each match (default: 0)")
+    parser.add_argument("--max-lines", type=int, default=200, help="Max match lines to output (default: 200)")
+    args = parser.parse_args()
+
+    try:
+        check_dependencies()
+    except ToolNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    result = filter_file(
+        filepath=args.file,
+        pattern=args.pattern,
+        context_lines=args.context_lines,
+        max_lines=args.max_lines,
+    )
+
+    if result.error:
+        print(f"ERROR: {result.error}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"# Source: {result.source_file}  |  Matches: {result.match_count}{' (capped)' if result.capped else ''}\n")
+    print(result.lines)

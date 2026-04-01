@@ -447,10 +447,14 @@ def main():
             })
             continue
 
-        # Detect skill type from first pattern
-        all_patterns = _resolve_patterns(input_entry, "android-log-analysis")
-        is_pcap = any("filter" in p and "fields" in p for p in all_patterns)
-        skill_name = "android-pcap-analysis" if is_pcap else "android-log-analysis"
+        # Select skill from explicit declaration; fall back to pattern-structure heuristic
+        skill_name = input_entry.get("skill")
+        if not skill_name:
+            all_patterns = _resolve_patterns(input_entry, "android-log-analysis")
+            skill_name = "android-pcap-analysis" if any(
+                "filter" in p and "fields" in p for p in all_patterns
+            ) else "android-log-analysis"
+        is_pcap = skill_name == "android-pcap-analysis"
         all_patterns = _resolve_patterns(input_entry, skill_name)
 
         # Script search dirs for post_process resolution

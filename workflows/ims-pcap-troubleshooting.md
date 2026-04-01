@@ -10,6 +10,7 @@ default_max_lines: 200
 
 input:
   - path: "*.pcap"
+    skill: android-pcap-analysis
     include: [sip, dns]
     patterns:
       - id: ims_registration_flow
@@ -58,6 +59,7 @@ input:
           Note any call IDs and the complete sequence of events.
 
   - path: "*.pcapng"
+    skill: android-pcap-analysis
     include: [sip, dns]
     patterns:
       - id: ims_registration_flow

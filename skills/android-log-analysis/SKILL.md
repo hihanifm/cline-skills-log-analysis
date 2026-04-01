@@ -1,70 +1,45 @@
 ---
 name: android-log-analysis
 description: >-
-  Analyzes Android logcat files using ripgrep. Given a log file, zip archive,
-  or folder and a workflow config, builds a structured context file and
-  generates a final analysis report. Use when asked to filter, analyze, or
-  troubleshoot an Android log file.
+  Filters Android logcat files using ripgrep and a regex pattern. Use directly
+  when you want to extract matching lines from a log file without running a full
+  workflow. Can also be invoked by the workflow-orchestrator skill automatically.
 ---
 
 # Android Log Analysis Skill
 
 ## What This Skill Does
 
-This skill delegates all mechanical filtering to `context_builder_agent.py` and
-all synthesis to `log_synthesizer_agent.py`. Cline's role is just to invoke the
-two scripts and present the result.
+Filters a single Android log file using ripgrep. Extracts lines matching a
+regex pattern, with optional surrounding context lines. Output is capped to
+a configurable maximum.
 
 ---
 
 ## Step 1 — Ask for Input
 
-If the user has not already provided a log file, zip archive, or folder path, ask for it now.
+Ask the user for:
+- **Log file path** (logcat `.txt` or similar)
+- **Pattern** — regex to match (e.g. `WakeLock.*(acquire|release)`)
+- **Context lines** (optional, default 0) — lines before/after each match
+- **Max lines** (optional, default 200) — cap on output lines
 
 ---
 
-## Step 2 — Build Context
+## Step 2 — Run Filter
 
-Run the context builder. It handles input resolution (file/folder/zip), pattern
-loading, ripgrep filtering, and output — all deterministically.
+Resolve the scripts directory relative to this skill file, then run:
 
-Resolve the workflow scripts directory:
 ```
-python3 -c "import os; print(os.path.join(os.path.dirname(os.path.abspath('<this_workflow_file>')), 'scripts'))"
+python3 <skill_scripts_dir>/log_filter.py \
+  --file <log_file> \
+  --pattern "<regex>" \
+  [--context-lines N] \
+  [--max-lines N]
 ```
-
-Then run:
-```
-python3 <workflow_scripts_dir>/context_builder_agent.py \
-  --workflow <path_to_this_workflow_file> \
-  --input <user_provided_path>
-```
-
-Capture stdout — it prints the path to the generated `context.yaml`.
-
-If exit code is non-zero, show the stderr output and stop.
 
 ---
 
-## Step 3 — Synthesize Report
+## Step 3 — Present Output
 
-Run the synthesizer against the context file:
-
-```
-python3 <workflow_scripts_dir>/log_synthesizer_agent.py \
-  --context <context_yaml_path>
-```
-
-Capture stdout — it prints the path to the generated report `.md` file.
-
-**If `LLM_BACKEND=cline`** (default when no `.env` or no API key):
-The report will contain `<!-- SUMMARY_PROMPT: <id> ... -->` markers.
-Fill in each marker: read the log context in the code block above it and replace
-the marker with a `**SUMMARY:**` section containing your analysis.
-
----
-
-## Step 4 — Present Report
-
-Read the final report file and present it to the user.
-Tell the user the report path and a brief summary of findings.
+Show the filtered lines to the user. Include the match count and source file.

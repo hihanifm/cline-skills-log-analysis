@@ -2,12 +2,15 @@
 pcap_filter.py — Importable skill module for PCAP filtering via tshark.
 
 Exposes a clean Python API used by context_builder_agent.py.
-No CLI — this is a library, not a standalone script.
+Can also be run directly as a CLI tool.
 
-Usage (from context_builder_agent.py):
+Usage (library):
     import sys, os
     sys.path.insert(0, '<pcap_skill_dir>/scripts')
     from pcap_filter import filter_pcap, check_dependencies, ToolNotFoundError
+
+Usage (CLI):
+    python3 pcap_filter.py --file <pcap_file> --filter "<display_filter>" --fields frame.number frame.time ... [--max-lines N]
 """
 
 import os
@@ -150,3 +153,35 @@ def _run_post_process(script_path: str, text: str, source_file: str) -> str:
     if result.returncode != 0:
         return f"[WARNING: post_process script failed: {result.stderr.strip()}]\n" + text
     return result.stdout
+
+
+if __name__ == "__main__":
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="Filter PCAP/PCAPNG files using tshark")
+    parser.add_argument("--file", required=True, help="Path to the .pcap or .pcapng file")
+    parser.add_argument("--filter", required=True, dest="display_filter", help="tshark display filter (e.g. 'sip.Method == \"REGISTER\"')")
+    parser.add_argument("--fields", required=True, nargs="+", help="tshark fields to extract (e.g. frame.number frame.time sip.Method)")
+    parser.add_argument("--max-lines", type=int, default=200, help="Max output rows (default: 200)")
+    args = parser.parse_args()
+
+    try:
+        check_dependencies()
+    except ToolNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    result = filter_pcap(
+        filepath=args.file,
+        display_filter=args.display_filter,
+        fields=args.fields,
+        max_lines=args.max_lines,
+    )
+
+    if result.error:
+        print(f"ERROR: {result.error}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"# Source: {result.source_file}  |  Packets: {result.match_count}{' (capped)' if result.capped else ''}\n")
+    print(result.lines)

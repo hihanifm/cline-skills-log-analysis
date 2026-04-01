@@ -10,6 +10,7 @@ default_max_lines: 200
 
 input:
   - path: "logcat*.txt"
+    skill: android-log-analysis
     include: [wakelock, power]
     patterns:
       - id: high_drain
@@ -32,6 +33,7 @@ input:
           battery drain and can cause throttling or emergency shutdown.
 
   - path: "bugreport*.txt"
+    skill: android-log-analysis
     include: [ril]
     patterns:
       - id: modem_wakeup

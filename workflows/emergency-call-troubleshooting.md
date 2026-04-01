@@ -10,6 +10,7 @@ default_max_lines: 200
 
 input:
   - path: "logcat*.txt"
+    skill: android-log-analysis
     include: [ims-sip, ril]
     patterns:
       - id: emergency_call_attempt
@@ -47,6 +48,7 @@ input:
           network or device issue.
 
   - path: "bugreport*.txt"
+    skill: android-log-analysis
     include: [ril]
     patterns:
       - id: no_service
