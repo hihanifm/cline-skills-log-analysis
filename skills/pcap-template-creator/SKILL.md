@@ -75,7 +75,7 @@ refining the display filter.
 
 ## Step 5 — Write the Template YAML
 
-Write the template to `templates/pcap/<id>.yaml` using this structure:
+Write the template to `skills/template-engine/templates/pcap/<id>.yaml` using this structure:
 
 ```yaml
 id: <id>
@@ -108,6 +108,6 @@ Show the developer the written file path. Then tell them:
 > `input` entry:
 > ```yaml
 > include:
->   - ../templates/pcap/<id>.yaml
+>   - pcap/<id>.yaml
 > ```
 > Run `workflow-creator` to build a new workflow, or add it to an existing one.

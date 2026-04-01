@@ -66,8 +66,8 @@ Each skill has a `SKILL.md` (instructions for Cline) and a `scripts/` directory.
 - **`workflow-orchestrator`** — Cline-facing skill that orchestrates the two-script pipeline end-to-end. Contains `context_builder_agent.py` and `log_synthesizer_agent.py` in its `scripts/` directory.
 - **`template-engine`** — `template_runner.py` loads a template YAML, resolves `include:` paths + inline templates, auto-detects skill type (PCAP if template has both `filter` and `fields`; log otherwise), runs patterns.
 
-### Templates (`templates/`)
-Reusable YAML filter definitions shared across workflows via `include:` in workflow frontmatter. Resolved relative to the workflow file at runtime, so templates can live anywhere.
+### Templates (`skills/template-engine/templates/`)
+Reusable YAML filter definitions packaged inside the `template-engine` skill. Deployed to `~/.cline/skills/template-engine/templates/` automatically by `setup.py`. Workflows reference them with short paths (`log/wakelock.yaml`) resolved by `template_runner.load_template()` against the deployed skill dir.
 
 ### Workflows (`skills/workflow-creator/examples/`)
 Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, `output` path config, and `final_summary_prompt`.

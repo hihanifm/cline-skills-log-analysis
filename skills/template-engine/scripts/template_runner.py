@@ -20,11 +20,34 @@ import os
 import sys
 from typing import Optional
 
-_HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+# Add shared modules dir to sys.path (same walker pattern as the agent scripts).
+def _find_shared_modules_dir():
+    d = os.path.dirname(os.path.abspath(__file__))
+    while True:
+        if os.path.isfile(os.path.join(d, "yaml_utils.py")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            raise ImportError("Cannot find yaml_utils.py. Run setup.py to install.")
+        d = parent
+
+_SHARED = _find_shared_modules_dir()
+if _SHARED not in sys.path:
+    sys.path.insert(0, _SHARED)
 
 import yaml_utils
+
+# Template search dirs for skill-packaged templates.
+# Deployed: ~/.cline/skills/template-engine/templates/
+# Dev:      <repo>/skills/template-engine/templates/
+_SKILL_ROOT_DEPLOYED = os.path.join(
+    os.path.expanduser("~"), ".cline", "skills", "template-engine"
+)
+_SKILL_ROOT_DEV = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_TEMPLATE_SEARCH_DIRS = [
+    os.path.join(_SKILL_ROOT_DEPLOYED, "templates"),
+    os.path.join(_SKILL_ROOT_DEV, "templates"),
+]
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -38,9 +61,8 @@ def load_skill_module(skill_name: str, module_name: str):
     module_path = os.path.join(skill_dir, f"{module_name}.py")
 
     if not os.path.isfile(module_path):
-        here = os.path.dirname(os.path.abspath(__file__))
-        repo_root = os.path.dirname(os.path.dirname(os.path.dirname(here)))
-        module_path = os.path.join(repo_root, "skills", skill_name, "scripts", f"{module_name}.py")
+        # Dev fallback: _SHARED is the repo root in dev mode
+        module_path = os.path.join(_SHARED, "skills", skill_name, "scripts", f"{module_name}.py")
 
     if not os.path.isfile(module_path):
         raise ImportError(
@@ -59,18 +81,26 @@ def load_skill_module(skill_name: str, module_name: str):
 def load_template(path: str, base_dir: str = "") -> list:
     """
     Load a template YAML file and return its list of template entries.
-    Relative paths are resolved against base_dir (default: cwd).
+
+    Resolution order for relative paths:
+      1. Relative to base_dir (workflow file's directory)
+      2. Relative to ~/.cline/skills/template-engine/templates/ (deployed)
+      3. Relative to <repo>/skills/template-engine/templates/ (dev)
     """
-    if not os.path.isabs(path):
-        path = os.path.join(base_dir or os.getcwd(), path)
-    path = os.path.normpath(path)
-    if not os.path.isfile(path):
+    if os.path.isabs(path):
+        candidates = [path]
+    else:
+        candidates = [os.path.join(base_dir or os.getcwd(), path)]
+        candidates += [os.path.join(d, path) for d in _TEMPLATE_SEARCH_DIRS]
+
+    resolved = next((os.path.normpath(p) for p in candidates if os.path.isfile(p)), None)
+    if resolved is None:
         print(f"  [WARN] Template '{path}' not found, skipping.", file=sys.stderr)
         return []
     try:
-        data = yaml_utils.load_yaml(path) or {}
+        data = yaml_utils.load_yaml(resolved) or {}
     except Exception as exc:
-        print(f"  [ERROR] Failed to parse template YAML '{path}': {exc}", file=sys.stderr)
+        print(f"  [ERROR] Failed to parse template YAML '{resolved}': {exc}", file=sys.stderr)
         return []
     return data.get("templates", [])
 

@@ -107,7 +107,7 @@ input:
   - path: "<glob>"
     skill: android-log-analysis
     include:
-      - ../../templates/log/<template>.yaml
+      - log/<template>.yaml
     templates:
       - id: <inline_id>
         pattern: "<regex>"
