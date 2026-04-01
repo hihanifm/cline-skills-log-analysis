@@ -42,10 +42,11 @@ Detect what the user provided:
 **Folder** — list files, match each against `input[].path` globs. All matches run.
 
 **Zip archive** — do:
-1. List zip contents: `unzip -l <archive.zip>`
+1. List zip contents (cross-platform, no unzip needed):
+   `python3 -c "import zipfile,sys; [print(f.filename) for f in zipfile.ZipFile(sys.argv[1]).infolist()]" <archive.zip>`
 2. Match filenames against each `input[].path`
-3. Extract only matched files (skip if `<zip_dir>/<archive_name>_extracted/` already exists):
-   `unzip -j <archive.zip> "<matched_file>" -d <zip_dir>/<archive_name>_extracted/`
+3. Extract only matched files. Skip if `<zip_dir>/<archive_name>_extracted/` already exists:
+   `python3 -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extract(sys.argv[2], sys.argv[3])" <archive.zip> <matched_file> <extract_dir>`
 4. Use extracted files as input
 
 ---
@@ -53,9 +54,13 @@ Detect what the user provided:
 ## Step 2 — Resolve Patterns Per Input Entry
 
 For each `input[]` entry:
-1. Load each name in `include` from `~/.cline/skills/android-log-analysis/patterns/<name>.yaml`
-2. Merge with inline `patterns` defined in that input entry
-3. Final pattern list = included patterns + inline patterns (inline takes precedence on id clash)
+1. Resolve the skill's install directory (cross-platform):
+   - macOS/Linux: `~/.cline/skills/android-log-analysis/`
+   - Windows: `%USERPROFILE%\.cline\skills\android-log-analysis\`
+   Use `python3 -c "import os; print(os.path.join(os.path.expanduser('~'), '.cline', 'skills', 'android-log-analysis'))"` to get the correct path at runtime.
+2. Load each name in `include` from `<skill_dir>/patterns/<name>.yaml`
+3. Merge with inline `patterns` defined in that input entry
+4. Final pattern list = included patterns + inline patterns (inline takes precedence on id clash)
 
 ---
 
@@ -80,14 +85,17 @@ For each pattern in this input entry, for each matched source file:
 rg --context <context_lines> --line-number --no-heading "<pattern>" <file>
 ```
 
-**4b. Apply max_lines cap** (most specific wins: pattern `max_lines` → workflow `default_max_lines` → default 200):
+**4b. Apply max_lines cap** (most specific wins: pattern `max_lines` → workflow `default_max_lines` → default 200).
+Resolve `tail_lines.py` path using `<skill_dir>/scripts/tail_lines.py`:
 ```
-rg ... | python3 ~/.cline/skills/android-log-analysis/scripts/tail_lines.py --max-lines <M>
+rg ... | python3 <skill_dir>/scripts/tail_lines.py --max-lines <M>
 ```
 
-**4c. If `post_process` defined**, resolve script path (check `<workflow_dir>/scripts/` first, then `~/.cline/skills/android-log-analysis/scripts/`), then pipe:
+**4c. If `post_process` defined**, resolve script path:
+- Check `<workflow_dir>/scripts/<script>` first
+- Fall back to `<skill_dir>/scripts/<script>`
 ```
-rg ... | python3 tail_lines.py --max-lines <M> | python3 <script> --source-file <file>
+rg ... | python3 <skill_dir>/scripts/tail_lines.py --max-lines <M> | python3 <script> --source-file <file>
 ```
 
 **4d. Write section to output file:**

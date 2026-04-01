@@ -19,12 +19,12 @@ Cross-platform Android log and network capture analysis using Cline workflows an
 **1. Install skills:**
 ```bash
 # macOS / Linux
-cp -r skill/android-log-analysis ~/.cline/skills/
-cp -r skill/android-pcap-analysis ~/.cline/skills/
+cp -r skills/android-log-analysis ~/.cline/skills/
+cp -r skills/android-pcap-analysis ~/.cline/skills/
 
 # Windows (PowerShell)
-Copy-Item -Recurse skill\android-log-analysis $env:USERPROFILE\.cline\skills\
-Copy-Item -Recurse skill\android-pcap-analysis $env:USERPROFILE\.cline\skills\
+Copy-Item -Recurse skills\android-log-analysis $env:USERPROFILE\.cline\skills\
+Copy-Item -Recurse skills\android-pcap-analysis $env:USERPROFILE\.cline\skills\
 ```
 
 **2. Install workflows** (project-level, version controlled):

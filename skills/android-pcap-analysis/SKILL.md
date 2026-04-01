@@ -43,20 +43,23 @@ Detect what the user provided:
 
 **Folder** — list files, match each against `input[].path`. All matches run.
 
-**Zip archive**:
-1. List contents: `unzip -l <archive.zip>`
+**Zip archive** (cross-platform, no unzip needed):
+1. List contents:
+   `python3 -c "import zipfile,sys; [print(f.filename) for f in zipfile.ZipFile(sys.argv[1]).infolist()]" <archive.zip>`
 2. Match filenames against `input[].path`
-3. Extract only matched files (skip if `<zip_dir>/<archive_name>_extracted/` exists):
-   `unzip -j <archive.zip> "<matched_file>" -d <zip_dir>/<archive_name>_extracted/`
+3. Extract only matched files. Skip if `<zip_dir>/<archive_name>_extracted/` already exists:
+   `python3 -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extract(sys.argv[2], sys.argv[3])" <archive.zip> <matched_file> <extract_dir>`
 
 ---
 
 ## Step 2 — Resolve Patterns Per Input Entry
 
 For each `input[]` entry:
-1. Load each name in `include` from `~/.cline/skills/android-pcap-analysis/patterns/<name>.yaml`
-2. Merge with inline `patterns` from that input entry
-3. Inline patterns take precedence on id clash
+1. Resolve the skill's install directory (cross-platform):
+   `python3 -c "import os; print(os.path.join(os.path.expanduser('~'), '.cline', 'skills', 'android-pcap-analysis'))"`
+2. Load each name in `include` from `<skill_dir>/patterns/<name>.yaml`
+3. Merge with inline `patterns` from that input entry
+4. Inline patterns take precedence on id clash
 
 ---
 
@@ -81,12 +84,15 @@ For each pattern, for each matched source file:
 tshark -r <file> -Y "<filter>" -T fields -e <field1> -e <field2> ... -E header=y -E separator="|"
 ```
 
-**4b. Apply max_lines cap** (pattern `max_lines` → workflow `default_max_lines` → default 200):
+**4b. Apply max_lines cap** (pattern `max_lines` → workflow `default_max_lines` → default 200).
+Resolve `tail_lines.py` path using `<skill_dir>/scripts/tail_lines.py`:
 ```
-tshark ... | python3 ~/.cline/skills/android-pcap-analysis/scripts/tail_lines.py --max-lines <M>
+tshark ... | python3 <skill_dir>/scripts/tail_lines.py --max-lines <M>
 ```
 
-**4c. If `post_process` defined**, resolve script (check `<workflow_dir>/scripts/` first, then `~/.cline/skills/android-pcap-analysis/scripts/`):
+**4c. If `post_process` defined**, resolve script:
+- Check `<workflow_dir>/scripts/<script>` first
+- Fall back to `<skill_dir>/scripts/<script>`
 ```
 tshark ... | python3 tail_lines.py --max-lines <M> | python3 <script> --source-file <file>
 ```

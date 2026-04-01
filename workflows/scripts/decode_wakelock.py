@@ -71,7 +71,7 @@ def main():
     parser.add_argument("--source-file", default=None)  # accepted, not used
     args = parser.parse_args()
 
-    lines = sys.stdin.readlines()
+    lines = [l.rstrip("\r\n") + "\n" for l in sys.stdin.readlines()]
 
     # Pass-through original lines first
     for line in lines:
@@ -83,9 +83,12 @@ def main():
     paired = []  # (tag, acquire_ts, release_ts, duration_ms)
     leaks = []   # (tag, acquire_ts, line)
 
+    _RG_MATCH = re.compile(r'^\d+:')   # rg match line: <linenum>:<text>
+    _RG_CONTEXT = re.compile(r'^\d+-') # rg context line: <linenum>-<text>
+
     for i, line in enumerate(lines):
-        # Skip context lines (rg outputs them with -)
-        is_match = ": " in line and not line.startswith("--")
+        # Detect rg match lines vs context lines by line number prefix
+        is_match = bool(_RG_MATCH.match(line))
 
         ts_match = _TS_RE.search(line)
         ts_ms = parse_timestamp_ms(ts_match.group(1)) if ts_match else None
