@@ -257,8 +257,18 @@ def main():
     workflow_name = config.get("workflow", os.path.splitext(os.path.basename(workflow_path))[0])
     default_max = args.max_lines or config.get("default_max_lines", 200)
 
-    # Output always goes to out/<workflow-name>/context.txt
-    out_dir = Path("out") / workflow_name
+    # Output goes to out/<workflow-name>/ or out/<workflow-name>-2/, -3/, etc.
+    # if the directory already exists (preserves previous runs).
+    base_dir = Path("out") / workflow_name
+    out_dir = base_dir
+    if out_dir.exists():
+        n = 2
+        while True:
+            candidate = Path("out") / f"{workflow_name}-{n}"
+            if not candidate.exists():
+                out_dir = candidate
+                break
+            n += 1
     out_dir.mkdir(parents=True, exist_ok=True)
     context_path = str(out_dir / "context.txt")
 
