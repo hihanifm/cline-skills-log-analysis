@@ -113,9 +113,4 @@ final_summary_prompt: >
 
 # IMS PCAP Troubleshooting
 
-1. Ask the user for the PCAP file, zip archive, or folder path if not already provided.
-2. Use the android-pcap-analysis skill to analyze the capture using the patterns defined above.
-3. For each pattern, filtered packets are written to the output file. Patterns with a
-   summary_prompt get an LLM summary appended after the filtered output.
-4. At the end, a final summary is generated across all pattern findings.
-5. Report the output file path to the user.
+Run using the `workflow-orchestrator` skill.

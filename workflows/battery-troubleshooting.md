@@ -57,9 +57,4 @@ final_summary_prompt: >
 
 # Battery Troubleshooting
 
-1. Ask the user for the log file, zip archive, or folder path if not already provided.
-2. Use the android-log-analysis skill to filter the log using the patterns defined above.
-3. For each pattern, filtered lines are written to the output file. Patterns with a
-   summary_prompt get an LLM summary appended after their filtered lines.
-4. At the end, a final summary is generated across all pattern findings.
-5. Report the output file path to the user.
+Run using the `workflow-orchestrator` skill.
