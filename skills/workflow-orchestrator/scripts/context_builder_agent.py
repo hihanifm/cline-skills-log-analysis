@@ -328,7 +328,7 @@ def main():
             os.path.expanduser("~"), ".cline", "skills", "postprocessors", "scripts"
         )
         postprocessors_dir_dev = os.path.join(_SHARED, "skills", "postprocessors", "scripts")
-        project_postprocessors_dir = _find_project_dir(workflow_dir, "postprocessors")
+        project_postprocessors_dir = _find_project_dir(workflow_dir, "log-postprocessors")
         script_dirs = [
             workflow_scripts_dir,
             project_postprocessors_dir,

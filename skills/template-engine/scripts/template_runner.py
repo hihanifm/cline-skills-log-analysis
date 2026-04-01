@@ -61,7 +61,7 @@ def _project_template_dirs(base_dir: str) -> list:
     dirs = []
     d = base_dir
     for _ in range(4):
-        candidate = os.path.join(d, "templates")
+        candidate = os.path.join(d, "log-templates")
         if os.path.isdir(candidate):
             dirs.append(candidate)
             break

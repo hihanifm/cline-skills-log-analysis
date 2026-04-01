@@ -82,7 +82,7 @@ Follow the convention: `decode_<feature>.py`
 
 ### Step 3 — Write the Script
 
-Write `postprocessors/<name>.py` in the project repo root following this contract:
+Write `log-postprocessors/<name>.py` in the project repo root following this contract:
 
 **Required:**
 - Reads from `sys.stdin`
@@ -136,5 +136,5 @@ Reference it in your template pattern:
 post_process: <name>.py
 ```
 
-Commit `postprocessors/<name>.py` to your project repo so colleagues
+Commit `log-postprocessors/<name>.py` to your project repo so colleagues
 can use it too. No deployment needed — the pipeline finds it automatically.

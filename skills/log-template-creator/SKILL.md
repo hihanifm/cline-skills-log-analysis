@@ -4,7 +4,7 @@ description: >-
   Guides a developer through creating a reusable log template YAML for the
   android-log-analysis skill. Asks for ripgrep regex patterns, tests them
   against a sample log file if available, and writes the template to
-  templates/log/. Use this before workflow-creator when you need new patterns.
+  log-templates/log/. Use this before workflow-creator when you need new patterns.
 ---
 
 # Log Template Creator Skill
@@ -63,7 +63,7 @@ suggest refining it.
 
 ## Step 5 — Write the Template YAML
 
-Write the template to `templates/log/<id>.yaml` in the project repo root using this structure:
+Write the template to `log-templates/log/<id>.yaml` in the project repo root using this structure:
 
 ```yaml
 id: <id>
@@ -88,7 +88,7 @@ Add additional pattern entries under `templates:` for each pattern gathered.
 
 Show the developer the written file path. Then tell them:
 
-> Template written to `templates/log/<id>.yaml` in your project repo.
+> Template written to `log-templates/log/<id>.yaml` in your project repo.
 > Commit this file so colleagues can use it too.
 >
 > To use it in a workflow, add to the `input` entry:

@@ -79,8 +79,8 @@ All decode/format scripts read from stdin and write to stdout, and optionally ac
 
 **New workflow:** Create `.clinerules/workflows/<name>.md` in the project repo. Invoke `workflow-creator` skill to be guided through it.
 
-**New template:** Create `templates/log/<name>.yaml` or `templates/pcap/<name>.yaml` in the project repo. Invoke `log-template-creator` or `pcap-template-creator` skill. Reference with short path `log/<name>.yaml` in workflow `include:`.
+**New template:** Create `log-templates/log/<name>.yaml` or `log-templates/pcap/<name>.yaml` in the project repo. Invoke `log-template-creator` or `pcap-template-creator` skill. Reference with short path `log/<name>.yaml` in workflow `include:`.
 
-**New post-processor:** Create `postprocessors/<name>.py` in the project repo. Invoke `postprocessors` skill for guidance. Reference with `post_process: <name>.py` in a template pattern.
+**New post-processor:** Create `log-postprocessors/<name>.py` in the project repo. Invoke `postprocessors` skill for guidance. Reference with `post_process: <name>.py` in a template pattern.
 
-Project-local assets (`templates/`, `postprocessors/`, `.clinerules/workflows/`) take priority over the shared skill defaults and can be committed to the project repo for team sharing.
+Project-local assets (`log-templates/`, `log-postprocessors/`, `.clinerules/workflows/`) take priority over the shared skill defaults and can be committed to the project repo for team sharing.

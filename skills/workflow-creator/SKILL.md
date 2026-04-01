@@ -29,7 +29,7 @@ Ask the developer:
 
 ## Step 2 — Discover Available Templates
 
-List the contents of `templates/log/` and `templates/pcap/`. For each YAML file
+List the contents of `log-templates/log/` and `log-templates/pcap/` in the project repo, and also `~/.cline/skills/template-engine/templates/log/` and `templates/pcap/` for shared defaults. For each YAML file
 found, read its `id` and `description` fields and show the developer a summary:
 
 ```
@@ -107,7 +107,7 @@ input:
   - path: "<glob>"
     skill: android-log-analysis
     include:
-      - log/<template>.yaml
+      - log-templates/log/<template>.yaml
     templates:
       - id: <inline_id>
         pattern: "<regex>"
@@ -138,7 +138,7 @@ Tell the developer:
 
 > Workflow written to `.clinerules/workflows/<name>.md`.
 >
-> Commit this file (along with any `templates/` and `postprocessors/` you created)
+> Commit this file (along with any `log-templates/` and `log-postprocessors/` you created)
 > so colleagues can run the same workflow on their machines.
 >
 > To run it, invoke the `workflow-orchestrator` skill and point it at this workflow file.
