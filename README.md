@@ -1,4 +1,4 @@
-# Android Log & PCAP Analysis — Cline Skills + Workflows
+# Codifying the troubleshooting tribal skills with Agent Skills & Cline Workflows
 
 Cross-platform Android log and network capture analysis using Cline workflows and skills.
 
