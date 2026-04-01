@@ -2,8 +2,8 @@
 context_builder_agent.py — Deterministic log context builder.
 
 Reads a workflow .md YAML frontmatter, resolves input files (file/folder/zip),
-imports log_filter / pcap_filter skill modules, runs all patterns, and writes
-a structured context.yaml file for log_synthesizer_agent.py to process.
+delegates filtering to the template-engine skill, and writes a structured
+context.yaml file for log_synthesizer_agent.py to process.
 
 Usage:
     python3 context_builder_agent.py \
@@ -185,35 +185,6 @@ def _load_skill_module(skill_name: str, module_name: str):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
-
-
-# ── Pattern template loader ───────────────────────────────────────────────────
-
-def _load_template_file(path: str, workflow_dir: str) -> list:
-    """Load a template YAML by path. Relative paths resolve against workflow_dir."""
-    if not os.path.isabs(path):
-        path = os.path.join(workflow_dir, path)
-    path = os.path.normpath(path)
-    if not os.path.isfile(path):
-        print(f"  [WARN] Template '{path}' not found, skipping.", file=sys.stderr)
-        return []
-    with open(path, encoding="utf-8") as f:
-        data = _parse_yaml_block(f.read())
-    return data.get("templates", [])
-
-
-def _resolve_patterns(input_entry: dict, skill_name: str, workflow_dir: str = "") -> list:
-    """Merge included templates + inline definitions. Inline wins on id clash."""
-    merged = {}
-
-    for template_path in (input_entry.get("include") or []):
-        for p in _load_template_file(template_path, workflow_dir):
-            merged[p["id"]] = p
-
-    for p in (input_entry.get("templates") or []):
-        merged[p["id"]] = p  # inline overrides
-
-    return list(merged.values())
 
 
 # ── Input file resolver ───────────────────────────────────────────────────────
@@ -403,21 +374,8 @@ def main():
         out_filename = os.path.splitext(out_filename)[0] + f"_context_{ts}.yaml"
     context_path = os.path.join(out_dir, out_filename)
 
-    # Load skill modules
-    log_filter = _load_skill_module("android-log-analysis", "log_filter")
-    pcap_filter = _load_skill_module("android-pcap-analysis", "pcap_filter")
-
-    # Check deps
-    try:
-        log_filter.check_dependencies()
-    except log_filter.ToolNotFoundError as e:
-        print(f"  [ERROR] {e}", file=sys.stderr)
-        # Don't exit — log patterns will fail gracefully, pcap may still work
-
-    try:
-        pcap_filter.check_dependencies()
-    except pcap_filter.ToolNotFoundError as e:
-        print(f"  [WARN] {e}", file=sys.stderr)
+    # Load template engine
+    template_runner = _load_skill_module("template-engine", "template_runner")
 
     # Process input entries
     sections = []
@@ -439,15 +397,13 @@ def main():
             })
             continue
 
-        # Select skill from explicit declaration; fall back to pattern-structure heuristic
+        # Resolve skill and patterns via template_runner
         skill_name = input_entry.get("skill")
+        all_patterns = template_runner.resolve_patterns(input_entry, workflow_dir)
         if not skill_name:
-            all_patterns = _resolve_patterns(input_entry, "android-log-analysis", workflow_dir)
             skill_name = "android-pcap-analysis" if any(
                 "filter" in p and "fields" in p for p in all_patterns
             ) else "android-log-analysis"
-        is_pcap = skill_name == "android-pcap-analysis"
-        all_patterns = _resolve_patterns(input_entry, skill_name, workflow_dir)
 
         # Script search dirs for post_process resolution
         skill_scripts_dir = os.path.join(
@@ -458,48 +414,16 @@ def main():
 
         for src_file in matched_files:
             print(f"  Processing: {os.path.basename(src_file)}", file=sys.stderr)
-
-            for pattern in all_patterns:
-                pid = pattern.get("id", "unknown")
-                desc = pattern.get("description", "")
-                summary_prompt = pattern.get("summary_prompt")
-                post_process = pattern.get("post_process")
-                max_lines = pattern.get("max_lines", default_max)
-
-                print(f"    Pattern: {pid}", file=sys.stderr)
-
-                if is_pcap:
-                    result = pcap_filter.filter_pcap(
-                        filepath=src_file,
-                        display_filter=pattern.get("filter", ""),
-                        fields=pattern.get("fields", []),
-                        pattern_id=pid,
-                        max_lines=max_lines,
-                        post_process=post_process,
-                        post_process_search_dirs=script_dirs,
-                    )
-                else:
-                    result = log_filter.filter_file(
-                        filepath=src_file,
-                        pattern=pattern.get("pattern", ""),
-                        pattern_id=pid,
-                        context_lines=pattern.get("context_lines", 5),
-                        max_lines=max_lines,
-                        post_process=post_process,
-                        post_process_search_dirs=script_dirs,
-                    )
-
-                sections.append({
-                    "input_glob": glob_pattern,
-                    "source_file": os.path.basename(src_file),
-                    "pattern_id": pid,
-                    "match_count": result.match_count,
-                    "capped": result.capped,
-                    "description": desc,
-                    "filtered_lines": result.lines,
-                    "summary_prompt": summary_prompt,
-                    "error": result.error,
-                })
+            entry_sections = template_runner.run_patterns(
+                input_file=src_file,
+                patterns=all_patterns,
+                skill=skill_name,
+                max_lines=default_max,
+                script_dirs=script_dirs,
+            )
+            for s in entry_sections:
+                s["input_glob"] = glob_pattern
+            sections.extend(entry_sections)
 
     # Write context YAML
     context_data = {
