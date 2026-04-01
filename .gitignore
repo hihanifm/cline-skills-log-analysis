@@ -1,3 +1,17 @@
+# Test / coverage artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+
+# Environment / secrets
+.env
+.env.*
+.python-version
+
+# Cursor / local tooling
+.cursor/
 __pycache__/
 *.py[cod]
 *.pyo
