@@ -76,23 +76,41 @@ You can also invoke directly:
 
 ### Controlling output locations with WORKFLOW_OUTPUT_DIR
 
-By default, workflow outputs are written to a subdirectory (from the workflow
-frontmatter `output.dir`) relative to the **input file location**.
+Workflow output paths are resolved in three layers:
 
-If you set the `WORKFLOW_OUTPUT_DIR` environment variable, all workflows will
-instead write to:
+1. **`WORKFLOW_OUTPUT_DIR` env var (highest priority)**  
+2. **`output.default_base` in `workflow_config.yaml`**  
+3. **Input file directory (fallback)**  
 
-- `WORKFLOW_OUTPUT_DIR/<output.dir>`
+Each workflow still appends its own frontmatter `output.dir` on top of the
+resolved base directory.
 
-For example:
+**Examples:**
 
-```bash
-export WORKFLOW_OUTPUT_DIR=~/analysis-outputs
-# Battery workflow will write under:
-#   ~/analysis-outputs/battery-analysis-output/...
-```
+- **With `WORKFLOW_OUTPUT_DIR` set:**
 
-If `WORKFLOW_OUTPUT_DIR` is not set, behavior remains the same as before.
+  ```bash
+  export WORKFLOW_OUTPUT_DIR=~/analysis-outputs
+  # Battery workflow will write under:
+  #   ~/analysis-outputs/battery-analysis-output/...
+  ```
+
+- **With only `workflow_config.yaml` configured:**
+
+  ```yaml
+  # workflow_config.yaml
+  output:
+    default_base: ./workflow-output
+  ```
+
+  Battery workflow output goes under:
+
+  ```text
+  ./workflow-output/battery-analysis-output/...
+  ```
+
+If neither `WORKFLOW_OUTPUT_DIR` nor `output.default_base` is set, outputs are
+written relative to the input file location (previous behavior).
 
 ---
 
