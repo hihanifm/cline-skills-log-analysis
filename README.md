@@ -1,4 +1,4 @@
-# Codifying the troubleshooting tribal skills with Agent Skills & Cline Workflows
+# Codifying the tribal skills with AI
 
 Cross-platform Android log and network capture analysis using Cline workflows and skills.
 
