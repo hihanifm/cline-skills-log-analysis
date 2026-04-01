@@ -49,7 +49,7 @@ python3 ~/.cline/skills/workflow-orchestrator/scripts/context_builder_agent.py \
   --input <user_provided_path>
 ```
 
-Capture stdout — it prints the path to the generated `context.yaml`.
+Capture stdout — it prints the path to the generated `context.txt`.
 
 If exit code is non-zero, show the stderr output and stop.
 
@@ -61,8 +61,7 @@ Run the synthesizer against the context file:
 
 ```
 python3 ~/.cline/skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
-  --context <context_yaml_path> \
-  [--output <report_path>]
+  --context <context_txt_path>
 ```
 
 Capture stdout — it prints the path to the generated report `.md` file.
