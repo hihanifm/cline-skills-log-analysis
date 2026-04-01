@@ -72,8 +72,8 @@ Reusable YAML filter definitions packaged inside the `template-engine` skill. De
 ### Workflows (`skills/workflow-creator/examples/`)
 Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, `output` path config, and `final_summary_prompt`.
 
-### Post-processing scripts (stdin → stdout contract)
-All decode/format scripts read from stdin and write to stdout, and optionally accept `--source-file <path>` for multi-pass use. Shared scripts live in `skills/*/scripts/`; workflow-specific post-processing scripts (e.g. `decode_wakelock.py`, `decode_ril.py`) live in `workflows/scripts/`.
+### Post-processors (`skills/postprocessors/scripts/`)
+All decode/format scripts read from stdin and write to stdout, and optionally accept `--source-file <path>` for multi-pass use. Packaged in the `postprocessors` skill and deployed to `~/.cline/skills/postprocessors/scripts/`. Referenced by filename only in template pattern definitions via `post_process:`.
 
 ## Extending
 

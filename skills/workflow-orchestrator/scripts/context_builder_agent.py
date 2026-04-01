@@ -303,7 +303,11 @@ def main():
             os.path.expanduser("~"), ".cline", "skills", skill_name, "scripts"
         )
         workflow_scripts_dir = os.path.join(workflow_dir, "scripts")
-        script_dirs = [workflow_scripts_dir, skill_scripts_dir]
+        postprocessors_dir = os.path.join(
+            os.path.expanduser("~"), ".cline", "skills", "postprocessors", "scripts"
+        )
+        postprocessors_dir_dev = os.path.join(_SHARED, "skills", "postprocessors", "scripts")
+        script_dirs = [workflow_scripts_dir, postprocessors_dir, postprocessors_dir_dev, skill_scripts_dir]
 
         for src_file in matched_files:
             print(f"  Processing: {os.path.basename(src_file)}", file=sys.stderr)

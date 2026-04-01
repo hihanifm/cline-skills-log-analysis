@@ -58,7 +58,7 @@ For each pattern the developer wants to add, gather:
 
 - **Description** — what this filter captures and why it matters
 - **Summary prompt** (optional) — AI analysis prompt describing what to look for in the output
-- **Post-process script** (optional) — leave blank unless custom decoding is needed
+- **Post-process script** (optional) — available scripts live in `skills/postprocessors/scripts/` (e.g. `decode_sip.py`). Leave blank if none apply.
 
 Ask: "Do you want to add another pattern?" Repeat until done.
 

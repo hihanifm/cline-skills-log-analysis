@@ -46,7 +46,7 @@ For each pattern the developer wants to add, gather:
 - **Context lines** — lines before/after each match to include (default: 3)
 - **Description** — what this pattern captures and why it matters
 - **Summary prompt** (optional) — an AI analysis prompt that describes what to look for in the matches, e.g. "Identify failed connection attempts and their error codes."
-- **Post-process script** (optional) — only needed if matches require custom decoding. Leave blank unless the developer has a specific script in mind.
+- **Post-process script** (optional) — only needed if matches require custom decoding. Available scripts live in `skills/postprocessors/scripts/` (e.g. `decode_wakelock.py`, `decode_ril.py`, `decode_carriers.py`, `decode_timestamps.py`). Leave blank if none apply.
 
 Ask: "Do you want to add another pattern?" Repeat until done.
 

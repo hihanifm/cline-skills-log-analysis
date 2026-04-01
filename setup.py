@@ -26,7 +26,7 @@ import subprocess
 import argparse
 
 
-SKILLS = ["android-log-analysis", "android-pcap-analysis", "template-engine", "workflow-orchestrator"]
+SKILLS = ["android-log-analysis", "android-pcap-analysis", "template-engine", "workflow-orchestrator", "postprocessors"]
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SKILLS_SRC = os.path.join(REPO_ROOT, "skills")
 WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "workflow-creator", "examples")
