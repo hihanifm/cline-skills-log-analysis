@@ -56,18 +56,18 @@ def check_dependencies():
 def count_matches(filepath: str, pattern: str) -> int:
     """Return total number of lines matching pattern in filepath."""
     result = subprocess.run(
-        ["rg", "--count", "-e", pattern, filepath],
+        ["rg", "--text", "--count", "-e", pattern, filepath],
         capture_output=True, text=True
     )
     if result.returncode not in (0, 1):
         return 0
     total = 0
     for line in result.stdout.splitlines():
-        if ":" in line:
-            try:
-                total += int(line.rsplit(":", 1)[1])
-            except ValueError:
-                pass
+        # rg --count output is either "N" (single file) or "path:N" (multi-file)
+        try:
+            total += int(line.rsplit(":", 1)[-1])
+        except ValueError:
+            pass
     return total
 
 
@@ -100,6 +100,7 @@ def filter_file(
     # Run rg
     rg_cmd = [
         "rg",
+        "--text",
         "--context", str(context_lines),
         "--line-number",
         "--no-heading",
