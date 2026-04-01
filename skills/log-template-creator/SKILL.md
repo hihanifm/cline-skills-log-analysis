@@ -63,7 +63,7 @@ suggest refining it.
 
 ## Step 5 — Write the Template YAML
 
-Write the template to `skills/template-engine/templates/log/<id>.yaml` using this structure:
+Write the template to `templates/log/<id>.yaml` in the project repo root using this structure:
 
 ```yaml
 id: <id>
@@ -88,8 +88,10 @@ Add additional pattern entries under `templates:` for each pattern gathered.
 
 Show the developer the written file path. Then tell them:
 
-> To use this template in a workflow, add the following to the workflow's
-> `input` entry:
+> Template written to `templates/log/<id>.yaml` in your project repo.
+> Commit this file so colleagues can use it too.
+>
+> To use it in a workflow, add to the `input` entry:
 > ```yaml
 > include:
 >   - log/<id>.yaml

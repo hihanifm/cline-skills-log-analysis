@@ -48,6 +48,26 @@ from workflow_paths import ensure_output_dir, resolve_output_dir
 from config import resolve_output_base
 
 
+# ── Project dir helper ───────────────────────────────────────────────────────
+
+def _find_project_dir(base_dir: str, subdir: str) -> str:
+    """
+    Walk up from base_dir looking for a <subdir>/ directory in the project repo.
+    Returns the path if found, otherwise returns a non-existent path that will
+    simply be skipped by the script search logic.
+    """
+    d = base_dir
+    for _ in range(4):
+        candidate = os.path.join(d, subdir)
+        if os.path.isdir(candidate):
+            return candidate
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return os.path.join(base_dir, subdir)  # non-existent, harmlessly skipped
+
+
 # ── Skill module loader ───────────────────────────────────────────────────────
 
 def _load_skill_module(skill_name: str, module_name: str):
@@ -298,7 +318,8 @@ def main():
                 "filter" in p and "fields" in p for p in all_patterns
             ) else "android-log-analysis"
 
-        # Script search dirs for post_process resolution
+        # Script search dirs for post_process resolution.
+        # Project postprocessors/ is found by walking up from workflow_dir.
         skill_scripts_dir = os.path.join(
             os.path.expanduser("~"), ".cline", "skills", skill_name, "scripts"
         )
@@ -307,7 +328,14 @@ def main():
             os.path.expanduser("~"), ".cline", "skills", "postprocessors", "scripts"
         )
         postprocessors_dir_dev = os.path.join(_SHARED, "skills", "postprocessors", "scripts")
-        script_dirs = [workflow_scripts_dir, postprocessors_dir, postprocessors_dir_dev, skill_scripts_dir]
+        project_postprocessors_dir = _find_project_dir(workflow_dir, "postprocessors")
+        script_dirs = [
+            workflow_scripts_dir,
+            project_postprocessors_dir,
+            postprocessors_dir,
+            postprocessors_dir_dev,
+            skill_scripts_dir,
+        ]
 
         for src_file in matched_files:
             print(f"  Processing: {os.path.basename(src_file)}", file=sys.stderr)

@@ -77,8 +77,10 @@ All decode/format scripts read from stdin and write to stdout, and optionally ac
 
 ## Extending
 
-**New workflow:** Create `workflows/my-workflow.md` with YAML frontmatter; no skill changes needed. Copy to `.clinerules/workflows/`.
+**New workflow:** Create `.clinerules/workflows/<name>.md` in the project repo. Invoke `workflow-creator` skill to be guided through it.
 
-**New shared template:** Add YAML to `templates/log/` or `templates/pcap/`, copy to `~/.cline/skills/<skill>/patterns/`, reference in workflows with `include:`.
+**New template:** Create `templates/log/<name>.yaml` or `templates/pcap/<name>.yaml` in the project repo. Invoke `log-template-creator` or `pcap-template-creator` skill. Reference with short path `log/<name>.yaml` in workflow `include:`.
 
-**New post-processing script:** Add to `skills/<skill>/scripts/` (shared) or `workflows/scripts/` (workflow-specific). Must be stdin → stdout.
+**New post-processor:** Create `postprocessors/<name>.py` in the project repo. Invoke `postprocessors` skill for guidance. Reference with `post_process: <name>.py` in a template pattern.
+
+Project-local assets (`templates/`, `postprocessors/`, `.clinerules/workflows/`) take priority over the shared skill defaults and can be committed to the project repo for team sharing.

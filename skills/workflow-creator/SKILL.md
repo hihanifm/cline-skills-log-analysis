@@ -89,7 +89,7 @@ This becomes the `final_summary_prompt`. If they're unsure, suggest a default:
 
 ## Step 6 — Write the Workflow File
 
-Write the workflow to `skills/workflow-creator/examples/<name>.md` using this structure:
+Write the workflow to `.clinerules/workflows/<name>.md` in the project repo using this structure:
 
 ```markdown
 ---
@@ -136,13 +136,9 @@ For PCAP inputs, use `filter:` + `fields:` instead of `pattern:` + `context_line
 
 Tell the developer:
 
-> Workflow written to `skills/workflow-creator/examples/<name>.md`.
+> Workflow written to `.clinerules/workflows/<name>.md`.
 >
-> To deploy and run it:
-> 1. Run `python3 setup.py --skip-cli` to deploy to `~/.cline/skills/` and `~/Documents/Cline/Workflows/`.
-> 2. In a project, invoke the `workflow-orchestrator` skill and point it at this workflow file.
+> Commit this file (along with any `templates/` and `postprocessors/` you created)
+> so colleagues can run the same workflow on their machines.
 >
-> To add this workflow to a specific project:
-> ```
-> python3 setup.py --project-dir /path/to/project
-> ```
+> To run it, invoke the `workflow-orchestrator` skill and point it at this workflow file.

@@ -44,10 +44,31 @@ _SKILL_ROOT_DEPLOYED = os.path.join(
     os.path.expanduser("~"), ".cline", "skills", "template-engine"
 )
 _SKILL_ROOT_DEV = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_TEMPLATE_SEARCH_DIRS = [
+_SKILL_TEMPLATE_DIRS = [
     os.path.join(_SKILL_ROOT_DEPLOYED, "templates"),
     os.path.join(_SKILL_ROOT_DEV, "templates"),
 ]
+
+
+def _project_template_dirs(base_dir: str) -> list:
+    """
+    Infer project-local templates/ dir from the workflow file's location.
+    When a workflow lives at <project>/.clinerules/workflows/<name>.md,
+    walking up two levels reaches the project root, which may have a
+    templates/ directory committed to the repo.
+    Returns a list of candidate paths (may not exist).
+    """
+    dirs = []
+    d = base_dir
+    for _ in range(4):
+        candidate = os.path.join(d, "templates")
+        if os.path.isdir(candidate):
+            dirs.append(candidate)
+            break
+        d = os.path.dirname(d)
+        if d == os.path.dirname(d):
+            break
+    return dirs
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -84,14 +105,16 @@ def load_template(path: str, base_dir: str = "") -> list:
 
     Resolution order for relative paths:
       1. Relative to base_dir (workflow file's directory)
-      2. Relative to ~/.cline/skills/template-engine/templates/ (deployed)
-      3. Relative to <repo>/skills/template-engine/templates/ (dev)
+      2. Relative to project repo templates/ (walked up from base_dir)
+      3. Relative to ~/.cline/skills/template-engine/templates/ (deployed)
+      4. Relative to <repo>/skills/template-engine/templates/ (dev)
     """
     if os.path.isabs(path):
         candidates = [path]
     else:
         candidates = [os.path.join(base_dir or os.getcwd(), path)]
-        candidates += [os.path.join(d, path) for d in _TEMPLATE_SEARCH_DIRS]
+        candidates += [os.path.join(d, path) for d in _project_template_dirs(base_dir or os.getcwd())]
+        candidates += [os.path.join(d, path) for d in _SKILL_TEMPLATE_DIRS]
 
     resolved = next((os.path.normpath(p) for p in candidates if os.path.isfile(p)), None)
     if resolved is None:

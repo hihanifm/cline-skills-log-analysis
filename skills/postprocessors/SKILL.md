@@ -82,7 +82,7 @@ Follow the convention: `decode_<feature>.py`
 
 ### Step 3 — Write the Script
 
-Write `skills/postprocessors/scripts/<name>.py` following this contract:
+Write `postprocessors/<name>.py` in the project repo root following this contract:
 
 **Required:**
 - Reads from `sys.stdin`
@@ -129,22 +129,12 @@ if __name__ == "__main__":
 echo "<sample_lines>" | python3 skills/postprocessors/scripts/<name>.py
 ```
 
-### Step 5 — Update This Catalogue
-
-Add an entry under **Available Post-Processors** above:
-
-```markdown
-### `<name>.py`
-**Pairs with:** `<template_id>` templates (`post_process: <name>.py`)
-
-<What it decodes, what it appends, what to look for in the output.>
-```
-
-### Step 6 — Wire It Up
+### Step 5 — Wire It Up
 
 Reference it in your template pattern:
 ```yaml
 post_process: <name>.py
 ```
 
-Then run `python3 setup.py --skip-cli` to deploy.
+Commit `postprocessors/<name>.py` to your project repo so colleagues
+can use it too. No deployment needed — the pipeline finds it automatically.
