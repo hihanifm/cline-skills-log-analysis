@@ -24,6 +24,24 @@ import re
 import sys
 from datetime import datetime
 
+
+# Add shared modules dir to sys.path.
+# In dev mode this is the repo root (contains yaml_utils.py).
+# In deployed mode setup.py copies shared modules alongside this script.
+def _find_shared_modules_dir():
+    d = os.path.dirname(os.path.abspath(__file__))
+    while True:
+        if os.path.isfile(os.path.join(d, "yaml_utils.py")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            raise ImportError("Cannot find yaml_utils.py. Run setup.py to install.")
+        d = parent
+
+_SHARED = _find_shared_modules_dir()
+if _SHARED not in sys.path:
+    sys.path.insert(0, _SHARED)
+
 from config import get_llm_config
 
 

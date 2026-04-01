@@ -25,13 +25,23 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-import sys as _sys
 
-# Add repo root to sys.path so yaml_utils and workflow_paths can be imported
-# when this script is run directly.
-_HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if _HERE not in _sys.path:
-    _sys.path.insert(0, _HERE)
+# Add shared modules dir to sys.path.
+# In dev mode this is the repo root (contains yaml_utils.py).
+# In deployed mode setup.py copies shared modules alongside this script.
+def _find_shared_modules_dir():
+    d = os.path.dirname(os.path.abspath(__file__))
+    while True:
+        if os.path.isfile(os.path.join(d, "yaml_utils.py")):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            raise ImportError("Cannot find yaml_utils.py. Run setup.py to install.")
+        d = parent
+
+_SHARED = _find_shared_modules_dir()
+if _SHARED not in sys.path:
+    sys.path.insert(0, _SHARED)
 
 import yaml_utils
 from workflow_paths import ensure_output_dir, resolve_output_dir
@@ -48,10 +58,8 @@ def _load_skill_module(skill_name: str, module_name: str):
     module_path = os.path.join(skill_dir, f"{module_name}.py")
 
     if not os.path.isfile(module_path):
-        # Fallback: look relative to this script (dev mode)
-        here = os.path.dirname(os.path.abspath(__file__))
-        repo_root = os.path.dirname(os.path.dirname(here))
-        module_path = os.path.join(repo_root, "skills", skill_name, "scripts", f"{module_name}.py")
+        # Fallback: look relative to shared modules dir (dev mode, _SHARED == repo root)
+        module_path = os.path.join(_SHARED, "skills", skill_name, "scripts", f"{module_name}.py")
 
     if not os.path.isfile(module_path):
         raise ImportError(f"Cannot find {module_name}.py for skill '{skill_name}'. "

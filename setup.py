@@ -26,10 +26,14 @@ import subprocess
 import argparse
 
 
-SKILLS = ["android-log-analysis", "android-pcap-analysis"]
+SKILLS = ["android-log-analysis", "android-pcap-analysis", "template-engine", "workflow-orchestrator"]
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SKILLS_SRC = os.path.join(REPO_ROOT, "skills")
 WORKFLOWS_SRC = os.path.join(REPO_ROOT, "workflows")
+
+# Shared Python modules copied into workflow-orchestrator/scripts/ so the
+# deployed skill can import them without needing the repo on sys.path.
+SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_paths.py", "workflow_config.yaml"]
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -194,6 +198,16 @@ def install_skills():
         shutil.copytree(src, dst)
         ok(f"Installed skill: {skill} → {dst}")
 
+    # Copy shared Python modules into workflow-orchestrator/scripts/ so the
+    # deployed skill can import them without needing the repo on sys.path.
+    wo_scripts = os.path.join(dest_base, "workflow-orchestrator", "scripts")
+    if os.path.isdir(wo_scripts):
+        for mod in SHARED_MODULES:
+            src = os.path.join(REPO_ROOT, mod)
+            if os.path.isfile(src):
+                shutil.copy2(src, os.path.join(wo_scripts, mod))
+        ok(f"Copied shared modules → {wo_scripts}")
+
 
 def install_workflows(dest):
     """Copy workflow files to dest directory."""
@@ -275,6 +289,13 @@ def main():
         else:
             fail(f"skill missing: {skill}")
             errors.append(f"skill not installed: {skill}")
+
+    wo_agent = os.path.join(skills_dir, "workflow-orchestrator", "scripts", "context_builder_agent.py")
+    if os.path.isfile(wo_agent):
+        ok("workflow-orchestrator agents deployed")
+    else:
+        fail("workflow-orchestrator agents missing")
+        errors.append("workflow-orchestrator agents not deployed")
 
     if os.path.isdir(global_dest):
         count = len([f for f in os.listdir(global_dest) if f.endswith(".md")])

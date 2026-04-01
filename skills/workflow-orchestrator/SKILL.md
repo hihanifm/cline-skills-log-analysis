@@ -41,14 +41,10 @@ Ask for them now.
 Run the context builder. It handles input resolution (file/folder/zip), pattern
 loading, filtering, and output — all deterministically.
 
-Resolve the workflow scripts directory:
-```
-python3 -c "import os; print(os.path.join(os.path.dirname(os.path.abspath('<this_workflow_file>')), 'scripts'))"
-```
+The agent scripts live in `~/.cline/skills/workflow-orchestrator/scripts/`.
 
-Then run:
 ```
-python3 <workflow_scripts_dir>/context_builder_agent.py \
+python3 ~/.cline/skills/workflow-orchestrator/scripts/context_builder_agent.py \
   --workflow <path_to_workflow_file> \
   --input <user_provided_path>
 ```
@@ -64,7 +60,7 @@ If exit code is non-zero, show the stderr output and stop.
 Run the synthesizer against the context file:
 
 ```
-python3 <workflow_scripts_dir>/log_synthesizer_agent.py \
+python3 ~/.cline/skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
   --context <context_yaml_path>
 ```
 
