@@ -73,12 +73,9 @@ def _resolve_input_files(input_path: str, glob_pattern: str) -> list:
         ext = os.path.splitext(input_path)[1].lower()
         if ext == ".zip":
             return _extract_from_zip(input_path, glob_pattern)
-        else:
-            # Single file — check if it matches glob (warn if not, still use it)
-            if not fnmatch.fnmatch(os.path.basename(input_path), glob_pattern):
-                print(f"  [WARN] File '{os.path.basename(input_path)}' does not match "
-                      f"glob '{glob_pattern}', processing anyway.", file=sys.stderr)
-            return [input_path]
+        # For a regular single file input, ignore the workflow glob pattern
+        # and process the file as-is without validation.
+        return [input_path]
 
     elif os.path.isdir(input_path):
         matches = []
