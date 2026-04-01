@@ -166,19 +166,13 @@ def _linux_distro():
 
 
 def install_python_deps():
-    """
-    Deprecated: previously attempted to auto-install Python dependencies.
-
-    We now expect callers to manage their own virtualenv and install required
-    packages (notably PyYAML) explicitly, e.g.:
-
-        pip install PyYAML
-
-    This function is kept only to avoid breaking older scripts that might
-    import it; it is intentionally a no-op.
-    """
     section("Python dependencies")
-    info("Skipped. Please ensure PyYAML is installed in your environment (e.g. `pip install PyYAML`).")
+    try:
+        import yaml  # noqa: F401
+        ok("PyYAML already installed")
+    except ImportError:
+        info("Installing PyYAML...")
+        run([sys.executable, "-m", "pip", "install", "PyYAML"])
 
 
 # ── File installation ─────────────────────────────────────────────────────────
@@ -198,15 +192,16 @@ def install_skills():
         shutil.copytree(src, dst)
         ok(f"Installed skill: {skill} → {dst}")
 
-    # Copy shared Python modules into workflow-orchestrator/scripts/ so the
-    # deployed skill can import them without needing the repo on sys.path.
-    wo_scripts = os.path.join(dest_base, "workflow-orchestrator", "scripts")
-    if os.path.isdir(wo_scripts):
-        for mod in SHARED_MODULES:
-            src = os.path.join(REPO_ROOT, mod)
-            if os.path.isfile(src):
-                shutil.copy2(src, os.path.join(wo_scripts, mod))
-        ok(f"Copied shared modules → {wo_scripts}")
+    # Copy shared Python modules into every skill's scripts/ dir so each script
+    # can be invoked standalone and find its dependencies immediately.
+    for skill in SKILLS:
+        scripts_dir = os.path.join(dest_base, skill, "scripts")
+        if os.path.isdir(scripts_dir):
+            for mod in SHARED_MODULES:
+                src = os.path.join(REPO_ROOT, mod)
+                if os.path.isfile(src):
+                    shutil.copy2(src, os.path.join(scripts_dir, mod))
+    ok("Copied shared modules to all skill script dirs")
 
 
 def install_workflows(dest):
