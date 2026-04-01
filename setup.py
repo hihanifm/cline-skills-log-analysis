@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 setup.py — Cross-platform setup script for android-log-analysis skills.
 

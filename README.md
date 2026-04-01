@@ -16,6 +16,28 @@ Cross-platform Android log and network capture analysis using Cline workflows an
 
 ## Install
 
+### Option A — One-step installer (recommended)
+
+Use the bundled `setup.py` script to install CLI tools, skills, and workflows:
+
+```bash
+# From the repo root
+./setup.py
+
+# Or, to also install workflows into a specific project:
+./setup.py --project-dir /path/to/your/project
+
+# Or, if you already have rg/tshark installed and just want skills/workflows:
+./setup.py --skip-cli
+```
+
+This will:
+- Ensure **ripgrep** and **tshark** are installed (unless `--skip-cli`)
+- Copy skills into `~/.cline/skills/`
+- Copy workflows into your global Cline workflows dir (and optional project dir)
+
+### Option B — Manual install
+
 **1. Install skills:**
 ```bash
 # macOS / Linux
@@ -57,7 +79,7 @@ You can also invoke directly:
 ## Structure
 
 ```
-skill/
+skills/
   android-log-analysis/       ← Cline skill for logcat files (uses rg)
     SKILL.md                  ← Skill instructions
     patterns/                 ← Shared reusable pattern templates
@@ -108,12 +130,12 @@ All workflows accept:
 3. No changes to skills needed
 
 **Add a new shared pattern template:**
-1. Create `skill/android-log-analysis/patterns/my-pattern.yaml`
+1. Create `skills/android-log-analysis/patterns/my-pattern.yaml`
 2. Copy to `~/.cline/skills/android-log-analysis/patterns/`
 3. Reference it in any workflow with `include: [my-pattern]`
 
 **Add a post-processing script:**
-- Shared (reusable across workflows): add to `skill/<skill-name>/scripts/`
+- Shared (reusable across workflows): add to `skills/<skill-name>/scripts/`
 - Workflow-specific: add to `workflows/scripts/`
 - Contract: stdin → stdout, accepts `--source-file <path>` (optional, for multi-pass)
 
