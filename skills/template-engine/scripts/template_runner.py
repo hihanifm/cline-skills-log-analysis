@@ -17,148 +17,14 @@ Usage (CLI):
 
 import importlib.util
 import os
-import re
 import sys
 from typing import Optional
 
+_HERE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
 
-# ── YAML parser (stdlib only) ─────────────────────────────────────────────────
-
-def _parse_yaml_block(text: str) -> dict:
-    """Minimal YAML parser supporting str, int, list, nested dict, multiline >."""
-    lines = text.splitlines()
-    result, i = {}, 0
-    while i < len(lines):
-        line = lines[i]
-        if not line.strip() or line.strip().startswith("#"):
-            i += 1
-            continue
-        indent = len(line) - len(line.lstrip())
-        if indent > 0:
-            i += 1
-            continue
-        if ":" not in line:
-            i += 1
-            continue
-        key, _, rest = line.partition(":")
-        key = key.strip()
-        rest = rest.strip()
-        if rest == ">":
-            # Folded scalar
-            collected, i = [], i + 1
-            base_indent = None
-            while i < len(lines):
-                l = lines[i]
-                if not l.strip():
-                    collected.append("")
-                    i += 1
-                    continue
-                cur_indent = len(l) - len(l.lstrip())
-                if base_indent is None:
-                    base_indent = cur_indent
-                if cur_indent < base_indent:
-                    break
-                collected.append(l.strip())
-                i += 1
-            result[key] = " ".join(s for s in collected if s)
-        elif rest == "|":
-            # Literal block scalar
-            collected, i = [], i + 1
-            base_indent = None
-            while i < len(lines):
-                l = lines[i]
-                if not l.strip():
-                    collected.append("")
-                    i += 1
-                    continue
-                cur_indent = len(l) - len(l.lstrip())
-                if base_indent is None:
-                    base_indent = cur_indent
-                if cur_indent < base_indent:
-                    break
-                collected.append(l[base_indent:])
-                i += 1
-            result[key] = "\n".join(collected).rstrip()
-        elif not rest:
-            # Nested block
-            collected, i = [], i + 1
-            base_indent = None
-            while i < len(lines):
-                l = lines[i]
-                if not l.strip():
-                    i += 1
-                    continue
-                cur_indent = len(l) - len(l.lstrip())
-                if base_indent is None:
-                    base_indent = cur_indent
-                if cur_indent < base_indent:
-                    break
-                collected.append(l[base_indent:])
-                i += 1
-            block_text = "\n".join(collected)
-            if collected and collected[0].startswith("- "):
-                result[key] = _parse_yaml_list(block_text)
-            else:
-                result[key] = _parse_yaml_block(block_text)
-        else:
-            result[key] = _parse_scalar(rest)
-            i += 1
-    return result
-
-
-def _parse_yaml_list(text: str) -> list:
-    items, current = [], []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- "):
-            if current:
-                first = current[0].strip() if current else ""
-                if ":" in first or len(current) > 1:
-                    items.append(_parse_yaml_block("\n".join(current)))
-                else:
-                    items.append(_parse_scalar(first))
-            current = [stripped[2:]]
-        elif stripped.startswith("-") and len(stripped) == 1:
-            if current:
-                first = current[0].strip() if current else ""
-                if ":" in first or len(current) > 1:
-                    items.append(_parse_yaml_block("\n".join(current)))
-                else:
-                    items.append(_parse_scalar(first))
-            current = []
-        elif current is not None:
-            current.append(line)
-    if current:
-        first = current[0].strip() if current else ""
-        if ":" in first or len(current) > 1:
-            items.append(_parse_yaml_block("\n".join(current)))
-        else:
-            items.append(_parse_scalar(first))
-    return items
-
-
-def _parse_scalar(val: str):
-    val = val.strip().strip('"').strip("'")
-    if val.lower() in ("true", "yes"):
-        return True
-    if val.lower() in ("false", "no"):
-        return False
-    if val.lower() in ("null", "~", ""):
-        return None
-    if val.startswith("[") and val.endswith("]"):
-        inner = val[1:-1].strip()
-        if not inner:
-            return []
-        return [_parse_scalar(x.strip()) for x in inner.split(",")]
-    try:
-        return int(val)
-    except ValueError:
-        pass
-    try:
-        return float(val)
-    except ValueError:
-        pass
-    return val
+import yaml_utils
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -201,8 +67,11 @@ def load_template(path: str, base_dir: str = "") -> list:
     if not os.path.isfile(path):
         print(f"  [WARN] Template '{path}' not found, skipping.", file=sys.stderr)
         return []
-    with open(path, encoding="utf-8") as f:
-        data = _parse_yaml_block(f.read())
+    try:
+        data = yaml_utils.load_yaml(path) or {}
+    except Exception as exc:
+        print(f"  [ERROR] Failed to parse template YAML '{path}': {exc}", file=sys.stderr)
+        return []
     return data.get("templates", [])
 
 

@@ -24,150 +24,13 @@ import zipfile
 from datetime import datetime
 from typing import Optional
 
+import sys as _sys
 
-# ── YAML frontmatter parser (stdlib only) ────────────────────────────────────
+_HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _HERE not in _sys.path:
+    _sys.path.insert(0, _HERE)
 
-def parse_frontmatter(md_path: str) -> dict:
-    """
-    Extract and parse YAML frontmatter from a .md file.
-    Uses a minimal recursive parser — no PyYAML needed.
-    """
-    with open(md_path, encoding="utf-8") as f:
-        content = f.read()
-
-    m = re.match(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
-    if not m:
-        raise ValueError(f"No YAML frontmatter found in {md_path}")
-
-    return _parse_yaml_block(m.group(1))
-
-
-def _parse_yaml_block(text: str) -> dict:
-    """Minimal YAML parser supporting str, int, list, nested dict, multiline >."""
-    lines = text.splitlines()
-    result, i = {}, 0
-    while i < len(lines):
-        line = lines[i]
-        if not line.strip() or line.strip().startswith("#"):
-            i += 1
-            continue
-
-        indent = len(line) - len(line.lstrip())
-        stripped = line.strip()
-
-        if stripped.startswith("- "):
-            # Top-level list item — shouldn't happen at root, skip
-            i += 1
-            continue
-
-        if ":" in stripped:
-            key, _, rest = stripped.partition(":")
-            key = key.strip()
-            rest = rest.strip()
-
-            if rest == ">":
-                # Multiline folded scalar
-                val_lines, i = [], i + 1
-                base_indent = None
-                while i < len(lines):
-                    vl = lines[i]
-                    if not vl.strip():
-                        val_lines.append("")
-                        i += 1
-                        continue
-                    vi = len(vl) - len(vl.lstrip())
-                    if base_indent is None:
-                        base_indent = vi
-                    if vi < (base_indent or 0):
-                        break
-                    val_lines.append(vl.strip())
-                    i += 1
-                result[key] = " ".join(v for v in val_lines if v)
-                continue
-
-            elif rest == "":
-                # Nested block — collect indented lines
-                nested_lines, i = [], i + 1
-                while i < len(lines):
-                    nl = lines[i]
-                    if not nl.strip():
-                        i += 1
-                        continue
-                    ni = len(nl) - len(nl.lstrip())
-                    if ni <= indent:
-                        break
-                    nested_lines.append(nl[indent + 2:] if len(nl) > indent + 2 else nl.lstrip())
-                    i += 1
-
-                # Detect if it's a list or dict
-                if nested_lines and nested_lines[0].startswith("- "):
-                    result[key] = _parse_yaml_list(nested_lines)
-                else:
-                    result[key] = _parse_yaml_block("\n".join(nested_lines))
-                continue
-
-            else:
-                result[key] = _parse_scalar(rest)
-
-        i += 1
-
-    return result
-
-
-def _parse_yaml_list(lines: list) -> list:
-    """Parse a YAML list block into a list of dicts or scalars."""
-    items, current_item_lines = [], []
-
-    for line in lines:
-        if line.startswith("- "):
-            if current_item_lines:
-                first = current_item_lines[0].strip() if current_item_lines else ""
-                if ":" in first or len(current_item_lines) > 1:
-                    items.append(_parse_yaml_block("\n".join(current_item_lines)))
-                else:
-                    items.append(_parse_scalar(first))
-                current_item_lines = []
-            rest = line[2:].strip()
-            if rest:
-                current_item_lines.append(rest)
-        else:
-            current_item_lines.append(line)
-
-    if current_item_lines:
-        first = current_item_lines[0].strip() if current_item_lines else ""
-        if ":" in first or len(current_item_lines) > 1:
-            items.append(_parse_yaml_block("\n".join(current_item_lines)))
-        else:
-            items.append(_parse_scalar(first))
-
-    return items
-
-
-def _parse_scalar(val: str):
-    """Parse a scalar value: int, bool, quoted string, bracket list, or plain string."""
-    val = val.strip()
-    if val.startswith('"') and val.endswith('"'):
-        return val[1:-1]
-    if val.startswith("'") and val.endswith("'"):
-        return val[1:-1]
-    if val.startswith("[") and val.endswith("]"):
-        inner = val[1:-1]
-        return [v.strip().strip('"\'') for v in inner.split(",") if v.strip()]
-    if val.lower() == "true":
-        return True
-    if val.lower() == "false":
-        return False
-    if val.lower() in ("null", "~", ""):
-        return None
-    try:
-        return int(val)
-    except ValueError:
-        pass
-    try:
-        return float(val)
-    except ValueError:
-        pass
-    return val
+import yaml_utils
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -362,7 +225,7 @@ def main():
     print(f"  Input:     {input_path}", file=sys.stderr)
 
     # Parse workflow frontmatter
-    config = parse_frontmatter(workflow_path)
+    config = yaml_utils.load_yaml_frontmatter(workflow_path)
     workflow_name = config.get("workflow", os.path.splitext(os.path.basename(workflow_path))[0])
     default_max = args.max_lines or config.get("default_max_lines", 200)
 
