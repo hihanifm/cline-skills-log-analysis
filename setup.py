@@ -33,7 +33,7 @@ WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "workflow-creator", "examples"
 
 # Shared Python modules copied into workflow-orchestrator/scripts/ so the
 # deployed skill can import them without needing the repo on sys.path.
-SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_paths.py", "workflow_config.yaml"]
+SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_config.yaml"]
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────

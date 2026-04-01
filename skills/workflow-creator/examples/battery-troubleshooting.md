@@ -3,11 +3,6 @@ workflow: battery-troubleshooting
 skill: workflow-orchestrator
 description: Battery drain and power management analysis for Android devices
 
-output:
-  # Relative subdirectory under WORKFLOW_OUTPUT_DIR (if set),
-  # otherwise relative to the input file location.
-  dir: ./battery-analysis-output
-  filename: "battery_{{timestamp}}.txt"
 
 default_max_lines: 200
 

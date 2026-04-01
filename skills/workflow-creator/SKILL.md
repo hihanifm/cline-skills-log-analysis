@@ -97,10 +97,6 @@ workflow: <name>
 skill: workflow-orchestrator
 description: <description>
 
-output:
-  dir: ./<name>-output
-  filename: "<name>_{{timestamp}}.txt"
-
 default_max_lines: 200
 
 input:

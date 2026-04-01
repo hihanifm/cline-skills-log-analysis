@@ -28,14 +28,14 @@ One Python dependency: `PyYAML` (used by `yaml_utils.py`). All other scripts use
 ## Running the Pipeline Manually
 
 ```bash
-# Step 1: Build context (prints context.yaml path to stdout)
+# Step 1: Build context → out/battery-troubleshooting/context.txt
 python3 skills/workflow-orchestrator/scripts/context_builder_agent.py \
   --workflow skills/workflow-creator/examples/battery-troubleshooting.md \
   --input /path/to/logcat.txt
 
-# Step 2: Synthesize report (prints report.md path to stdout)
+# Step 2: Synthesize report → out/battery-troubleshooting/report.md
 python3 skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
-  --context /path/to/context.yaml
+  --context out/battery-troubleshooting/context.txt
 ```
 
 Progress messages go to stderr; the output file path goes to stdout (for Cline to capture).
@@ -47,10 +47,10 @@ Progress messages go to stderr; the output file path goes to stdout (for Cline t
 Key settings:
 - `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `anthropic` (calls API directly). Override at runtime with the `LLM_BACKEND` env var.
 - `llm.api_key_env`: env var name for the Anthropic API key (default: `ANTHROPIC_API_KEY`)
-- `output.base_dir_env`: env var that overrides the output base dir (default: `WORKFLOW_OUTPUT_DIR`)
-- `output.default_base`: fallback base dir when env var is not set (default: `./workflow-output`)
 
-Output dir resolution order: `WORKFLOW_OUTPUT_DIR` env var → `workflow_config.yaml` `default_base` → input file directory. Individual workflows always append their own `output.dir` subdirectory on top.
+Output is always written to `out/<workflow-name>/` relative to the working directory:
+- `out/<workflow-name>/context.txt` — structured filter context
+- `out/<workflow-name>/report.md` — synthesized report
 
 ## Architecture
 

@@ -3,22 +3,23 @@ context_builder_agent.py — Deterministic log context builder.
 
 Reads a workflow .md YAML frontmatter, resolves input files (file/folder/zip),
 delegates filtering to the template-engine skill, and writes a structured
-context.yaml file for log_synthesizer_agent.py to process.
+context file for log_synthesizer_agent.py to process.
+
+Output is always written to:
+    out/<workflow-name>/context.txt
 
 Usage:
     python3 context_builder_agent.py \
         --workflow /path/to/battery-troubleshooting.md \
-        --input /path/to/logcat.txt \
-        [--output-dir ./output]
+        --input /path/to/logcat.txt
 
-Prints context YAML file path to stdout. Progress goes to stderr.
+Prints context file path to stdout. Progress goes to stderr.
 """
 
 import argparse
 import fnmatch
 import importlib.util
 import os
-import re
 import sys
 import zipfile
 from datetime import datetime
@@ -44,8 +45,6 @@ if _SHARED not in sys.path:
     sys.path.insert(0, _SHARED)
 
 import yaml_utils
-from workflow_paths import ensure_output_dir, resolve_output_dir
-from config import resolve_output_base
 
 
 # ── Project dir helper ───────────────────────────────────────────────────────
@@ -240,10 +239,9 @@ def _write_context_yaml(path: str, data: dict):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Build log analysis context YAML from a workflow.")
+    parser = argparse.ArgumentParser(description="Build log analysis context from a workflow.")
     parser.add_argument("--workflow", required=True, help="Path to workflow .md file")
     parser.add_argument("--input", required=True, help="Input log file, folder, or zip archive")
-    parser.add_argument("--output-dir", default=None, help="Override output directory")
     parser.add_argument("--max-lines", type=int, default=None, help="Override default max lines cap")
     args = parser.parse_args()
 
@@ -259,33 +257,10 @@ def main():
     workflow_name = config.get("workflow", os.path.splitext(os.path.basename(workflow_path))[0])
     default_max = args.max_lines or config.get("default_max_lines", 200)
 
-    # Resolve output dir
-    output_cfg = config.get("output", {})
-
-    if args.output_dir:
-        # Explicit CLI override wins and is used as-is (absolute or relative).
-        out_dir_path = Path(args.output_dir)
-        if not out_dir_path.is_absolute():
-            out_dir_path = Path(os.path.dirname(input_path)) / out_dir_path
-    else:
-        md_subdir = output_cfg.get("dir", "./output")
-        # Historically, relative paths were resolved under the input directory.
-        historical_base = Path(os.path.dirname(input_path))
-        # Allow central config/env to override the historical base while keeping
-        # per-workflow subdirectories the same.
-        effective_base = resolve_output_base(historical_base)
-        out_dir_path = resolve_output_dir(md_subdir, default_base=effective_base)
-
-    out_dir_path = ensure_output_dir(out_dir_path)
-
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_filename = output_cfg.get("filename", "context_{{timestamp}}.yaml")
-    out_filename = out_filename.replace("{{timestamp}}", ts)
-    # Force .yaml extension for context file
-    out_filename = re.sub(r"\.(txt|md)$", ".yaml", out_filename)
-    if not out_filename.endswith(".yaml"):
-        out_filename = os.path.splitext(out_filename)[0] + f"_context_{ts}.yaml"
-    context_path = str(out_dir_path / out_filename)
+    # Output always goes to out/<workflow-name>/context.txt
+    out_dir = Path("out") / workflow_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    context_path = str(out_dir / "context.txt")
 
     # Load template engine
     template_runner = _load_skill_module("template-engine", "template_runner")

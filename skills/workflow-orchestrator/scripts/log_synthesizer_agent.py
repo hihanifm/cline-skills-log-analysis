@@ -1,7 +1,7 @@
 """
 log_synthesizer_agent.py — LLM synthesis for log analysis context.
 
-Reads context.yaml produced by context_builder_agent.py, generates
+Reads context.txt produced by context_builder_agent.py, generates
 per-pattern summaries and a final summary using either the Anthropic
 API or placeholder markers (for Cline to fill).
 
@@ -9,12 +9,14 @@ LLM backend is controlled by workflow_config.yaml (llm.backend) or the
 LLM_BACKEND environment variable. API key is read from the environment
 variable named by llm.api_key_env (default: ANTHROPIC_API_KEY).
 
+Output is always written to:
+    out/<workflow-name>/report.md
+
 Usage:
     python3 log_synthesizer_agent.py \
-        --context /path/to/context.yaml \
-        [--output /path/to/final_report.md]
+        --context /path/to/out/<workflow-name>/context.txt
 
-Prints final report path to stdout. Progress goes to stderr.
+Prints report path to stdout. Progress goes to stderr.
 """
 
 import argparse
@@ -328,18 +330,12 @@ def _cline_placeholder(pattern_id: str, prompt: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Synthesize log analysis context into a report.")
-    parser.add_argument("--context", required=True, help="Path to context.yaml from context_builder_agent.py")
-    parser.add_argument("--output", default=None, help="Output report path (default: <context_dir>/report.md)")
+    parser.add_argument("--context", required=True, help="Path to context.txt from context_builder_agent.py")
     args = parser.parse_args()
 
     context_path = os.path.abspath(args.context)
     context_dir = os.path.dirname(context_path)
-
-    if args.output:
-        output_path = os.path.abspath(args.output)
-    else:
-        base = os.path.splitext(os.path.basename(context_path))[0]
-        output_path = os.path.join(context_dir, base.replace("_context", "_report") + ".md")
+    output_path = os.path.join(context_dir, "report.md")
 
     print(f"  Context:   {context_path}", file=sys.stderr)
     print(f"  Report:    {output_path}", file=sys.stderr)

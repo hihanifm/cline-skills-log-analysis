@@ -3,11 +3,6 @@ workflow: ims-pcap-troubleshooting
 skill: workflow-orchestrator
 description: IMS/VoLTE network capture analysis — SIP signaling and DNS for call and registration issues
 
-output:
-  # Relative subdirectory under WORKFLOW_OUTPUT_DIR (if set),
-  # otherwise relative to the input file location.
-  dir: ./ims-pcap-analysis-output
-  filename: "ims_pcap_{{timestamp}}.txt"
 
 default_max_lines: 200
 
