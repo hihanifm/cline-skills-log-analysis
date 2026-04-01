@@ -24,6 +24,8 @@ import re
 import sys
 from datetime import datetime
 
+from config import get_llm_config
+
 
 # ── .env loader ───────────────────────────────────────────────────────────────
 
@@ -65,8 +67,12 @@ def resolve_env(args_env: str = None) -> dict:
             print(f"  Loaded .env from: {c}", file=sys.stderr)
             break
 
-    # os.environ overrides .env
-    for key in ("ANTHROPIC_API_KEY", "LLM_BACKEND"):
+    # os.environ overrides .env; which keys we care about come from config.
+    llm_cfg = get_llm_config()
+    api_key_env = llm_cfg.get("api_key_env", "ANTHROPIC_API_KEY")
+    backend_key = "LLM_BACKEND"
+
+    for key in (api_key_env, backend_key):
         if key in os.environ:
             env[key] = os.environ[key]
 
@@ -236,8 +242,12 @@ def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 10
 # ── Report writer ─────────────────────────────────────────────────────────────
 
 def write_report(context: dict, output_path: str, env: dict):
-    backend = env.get("LLM_BACKEND", "cline").lower()
-    api_key = env.get("ANTHROPIC_API_KEY", "")
+    llm_cfg = get_llm_config()
+    default_backend = str(llm_cfg.get("backend", "cline")).lower()
+    api_key_env = llm_cfg.get("api_key_env", "ANTHROPIC_API_KEY")
+
+    backend = env.get("LLM_BACKEND", default_backend).lower()
+    api_key = env.get(api_key_env, "")
 
     if backend == "anthropic" and not api_key:
         print("  [WARN] LLM_BACKEND=anthropic but ANTHROPIC_API_KEY not set. "

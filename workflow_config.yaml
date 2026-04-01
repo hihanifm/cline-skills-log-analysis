@@ -1,0 +1,18 @@
+llm:
+  # Default backend for log_synthesizer_agent:
+  # - "cline"     → write SUMMARY_PROMPT markers for Cline to fill
+  # - "anthropic" → call Anthropic API directly
+  backend: cline
+
+  # Name of the environment variable that holds the Anthropic API key.
+  api_key_env: ANTHROPIC_API_KEY
+
+output:
+  # Name of the environment variable that, if set, overrides the base directory
+  # for all workflow outputs (context files, reports, etc.).
+  base_dir_env: WORKFLOW_OUTPUT_DIR
+
+  # Default base directory (relative to the repo root) when base_dir_env is not set.
+  # Individual workflows still append their own "output.dir" subdirectory.
+  default_base: ./workflow-output
+

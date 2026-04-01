@@ -35,6 +35,7 @@ if _HERE not in _sys.path:
 
 import yaml_utils
 from workflow_paths import ensure_output_dir, resolve_output_dir
+from config import resolve_output_base
 
 
 # ── Skill module loader ───────────────────────────────────────────────────────
@@ -241,8 +242,11 @@ def main():
     else:
         md_subdir = output_cfg.get("dir", "./output")
         # Historically, relative paths were resolved under the input directory.
-        default_base = Path(os.path.dirname(input_path))
-        out_dir_path = resolve_output_dir(md_subdir, default_base=default_base)
+        historical_base = Path(os.path.dirname(input_path))
+        # Allow central config/env to override the historical base while keeping
+        # per-workflow subdirectories the same.
+        effective_base = resolve_output_base(historical_base)
+        out_dir_path = resolve_output_dir(md_subdir, default_base=effective_base)
 
     out_dir_path = ensure_output_dir(out_dir_path)
 
