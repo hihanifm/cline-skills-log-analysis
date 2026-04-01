@@ -1,0 +1,51 @@
+id: dns
+description: DNS query and response patterns for network connectivity analysis
+
+patterns:
+  - id: dns_queries
+    filter: "dns"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - dns.qry.name
+      - dns.qry.type
+      - dns.resp.name
+      - dns.a
+      - dns.flags.rcode
+    description: >
+      All DNS queries and responses. Useful for identifying connectivity issues,
+      slow DNS resolution, or NXDOMAIN failures for IMS/carrier hostnames.
+    summary_prompt: >
+      Identify any DNS failures (NXDOMAIN, SERVFAIL), slow responses (>1s),
+      or repeated retries. Note any carrier or IMS-related hostnames
+      (e.g. ims.*, pcscf.*, volte.*) that failed to resolve.
+
+  - id: dns_failures
+    filter: "dns.flags.rcode != 0"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - dns.qry.name
+      - dns.flags.rcode
+    description: >
+      DNS error responses only. rcode 3 = NXDOMAIN (hostname not found),
+      rcode 2 = SERVFAIL (server error). Failures on IMS hostnames prevent
+      VoLTE registration.
+    summary_prompt: >
+      List all DNS failures. For each, note the queried hostname and error
+      code. Flag any IMS or carrier-related hostnames as high priority.
+
+  - id: dns_ims_lookup
+    filter: "dns and (dns.qry.name contains \"ims\" or dns.qry.name contains \"pcscf\" or dns.qry.name contains \"volte\" or dns.qry.name contains \"epdg\")"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - dns.qry.name
+      - dns.a
+      - dns.flags.rcode
+    description: >
+      DNS lookups for IMS-related hostnames (ims.*, pcscf.*, volte.*, epdg.*).
+      Failed resolution of these prevents VoLTE and Wi-Fi calling.

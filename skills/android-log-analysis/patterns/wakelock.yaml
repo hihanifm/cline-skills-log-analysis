@@ -1,0 +1,29 @@
+id: wakelock
+description: WakeLock acquisition, release, and leak detection patterns
+
+patterns:
+  - id: wakelock_lifecycle
+    pattern: "WakeLock.*(acquire|release|LEAK)"
+    context_lines: 5
+    description: >
+      WakeLock acquire/release cycles. A LEAK indicates a wakelock was acquired
+      but never released — a common cause of battery drain and device staying awake.
+    post_process: decode_wakelock.py
+    summary_prompt: >
+      Analyze these WakeLock entries. Identify any leaked wakelocks (acquired but
+      never released), note the wakelock tags involved, estimate how long each was
+      held if possible, and flag any held longer than 60 seconds as suspicious.
+
+  - id: wakelock_timeout
+    pattern: "WakeLock.*timeout"
+    context_lines: 3
+    description: >
+      WakeLock timeout events. Indicates a wakelock was held until it timed out
+      rather than being explicitly released — may indicate stuck wakelocks.
+
+  - id: wakelock_held
+    pattern: "WakeLock.*held.*ms"
+    context_lines: 3
+    description: >
+      WakeLock held duration reports. Look for unusually long hold times
+      that correlate with battery drain periods.

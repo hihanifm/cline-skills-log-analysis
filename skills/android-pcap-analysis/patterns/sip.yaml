@@ -1,0 +1,61 @@
+id: sip
+description: SIP (Session Initiation Protocol) signaling patterns for IMS/VoLTE analysis
+
+patterns:
+  - id: sip_transactions
+    filter: "sip"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - sip.Method
+      - sip.r-uri
+      - sip.Status-Code
+      - sip.Status-Phrase
+      - sip.CSeq
+    description: >
+      All SIP messages — full signaling flow including INVITE, REGISTER,
+      BYE, ACK, CANCEL, OPTIONS and their responses. Essential for tracing
+      call setup and teardown.
+    post_process: decode_sip.py
+    summary_prompt: >
+      Analyze this SIP signaling flow. Identify: (1) whether registration
+      succeeded, (2) any call attempts and their outcomes, (3) any error
+      responses (4xx/5xx/6xx) and what they indicate, (4) any retransmissions
+      suggesting network issues.
+
+  - id: sip_errors
+    filter: "sip.Status-Code >= 400"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - sip.Status-Code
+      - sip.Status-Phrase
+      - sip.CSeq
+      - sip.Call-ID
+    description: >
+      SIP error responses only (4xx client errors, 5xx server errors, 6xx
+      global failures). 403=Forbidden, 480=Temporarily Unavailable,
+      486=Busy, 503=Service Unavailable.
+    summary_prompt: >
+      List each SIP error, explain what it means in plain language, and
+      indicate whether it suggests a device, network, or server-side issue.
+
+  - id: sip_register
+    filter: "sip.Method == \"REGISTER\" or sip.Status-Code"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - sip.Method
+      - sip.Status-Code
+      - sip.Status-Phrase
+      - sip.Authorization
+      - sip.contact_addr
+    description: >
+      SIP REGISTER messages and responses. Tracks IMS registration attempts,
+      authentication challenges (401), and registration success (200 OK).

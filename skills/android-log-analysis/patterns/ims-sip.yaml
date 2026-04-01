@@ -1,0 +1,41 @@
+id: ims-sip
+description: IMS (IP Multimedia Subsystem) SIP signaling and registration patterns
+
+patterns:
+  - id: ims_registration
+    pattern: "IMS.*(register|REGISTER|registered|deregister|unregister)"
+    context_lines: 5
+    description: >
+      IMS registration and deregistration events. Tracks whether the device
+      successfully registers with the IMS core network.
+    post_process: decode_carriers.py
+    summary_prompt: >
+      Summarize IMS registration events. Did registration succeed? Were there
+      any failures or repeated deregistration/re-registration cycles?
+      Note any carrier-specific identifiers.
+
+  - id: ims_sip_transactions
+    pattern: "IMS.*(INVITE|REGISTER|BYE|ACK|CANCEL|OPTIONS|NOTIFY|SUBSCRIBE)"
+    context_lines: 5
+    description: >
+      IMS SIP method transactions. Captures the SIP signaling flow for
+      calls and registrations including request/response lines.
+    post_process: decode_carriers.py
+
+  - id: ims_errors
+    pattern: "IMS.*(error|fail|exception|ERROR|FAIL|503|403|480|486)"
+    context_lines: 5
+    description: >
+      IMS errors and SIP failure responses. 4xx/5xx status codes indicate
+      call or registration failures at the network level.
+    summary_prompt: >
+      List all IMS errors found. For each, note the SIP error code, the
+      operation that failed (registration, call setup, etc.), and any
+      pattern of repeated failures.
+
+  - id: ims_call_state
+    pattern: "ImsCall.*(start|terminate|hold|resume|merge|CONNECTED|DISCONNECTED)"
+    context_lines: 3
+    description: >
+      IMS call state machine transitions. Tracks call lifecycle from
+      setup through teardown.

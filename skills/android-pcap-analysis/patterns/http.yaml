@@ -1,0 +1,50 @@
+id: http
+description: HTTP/HTTPS request and response patterns for connectivity and API analysis
+
+patterns:
+  - id: http_requests
+    filter: "http.request"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - http.request.method
+      - http.request.uri
+      - http.host
+      - http.user_agent
+    description: >
+      All HTTP requests. Useful for tracing what the device is communicating
+      with, identifying unexpected connections, or verifying provisioning requests.
+
+  - id: http_errors
+    filter: "http.response.code >= 400"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - http.response.code
+      - http.response.phrase
+      - http.request.uri
+    description: >
+      HTTP error responses (4xx client errors, 5xx server errors).
+      Useful for identifying failed provisioning, OTA updates, or
+      carrier service requests.
+    summary_prompt: >
+      List each HTTP error, the URL that triggered it, and what it likely
+      means in the context of Android carrier services or app connectivity.
+
+  - id: http2_streams
+    filter: "http2"
+    fields:
+      - frame.number
+      - frame.time_relative
+      - ip.src
+      - ip.dst
+      - http2.streamid
+      - http2.header.name
+      - http2.header.value
+    description: >
+      HTTP/2 streams. Modern Android apps and carrier services use HTTP/2.
+      Captures header frames including :method, :path, :status fields.

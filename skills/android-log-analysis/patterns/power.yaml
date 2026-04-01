@@ -1,0 +1,34 @@
+id: power
+description: PowerManager, BatteryStats, and battery drain patterns
+
+patterns:
+  - id: battery_stats
+    pattern: "BatteryStats.*(discharge|drain|level|charging|plugged)"
+    context_lines: 3
+    description: >
+      BatteryStatsImpl discharge and charging state events. Captures level changes,
+      discharge start/stop, and plug/unplug events.
+    summary_prompt: >
+      Summarize the battery level changes shown. Note the discharge rate, any
+      rapid drops, and charging events. Flag if discharge rate exceeds 2%/hr at idle.
+
+  - id: power_manager_state
+    pattern: "PowerManager.*(suspend|wakeup|screen|goToSleep|wakeUp)"
+    context_lines: 3
+    description: >
+      PowerManager screen and suspend state transitions. Tracks when device
+      sleeps, wakes, and screen on/off events.
+
+  - id: doze_mode
+    pattern: "(DeviceIdleController|Doze).*(enter|exit|idle|light)"
+    context_lines: 3
+    description: >
+      Doze mode enter/exit events. Unexpected Doze exits indicate something
+      is preventing the device from staying in low-power state.
+
+  - id: battery_drain_rate
+    pattern: "drain_rate|mDischargeRateAdjusted|mDischargeCurrentLevel"
+    context_lines: 3
+    description: >
+      Battery drain rate metrics from BatteryStats. High values indicate
+      aggressive power consumption by apps or hardware.

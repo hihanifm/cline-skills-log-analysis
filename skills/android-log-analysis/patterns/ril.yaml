@@ -1,0 +1,47 @@
+id: ril
+description: RIL (Radio Interface Layer) network, data, and call handling patterns
+
+patterns:
+  - id: ril_requests
+    pattern: "RIL.*(REQUEST|RESPONSE).*(CALL|DATA|NETWORK|SIGNAL|EMERGENCY)"
+    context_lines: 3
+    description: >
+      RIL request/response pairs for calls, data, and network operations.
+      Tracks the radio layer command flow.
+    post_process: decode_ril.py
+
+  - id: ril_errors
+    pattern: "RIL.*(error|fail|exception|ERROR|GENERIC_FAILURE|PDP_FAIL)"
+    context_lines: 5
+    description: >
+      RIL layer errors and data call failures. PDP_FAIL codes indicate
+      why a data connection was rejected by the network.
+    post_process: decode_ril.py
+    summary_prompt: >
+      List all RIL errors. Decode any PDP_FAIL codes to their human-readable
+      meaning and indicate if they suggest a network, SIM, or device issue.
+
+  - id: ril_network_state
+    pattern: "RIL.*(NETWORK_STATE|REGISTRATION|VOICE_REGISTRATION|DATA_REGISTRATION)"
+    context_lines: 3
+    description: >
+      RIL network and registration state changes. Tracks voice and data
+      registration status including roaming state.
+    post_process: decode_ril.py
+
+  - id: ril_signal
+    pattern: "RIL.*(SIGNAL_STRENGTH|rssi|rsrp|rsrq|sinr|SIGNAL)"
+    context_lines: 3
+    description: >
+      RIL signal strength reports. Low RSRP (< -110 dBm) or poor SINR
+      indicates weak coverage that can cause call or data failures.
+    summary_prompt: >
+      Summarize signal strength over time. Note minimum, maximum, and average
+      values. Flag any periods where RSRP drops below -110 dBm or SINR below 0 dB.
+
+  - id: ril_emergency
+    pattern: "RIL.*(EMERGENCY|emergency|E911|SOS)"
+    context_lines: 5
+    description: >
+      RIL emergency call handling. Captures emergency call setup requests
+      and the radio layer responses.
