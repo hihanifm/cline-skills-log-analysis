@@ -45,7 +45,7 @@ Progress messages go to stderr; the output file path goes to stdout (for Cline t
 **`workflow_config.yaml`** (repo root) — central config for LLM backend and output directories. Loaded by `config.py`, which caches and merges it with built-in defaults.
 
 Key settings:
-- `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `anthropic` (calls API directly)
+- `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `anthropic` (calls API directly). Override at runtime with the `LLM_BACKEND` env var.
 - `llm.api_key_env`: env var name for the Anthropic API key (default: `ANTHROPIC_API_KEY`)
 - `output.base_dir_env`: env var that overrides the output base dir (default: `WORKFLOW_OUTPUT_DIR`)
 - `output.default_base`: fallback base dir when env var is not set (default: `./workflow-output`)

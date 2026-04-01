@@ -61,7 +61,8 @@ Run the synthesizer against the context file:
 
 ```
 python3 ~/.cline/skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
-  --context <context_yaml_path>
+  --context <context_yaml_path> \
+  [--output <report_path>]
 ```
 
 Capture stdout — it prints the path to the generated report `.md` file.

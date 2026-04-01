@@ -5,15 +5,14 @@ Reads context.yaml produced by context_builder_agent.py, generates
 per-pattern summaries and a final summary using either the Anthropic
 API or placeholder markers (for Cline to fill).
 
-LLM backend is resolved from .env:
-    LLM_BACKEND=anthropic   → calls Anthropic API directly
-    LLM_BACKEND=cline       → writes <!-- SUMMARY_PROMPT --> markers for Cline
+LLM backend is controlled by workflow_config.yaml (llm.backend) or the
+LLM_BACKEND environment variable. API key is read from the environment
+variable named by llm.api_key_env (default: ANTHROPIC_API_KEY).
 
 Usage:
     python3 log_synthesizer_agent.py \
         --context /path/to/context.yaml \
-        [--output /path/to/final_report.md] \
-        [--env /path/to/.env]
+        [--output /path/to/final_report.md]
 
 Prints final report path to stdout. Progress goes to stderr.
 """
@@ -43,58 +42,6 @@ if _SHARED not in sys.path:
     sys.path.insert(0, _SHARED)
 
 from config import get_llm_config
-
-
-# ── .env loader ───────────────────────────────────────────────────────────────
-
-def load_env(env_path: str) -> dict:
-    """Load key=value pairs from a .env file. Returns dict."""
-    env = {}
-    if not os.path.isfile(env_path):
-        return env
-    with open(env_path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "=" in line:
-                key, _, val = line.partition("=")
-                env[key.strip()] = val.strip().strip('"').strip("'")
-    return env
-
-
-def resolve_env(args_env: str = None) -> dict:
-    """
-    Search for .env file: args_env → workflow dir → project root → home.
-    Merge with os.environ (os.environ takes precedence).
-    """
-    candidates = []
-    if args_env:
-        candidates.append(args_env)
-
-    # Walk up from this script's location
-    here = os.path.dirname(os.path.abspath(__file__))
-    for _ in range(4):
-        candidates.append(os.path.join(here, ".env"))
-        here = os.path.dirname(here)
-
-    env = {}
-    for c in candidates:
-        if os.path.isfile(c):
-            env = load_env(c)
-            print(f"  Loaded .env from: {c}", file=sys.stderr)
-            break
-
-    # os.environ overrides .env; which keys we care about come from config.
-    llm_cfg = get_llm_config()
-    api_key_env = llm_cfg.get("api_key_env", "ANTHROPIC_API_KEY")
-    backend_key = "LLM_BACKEND"
-
-    for key in (api_key_env, backend_key):
-        if key in os.environ:
-            env[key] = os.environ[key]
-
-    return env
 
 
 # ── Minimal context YAML reader ───────────────────────────────────────────────
@@ -259,13 +206,13 @@ def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 10
 
 # ── Report writer ─────────────────────────────────────────────────────────────
 
-def write_report(context: dict, output_path: str, env: dict):
+def write_report(context: dict, output_path: str):
     llm_cfg = get_llm_config()
     default_backend = str(llm_cfg.get("backend", "cline")).lower()
     api_key_env = llm_cfg.get("api_key_env", "ANTHROPIC_API_KEY")
 
-    backend = env.get("LLM_BACKEND", default_backend).lower()
-    api_key = env.get(api_key_env, "")
+    backend = os.environ.get("LLM_BACKEND", default_backend).lower()
+    api_key = os.environ.get(api_key_env, "")
 
     if backend == "anthropic" and not api_key:
         print("  [WARN] LLM_BACKEND=anthropic but ANTHROPIC_API_KEY not set. "
@@ -383,7 +330,6 @@ def main():
     parser = argparse.ArgumentParser(description="Synthesize log analysis context into a report.")
     parser.add_argument("--context", required=True, help="Path to context.yaml from context_builder_agent.py")
     parser.add_argument("--output", default=None, help="Output report path (default: <context_dir>/report.md)")
-    parser.add_argument("--env", default=None, help="Path to .env file")
     args = parser.parse_args()
 
     context_path = os.path.abspath(args.context)
@@ -398,9 +344,8 @@ def main():
     print(f"  Context:   {context_path}", file=sys.stderr)
     print(f"  Report:    {output_path}", file=sys.stderr)
 
-    env = resolve_env(args.env)
     context = load_context_yaml(context_path)
-    write_report(context, output_path, env)
+    write_report(context, output_path)
 
     total = len(context.get("sections", []))
     matched = sum(1 for s in context.get("sections", []) if s.get("match_count", 0) > 0)
