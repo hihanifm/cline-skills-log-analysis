@@ -30,7 +30,7 @@ One Python dependency: `PyYAML` (used by `yaml_utils.py`). All other scripts use
 ```bash
 # Step 1: Build context (prints context.yaml path to stdout)
 python3 skills/workflow-orchestrator/scripts/context_builder_agent.py \
-  --workflow workflows/battery-troubleshooting.md \
+  --workflow skills/workflow-creator/examples/battery-troubleshooting.md \
   --input /path/to/logcat.txt
 
 # Step 2: Synthesize report (prints report.md path to stdout)
@@ -69,8 +69,8 @@ Each skill has a `SKILL.md` (instructions for Cline) and a `scripts/` directory.
 ### Templates (`templates/`)
 Reusable YAML filter definitions shared across workflows via `include:` in workflow frontmatter. Resolved relative to the workflow file at runtime, so templates can live anywhere.
 
-### Workflows (`workflows/`)
-Markdown files with YAML frontmatter consumed by `context_builder_agent.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, `output` path config, and `final_summary_prompt`.
+### Workflows (`skills/workflow-creator/examples/`)
+Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, `output` path config, and `final_summary_prompt`.
 
 ### Post-processing scripts (stdin → stdout contract)
 All decode/format scripts read from stdin and write to stdout, and optionally accept `--source-file <path>` for multi-pass use. Shared scripts live in `skills/*/scripts/`; workflow-specific post-processing scripts (e.g. `decode_wakelock.py`, `decode_ril.py`) live in `workflows/scripts/`.

@@ -15,8 +15,8 @@ input:
   - path: "*.pcap"
     skill: android-pcap-analysis
     include:
-      - ../templates/pcap/sip.yaml
-      - ../templates/pcap/dns.yaml
+      - ../../templates/pcap/sip.yaml
+      - ../../templates/pcap/dns.yaml
     templates:
       - id: ims_registration_flow
         filter: "sip.Method == \"REGISTER\" or (sip.Status-Code and sip.CSeq contains \"REGISTER\")"
@@ -66,8 +66,8 @@ input:
   - path: "*.pcapng"
     skill: android-pcap-analysis
     include:
-      - ../templates/pcap/sip.yaml
-      - ../templates/pcap/dns.yaml
+      - ../../templates/pcap/sip.yaml
+      - ../../templates/pcap/dns.yaml
     templates:
       - id: ims_registration_flow
         filter: "sip.Method == \"REGISTER\" or (sip.Status-Code and sip.CSeq contains \"REGISTER\")"

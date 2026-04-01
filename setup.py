@@ -29,7 +29,7 @@ import argparse
 SKILLS = ["android-log-analysis", "android-pcap-analysis", "template-engine", "workflow-orchestrator"]
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SKILLS_SRC = os.path.join(REPO_ROOT, "skills")
-WORKFLOWS_SRC = os.path.join(REPO_ROOT, "workflows")
+WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "workflow-creator", "examples")
 
 # Shared Python modules copied into workflow-orchestrator/scripts/ so the
 # deployed skill can import them without needing the repo on sys.path.
