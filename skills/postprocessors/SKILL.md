@@ -4,7 +4,7 @@ description: >-
   Collection of post-processing scripts that transform raw filter output
   (ripgrep lines or tshark rows) into structured, human-readable form before
   LLM synthesis. Referenced by name via post_process: in template pattern
-  definitions. Not invoked directly — used automatically by the pipeline.
+  definitions. Also use this skill to create a new post-processor script.
 ---
 
 # Postprocessors Skill
@@ -66,10 +66,85 @@ with timing, and highlights error responses (4xx/5xx/6xx).
 
 ---
 
-## Adding a New Post-Processor
+## Creating a New Post-Processor
 
-1. Create `skills/postprocessors/scripts/<name>.py`
-2. Script must read from **stdin** and write to **stdout**
-3. Optionally accept `--source-file <path>` for multi-pass use
-4. Reference it in a template pattern: `post_process: <name>.py`
-5. Run `setup.py` to deploy
+### Step 1 — Understand the Transformation
+
+Before writing, clarify:
+- What template pattern will this pair with?
+- What does the raw filter output look like? (log lines, tshark pipe-delimited rows, etc.)
+- What should the output look like? (paired events, decoded codes, reformatted table, etc.)
+
+### Step 2 — Choose a Name
+
+Follow the convention: `decode_<feature>.py`
+(e.g. `decode_bluetooth.py`, `decode_gps.py`, `decode_rtp.py`)
+
+### Step 3 — Write the Script
+
+Write `skills/postprocessors/scripts/<name>.py` following this contract:
+
+**Required:**
+- Reads from `sys.stdin`
+- Writes to `sys.stdout`
+- Progress/debug messages go to `sys.stderr`
+- No external dependencies — stdlib only
+
+**Optional but recommended:**
+- Accept `--source-file <path>` for multi-pass use
+- Append a summary/legend section at the end (see `decode_ril.py` for a
+  LEGEND pattern, `decode_wakelock.py` for an ANALYSIS summary pattern)
+
+**Script skeleton:**
+```python
+"""
+decode_<feature>.py — <one-line description>.
+"""
+
+import sys
+
+
+def main():
+    lines = sys.stdin.read().splitlines()
+    out = []
+
+    for line in lines:
+        # transform line
+        out.append(line)
+
+    # optional: append summary section
+    # out.append("")
+    # out.append("=== FEATURE ANALYSIS ===")
+
+    print("\n".join(out))
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### Step 4 — Test (if sample input available)
+
+```
+echo "<sample_lines>" | python3 skills/postprocessors/scripts/<name>.py
+```
+
+### Step 5 — Update This Catalogue
+
+Add an entry under **Available Post-Processors** above:
+
+```markdown
+### `<name>.py`
+**Pairs with:** `<template_id>` templates (`post_process: <name>.py`)
+
+<What it decodes, what it appends, what to look for in the output.>
+```
+
+### Step 6 — Wire It Up
+
+Reference it in your template pattern:
+```yaml
+post_process: <name>.py
+```
+
+Then run `python3 setup.py --skip-cli` to deploy.
