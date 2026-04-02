@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Purpose
 
 Android log and PCAP network capture analysis system for Cline (VS Code AI assistant). Uses a two-stage pipeline:
-1. **Deterministic context builder** — ripgrep/tshark filters log/PCAP files into a structured `context.yaml`
-2. **LLM synthesizer** — reads `context.yaml` and produces a human-readable markdown report
+1. **Deterministic context builder** — ripgrep/tshark filters log/PCAP files into a structured `context.txt`
+2. **LLM synthesizer** — reads `context.txt` and produces a human-readable markdown report
 
 ## Setup & Installation
 
@@ -48,16 +48,16 @@ Key settings:
 - `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `anthropic` (calls API directly). Override at runtime with the `LLM_BACKEND` env var.
 - `llm.api_key_env`: env var name for the Anthropic API key (default: `ANTHROPIC_API_KEY`)
 
-Output is always written to `out/<workflow-name>/` relative to the working directory:
+Output is written to `out/<workflow-name>/` relative to the working directory. If that directory already exists, a new one is created (`out/<workflow-name>-2/`, `-3/`, etc.) so previous runs are preserved:
 - `out/<workflow-name>/context.txt` — structured filter context
 - `out/<workflow-name>/report.md` — synthesized report
+- `out/<workflow-name>/errors.txt` — warnings and errors (only written if issues occurred)
 
 ## Architecture
 
 ### Shared Python modules (repo root)
 - **`yaml_utils.py`** — PyYAML wrapper: `load_yaml()`, `load_yaml_frontmatter()`, `write_yaml()`. All callers use this instead of importing PyYAML directly.
-- **`config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()`, `get_output_config()`, `resolve_output_base()`.
-- **`workflow_paths.py`** — Output path helpers: `resolve_output_dir()` (env+config-aware), `ensure_output_dir()`.
+- **`config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()`.
 
 ### Skills (`skills/`)
 Each skill has a `SKILL.md` (instructions for Cline) and a `scripts/` directory. Four skills:
@@ -70,7 +70,7 @@ Each skill has a `SKILL.md` (instructions for Cline) and a `scripts/` directory.
 Reusable YAML filter definitions packaged inside the `template-engine` skill. Deployed to `~/.cline/skills/template-engine/templates/` automatically by `setup.py`. Workflows reference them with short paths (`log/wakelock.yaml`) resolved by `template_runner.load_template()` against the deployed skill dir.
 
 ### Workflows (`skills/workflow-creator/examples/`)
-Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, `output` path config, and `final_summary_prompt`.
+Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, and `final_summary_prompt`.
 
 ### Post-processors (`skills/postprocessors/scripts/`)
 All decode/format scripts read from stdin and write to stdout, and optionally accept `--source-file <path>` for multi-pass use. Packaged in the `postprocessors` skill and deployed to `~/.cline/skills/postprocessors/scripts/`. Referenced by filename only in template pattern definitions via `post_process:`.
