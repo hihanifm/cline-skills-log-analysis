@@ -45,6 +45,7 @@ if _SHARED not in sys.path:
     sys.path.insert(0, _SHARED)
 
 import yaml_utils
+from config import get_output_config
 
 
 # ── Project dir helper ───────────────────────────────────────────────────────
@@ -257,11 +258,14 @@ def main():
     workflow_name = config.get("workflow", os.path.splitext(os.path.basename(workflow_path))[0])
     default_max = args.max_lines or config.get("default_max_lines", 200)
 
-    # Output goes to out/<workflow-name>/ or out/<workflow-name>-2/, -3/, etc.
-    # if the directory already exists (preserves previous runs).
+    # Output directory: out/<workflow-name>/
+    # If output.versioned=true (default), create out/<workflow-name>-2/, -3/, etc.
+    # when the directory already exists so previous runs are preserved.
+    # If output.versioned=false, overwrite the same directory each run.
+    versioned = get_output_config().get("versioned", True)
     base_dir = Path("out") / workflow_name
     out_dir = base_dir
-    if out_dir.exists():
+    if versioned and out_dir.exists():
         n = 2
         while True:
             candidate = Path("out") / f"{workflow_name}-{n}"

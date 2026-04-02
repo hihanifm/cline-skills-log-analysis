@@ -67,3 +67,14 @@ def get_llm_config() -> Dict[str, Any]:
     """
     return _load_raw_config().get("llm", {})
 
+
+def get_output_config() -> Dict[str, Any]:
+    """
+    Return output-related configuration.
+
+    Keys:
+        versioned: bool — if True, create numbered dirs (out/<name>-2/, etc.)
+                          if False, overwrite the same dir each run (default: True)
+    """
+    return _load_raw_config().get("output", {})
+
