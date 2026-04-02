@@ -37,16 +37,19 @@ if _SHARED not in sys.path:
 
 import yaml_utils
 
-# Template search dirs for skill-packaged templates.
-# Deployed: ~/.cline/skills/template-engine/templates/
-# Dev:      <repo>/skills/template-engine/templates/
-_SKILL_ROOT_DEPLOYED = os.path.join(
-    os.path.expanduser("~"), ".cline", "skills", "template-engine"
+# Template search dirs — templates live in the template-library skill, not here.
+# Deployed: ~/.cline/skills/template-library/templates/
+# Dev:      <repo>/skills/template-library/templates/
+_LIB_ROOT_DEPLOYED = os.path.join(
+    os.path.expanduser("~"), ".cline", "skills", "template-library"
 )
-_SKILL_ROOT_DEV = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_LIB_ROOT_DEV = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "..", "template-library"
+)
 _SKILL_TEMPLATE_DIRS = [
-    os.path.join(_SKILL_ROOT_DEPLOYED, "templates"),
-    os.path.join(_SKILL_ROOT_DEV, "templates"),
+    os.path.join(_LIB_ROOT_DEPLOYED, "templates"),
+    os.path.normpath(os.path.join(_LIB_ROOT_DEV, "templates")),
 ]
 
 
@@ -106,8 +109,8 @@ def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
     Resolution order for relative paths:
       1. Relative to base_dir (workflow file's directory)
       2. Relative to project repo log-templates/ (walked up from base_dir)
-      3. Relative to ~/.cline/skills/template-engine/templates/ (deployed)
-      4. Relative to <repo>/skills/template-engine/templates/ (dev)
+      3. Relative to ~/.cline/skills/template-library/templates/ (deployed)
+      4. Relative to <repo>/skills/template-library/templates/ (dev)
 
     If errors list is provided, warnings/errors are appended to it in addition
     to being printed to stderr.

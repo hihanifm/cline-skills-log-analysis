@@ -29,7 +29,7 @@ Ask the developer:
 
 ## Step 2 — Discover Available Templates
 
-List the contents of `log-templates/log/` and `log-templates/pcap/` in the project repo, and also `~/.cline/skills/template-engine/templates/log/` and `templates/pcap/` for shared defaults. For each YAML file
+List the contents of `log-templates/log/` and `log-templates/pcap/` in the project repo, and also `~/.cline/skills/template-library/templates/log/` and `~/.cline/skills/template-library/templates/pcap/` for shared defaults. For each YAML file
 found, read its `id` and `description` fields and show the developer a summary:
 
 ```

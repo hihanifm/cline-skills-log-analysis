@@ -26,8 +26,8 @@ Search the following directories in order. Read every `.yaml` file found.
 - `log-templates/pcap/` — relative to the current working directory
 
 **Shared defaults (deployed):**
-- `~/.cline/skills/template-engine/templates/log/`
-- `~/.cline/skills/template-engine/templates/pcap/`
+- `~/.cline/skills/template-library/templates/log/`
+- `~/.cline/skills/template-library/templates/pcap/`
 
 For each YAML file found, read its contents and extract:
 - `templates[*].id` — the template ID (used in `include:`)
