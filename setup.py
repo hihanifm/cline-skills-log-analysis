@@ -31,9 +31,13 @@ REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SKILLS_SRC = os.path.join(REPO_ROOT, "skills")
 WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "workflow-creator", "examples")
 
-# Shared Python modules copied into workflow-orchestrator/scripts/ so the
-# deployed skill can import them without needing the repo on sys.path.
+# Shared Python modules copied into skill scripts/ dirs that import them.
+# Only skills that actually use these modules are listed here.
 SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_config.yaml"]
+SKILL_SHARED_MODULES = {
+    "template-engine":        ["yaml_utils.py"],
+    "workflow-orchestrator":  ["yaml_utils.py", "config.py", "workflow_config.yaml"],
+}
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -192,16 +196,15 @@ def install_skills():
         shutil.copytree(src, dst)
         ok(f"Installed skill: {skill} → {dst}")
 
-    # Copy shared Python modules into every skill's scripts/ dir so each script
-    # can be invoked standalone and find its dependencies immediately.
-    for skill in SKILLS:
+    # Copy shared Python modules only into skill script dirs that need them.
+    for skill, modules in SKILL_SHARED_MODULES.items():
         scripts_dir = os.path.join(dest_base, skill, "scripts")
         if os.path.isdir(scripts_dir):
-            for mod in SHARED_MODULES:
+            for mod in modules:
                 src = os.path.join(REPO_ROOT, mod)
                 if os.path.isfile(src):
                     shutil.copy2(src, os.path.join(scripts_dir, mod))
-    ok("Copied shared modules to all skill script dirs")
+    ok("Copied shared modules to skill script dirs")
 
 
 def install_workflows(dest):

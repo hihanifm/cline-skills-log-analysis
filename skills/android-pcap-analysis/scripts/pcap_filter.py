@@ -99,10 +99,6 @@ def filter_pcap(
 
     # Count data rows (exclude header line)
     all_lines = raw_output.splitlines(keepends=True)
-    data_lines = [l for l in all_lines if l.strip() and not all(
-        part.strip().replace(".", "").replace("_", "").isalpha()
-        for part in l.split("|")
-    )]
     total_matches = max(0, len(all_lines) - 1)  # subtract header row
 
     # Simple line cap (tshark output has no rg-style context blocks)
