@@ -21,7 +21,6 @@ Prints report path to stdout. Progress goes to stderr.
 
 import argparse
 import os
-import re
 import sys
 from datetime import datetime
 
@@ -43,128 +42,17 @@ _SHARED = _find_shared_modules_dir()
 if _SHARED not in sys.path:
     sys.path.insert(0, _SHARED)
 
+import yaml_utils
 from config import get_llm_config
 
 
-# ── Minimal context YAML reader ───────────────────────────────────────────────
+# ── Context reader ────────────────────────────────────────────────────────────
 
 def load_context_yaml(path: str) -> dict:
-    """
-    Read context.yaml. Uses a simple line-based parser for the known schema.
-    Handles the literal block scalar (|) for filtered_lines.
-    """
-    with open(path, encoding="utf-8") as f:
-        lines = f.readlines()
-
-    result = {"sections": []}
-    current_section = None
-    current_block_key = None
-    current_block_indent = None
-    current_block_lines = []
-    i = 0
-
-    def flush_block():
-        nonlocal current_block_key, current_block_lines, current_block_indent
-        if current_block_key and current_section is not None:
-            current_section[current_block_key] = "\n".join(current_block_lines)
-        elif current_block_key:
-            result[current_block_key] = "\n".join(current_block_lines)
-        current_block_key = None
-        current_block_lines = []
-        current_block_indent = None
-
-    while i < len(lines):
-        raw = lines[i].rstrip("\n")
-        stripped = raw.strip()
-        indent = len(raw) - len(raw.lstrip())
-
-        # Inside a literal block scalar
-        if current_block_key is not None:
-            if not stripped:
-                current_block_lines.append("")
-                i += 1
-                continue
-            if current_block_indent is None:
-                current_block_indent = indent
-            if indent >= current_block_indent:
-                current_block_lines.append(raw[current_block_indent:])
-                i += 1
-                continue
-            else:
-                flush_block()
-                # Don't increment i — re-process this line
-                continue
-
-        if stripped.startswith("- input_glob:"):
-            flush_block()
-            if current_section is not None:
-                result["sections"].append(current_section)
-            val = _extract_val(stripped, "input_glob")
-            current_section = {"input_glob": val}
-            i += 1
-            continue
-
-        if stripped == "sections:":
-            i += 1
-            continue
-
-        key, val = _split_kv(stripped)
-        if key is None:
-            i += 1
-            continue
-
-        if val == "|":
-            # Start of literal block scalar
-            current_block_key = key
-            current_block_lines = []
-            current_block_indent = None
-            i += 1
-            continue
-
-        parsed_val = _parse_val(val)
-
-        if current_section is not None and indent >= 4:
-            current_section[key] = parsed_val
-        else:
-            result[key] = parsed_val
-
-        i += 1
-
-    flush_block()
-    if current_section is not None:
-        result["sections"].append(current_section)
-
-    return result
-
-
-def _split_kv(line: str):
-    if ":" not in line:
-        return None, None
-    key, _, val = line.partition(":")
-    return key.strip(), val.strip()
-
-
-def _extract_val(line: str, key: str) -> str:
-    m = re.search(rf'{key}:\s*"?(.*?)"?\s*$', line)
-    return m.group(1) if m else ""
-
-
-def _parse_val(val: str):
-    if val in ("null", "~", ""):
-        return None
-    if val.lower() == "true":
-        return True
-    if val.lower() == "false":
-        return False
-    if val.startswith('"') and val.endswith('"'):
-        return val[1:-1]
-    if val.startswith("'") and val.endswith("'"):
-        return val[1:-1]
-    try:
-        return int(val)
-    except ValueError:
-        pass
-    return val
+    """Read context.txt produced by context_builder_agent.py."""
+    data = yaml_utils.load_yaml(path) or {}
+    data.setdefault("sections", [])
+    return data
 
 
 # ── Anthropic API caller ──────────────────────────────────────────────────────
