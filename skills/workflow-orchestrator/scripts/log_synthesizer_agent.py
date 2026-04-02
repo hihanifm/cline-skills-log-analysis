@@ -204,6 +204,25 @@ def write_report(context: dict, output_path: str):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
+    # Write summary.md — final summary only (anthropic mode only;
+    # in cline mode Cline fills the placeholder and writes summary.md itself)
+    if backend == "anthropic" and final_prompt:
+        summary_path = os.path.join(os.path.dirname(output_path), "summary.md")
+        summary_lines = [
+            f"# {workflow} — Summary",
+            f"",
+            f"**Input:** `{input_file}`",
+            f"**Generated:** {ts}",
+            f"",
+        ]
+        try:
+            idx = lines.index("## FINAL SUMMARY")
+            summary_lines += lines[idx + 2:]
+        except ValueError:
+            summary_lines.append("*(No final summary generated)*")
+        with open(summary_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(summary_lines) + "\n")
+
 
 def _cline_placeholder(pattern_id: str, prompt: str) -> str:
     """Write a placeholder marker for Cline to fill in."""

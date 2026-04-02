@@ -50,7 +50,8 @@ Key settings:
 
 Output is written to `out/<workflow-name>/` relative to the working directory. If that directory already exists, a new one is created (`out/<workflow-name>-2/`, `-3/`, etc.) so previous runs are preserved:
 - `out/<workflow-name>/context.txt` — structured filter context
-- `out/<workflow-name>/report.md` — synthesized report
+- `out/<workflow-name>/report.md` — full report with filtered log lines + summaries
+- `out/<workflow-name>/summary.md` — final summary only (no log lines)
 - `out/<workflow-name>/errors.txt` — warnings and errors (only written if issues occurred)
 
 ## Architecture
