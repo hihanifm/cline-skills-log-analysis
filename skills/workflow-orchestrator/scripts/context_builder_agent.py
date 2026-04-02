@@ -277,12 +277,15 @@ def main():
 
     # Process input entries
     sections = []
+    errors = []
     for input_entry in (config.get("input") or []):
         glob_pattern = input_entry.get("path", "*")
         matched_files = _resolve_input_files(input_path, glob_pattern)
 
         if not matched_files:
-            print(f"  [WARN] No files matched glob '{glob_pattern}'", file=sys.stderr)
+            msg = f"No files matched glob '{glob_pattern}'"
+            print(f"  [WARN] {msg}", file=sys.stderr)
+            errors.append(f"[WARN] {msg}")
             sections.append({
                 "input_glob": glob_pattern,
                 "source_file": "",
@@ -297,7 +300,11 @@ def main():
 
         # Resolve skill and patterns via template_runner
         skill_name = input_entry.get("skill")
-        all_patterns = template_runner.resolve_patterns(input_entry, workflow_dir)
+        all_patterns = template_runner.resolve_patterns(input_entry, workflow_dir, errors=errors)
+        if not all_patterns:
+            msg = f"No patterns resolved for glob '{glob_pattern}' — check include paths and template IDs."
+            print(f"  [WARN] {msg}", file=sys.stderr)
+            errors.append(f"[WARN] {msg}")
         if not skill_name:
             skill_name = "android-pcap-analysis" if any(
                 "filter" in p and "fields" in p for p in all_patterns
@@ -340,11 +347,29 @@ def main():
         "workflow": workflow_name,
         "input_file": input_path,
         "timestamp": datetime.now().isoformat(),
+        "default_max_lines": default_max,
         "sections": sections,
         "final_summary_prompt": config.get("final_summary_prompt"),
     }
 
     _write_context_yaml(context_path, context_data)
+
+    # Collect per-pattern errors from sections
+    for s in sections:
+        if s.get("error"):
+            errors.append(f"[ERROR] pattern '{s['pattern_id']}' in '{s['source_file']}': {s['error']}")
+
+    # Write errors.txt if any errors/warnings were collected
+    if errors:
+        errors_path = str(out_dir / "errors.txt")
+        with open(errors_path, "w", encoding="utf-8") as f:
+            f.write(f"Run: {datetime.now().isoformat()}\n")
+            f.write(f"Workflow: {workflow_path}\n")
+            f.write(f"Input: {input_path}\n")
+            f.write("\n")
+            for e in errors:
+                f.write(e + "\n")
+        print(f"  Errors:    {errors_path}", file=sys.stderr)
 
     total_matches = sum(s["match_count"] for s in sections)
     matched_patterns = sum(1 for s in sections if s["match_count"] > 0)

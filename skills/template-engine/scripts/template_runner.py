@@ -99,15 +99,18 @@ def load_skill_module(skill_name: str, module_name: str):
 
 # ── Template loading ──────────────────────────────────────────────────────────
 
-def load_template(path: str, base_dir: str = "") -> list:
+def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
     """
     Load a template YAML file and return its list of template entries.
 
     Resolution order for relative paths:
       1. Relative to base_dir (workflow file's directory)
-      2. Relative to project repo templates/ (walked up from base_dir)
+      2. Relative to project repo log-templates/ (walked up from base_dir)
       3. Relative to ~/.cline/skills/template-engine/templates/ (deployed)
       4. Relative to <repo>/skills/template-engine/templates/ (dev)
+
+    If errors list is provided, warnings/errors are appended to it in addition
+    to being printed to stderr.
     """
     if os.path.isabs(path):
         candidates = [path]
@@ -118,24 +121,31 @@ def load_template(path: str, base_dir: str = "") -> list:
 
     resolved = next((os.path.normpath(p) for p in candidates if os.path.isfile(p)), None)
     if resolved is None:
-        print(f"  [WARN] Template '{path}' not found, skipping.", file=sys.stderr)
+        msg = f"Template '{path}' not found, skipping."
+        print(f"  [WARN] {msg}", file=sys.stderr)
+        if errors is not None:
+            errors.append(f"[WARN] {msg}")
         return []
     try:
         data = yaml_utils.load_yaml(resolved) or {}
     except Exception as exc:
-        print(f"  [ERROR] Failed to parse template YAML '{resolved}': {exc}", file=sys.stderr)
+        msg = f"Failed to parse template YAML '{resolved}': {exc}"
+        print(f"  [ERROR] {msg}", file=sys.stderr)
+        if errors is not None:
+            errors.append(f"[ERROR] {msg}")
         return []
     return data.get("templates", [])
 
 
-def resolve_patterns(input_entry: dict, base_dir: str = "") -> list:
+def resolve_patterns(input_entry: dict, base_dir: str = "", errors: list = None) -> list:
     """
     Merge template entries from `include:` paths + inline `templates:` list.
     Inline entries win on id clash. Relative paths resolve against base_dir.
+    If errors list is provided, template load warnings are appended to it.
     """
     merged = {}
     for template_path in (input_entry.get("include") or []):
-        for p in load_template(template_path, base_dir):
+        for p in load_template(template_path, base_dir, errors=errors):
             merged[p["id"]] = p
     for p in (input_entry.get("templates") or []):
         merged[p["id"]] = p
