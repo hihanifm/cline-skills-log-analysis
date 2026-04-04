@@ -58,17 +58,26 @@ Output is written to `out/<workflow-name>/` relative to the working directory. I
 
 ### Shared Python modules (repo root)
 - **`yaml_utils.py`** — PyYAML wrapper: `load_yaml()`, `load_yaml_frontmatter()`, `write_yaml()`. All callers use this instead of importing PyYAML directly.
-- **`config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()`.
+- **`config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()` and `get_output_config()`.
 
 ### Skills (`skills/`)
-Each skill has a `SKILL.md` (instructions for Cline) and a `scripts/` directory. Four skills:
-- **`android-log-analysis`** — `log_filter.py` wraps ripgrep; returns `FilterResult` dataclass. Context-aware capping never orphans match context blocks.
-- **`android-pcap-analysis`** — `pcap_filter.py` wraps tshark with field extraction; simple line capping.
+Each skill has a `SKILL.md` (instructions for Cline) and an optional `scripts/` directory. Nine skills:
+- **`android-log-analysis`** — `log_filter.py` wraps ripgrep; returns `FilterResult` dataclass. `tail_lines.py` handles context-aware capping that never orphans match context blocks.
+- **`android-pcap-analysis`** — `pcap_filter.py` wraps tshark with field extraction; `tail_lines.py` handles simple line capping.
 - **`workflow-orchestrator`** — Cline-facing skill that orchestrates the two-script pipeline end-to-end. Contains `context_builder_agent.py` and `log_synthesizer_agent.py` in its `scripts/` directory.
 - **`template-engine`** — `template_runner.py` loads a template YAML, resolves `include:` paths + inline templates, auto-detects skill type (PCAP if template has both `filter` and `fields`; log otherwise), runs patterns.
+- **`template-library`** — Centralised reusable YAML templates (4 log, 3 pcap). Deployed to `~/.cline/skills/template-library/templates/`. No scripts directory.
+- **`postprocessors`** — 5 decode/format scripts: `decode_wakelock.py`, `decode_ril.py`, `decode_carriers.py`, `decode_timestamps.py`, `decode_sip.py`. All read stdin → stdout.
+- **`log-template-creator`** — Instructions-only skill. Guides authoring new log templates using `android-log-analysis` for pattern testing.
+- **`pcap-template-creator`** — Instructions-only skill. Guides authoring new PCAP templates using `android-pcap-analysis` for filter testing.
+- **`workflow-creator`** — Instructions-only skill + 3 example workflows in `examples/`. Guides end-to-end workflow authoring.
 
-### Templates (`skills/template-engine/templates/`)
-Reusable YAML filter definitions packaged inside the `template-engine` skill. Deployed to `~/.cline/skills/template-engine/templates/` automatically by `setup.py`. Workflows reference them with short paths (`log/wakelock.yaml`) resolved by `template_runner.load_template()` against the deployed skill dir.
+### Templates (`skills/template-library/templates/`)
+Reusable YAML filter definitions packaged in the `template-library` skill. Deployed to `~/.cline/skills/template-library/templates/` automatically by `setup.py`. Workflows reference them with short paths (`log/wakelock.yaml`) resolved by `template_runner.load_template()` against the deployed skill dir.
+
+Available templates:
+- **Log:** `log/wakelock.yaml`, `log/power.yaml`, `log/ril.yaml`, `log/ims-sip.yaml`
+- **PCAP:** `pcap/sip.yaml`, `pcap/dns.yaml`, `pcap/http.yaml`
 
 ### Workflows (`skills/workflow-creator/examples/`)
 Example workflow `.md` files with YAML frontmatter. Serve as both reference implementations for the `workflow-creator` skill and the actual workflows deployed to `~/Documents/Cline/Workflows/` by `setup.py`. The frontmatter defines `input` globs, which templates to `include`, any inline `templates`, and `final_summary_prompt`.
@@ -80,7 +89,9 @@ All decode/format scripts read from stdin and write to stdout, and optionally ac
 
 **New workflow:** Create `.clinerules/workflows/<name>.md` in the project repo. Invoke `workflow-creator` skill to be guided through it.
 
-**New template:** Create `log-templates/log/<name>.yaml` or `log-templates/pcap/<name>.yaml` in the project repo. Invoke `log-template-creator` or `pcap-template-creator` skill. Reference with short path `log/<name>.yaml` in workflow `include:`.
+**New log template:** Create `log-templates/log/<name>.yaml` in the project repo. Invoke `log-template-creator` skill to be guided through authoring and testing it. Reference with short path `log/<name>.yaml` in workflow `include:`.
+
+**New PCAP template:** Create `log-templates/pcap/<name>.yaml` in the project repo. Invoke `pcap-template-creator` skill to be guided through authoring and testing it. Reference with short path `pcap/<name>.yaml` in workflow `include:`.
 
 **New post-processor:** Create `log-postprocessors/<name>.py` in the project repo. Invoke `postprocessors` skill for guidance. Reference with `post_process: <name>.py` in a template pattern.
 

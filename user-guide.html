@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic Troubleshooting with Cline — User Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e8eaf0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .deck { width: 100%; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 52px 80px;
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: none;
+    }
+    .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+    .slide.exit   { opacity: 0; transform: translateX(-40px); }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 18px; z-index: 100;
+    }
+    .nav button {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      color: #e8eaf0; padding: 9px 22px; border-radius: 8px;
+      cursor: pointer; font-size: 13px; transition: background 0.2s;
+    }
+    .nav button:hover { background: rgba(255,255,255,0.14); }
+    .nav button:disabled { opacity: 0.28; cursor: default; }
+    .slide-counter { font-size: 12px; color: #555; min-width: 54px; text-align: center; }
+
+    .progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: #5b8af0; transition: width 0.35s ease; z-index: 100;
+    }
+
+    /* ── Shared layout ── */
+    .slide-header { width: 100%; margin-bottom: 32px; }
+    .slide-header .label {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 8px;
+    }
+    .slide-header h2 { font-size: 34px; font-weight: 700; color: #fff; }
+    .slide-header .rule {
+      width: 40px; height: 3px; background: #5b8af0;
+      margin-top: 12px; border-radius: 2px;
+    }
+
+    /* ── Slide 1: Title ── */
+    .s-title {
+      background: radial-gradient(ellipse at 55% 40%, #111d35 0%, #0f1117 68%);
+      text-align: center;
+    }
+    .s-title .eyebrow {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 18px;
+    }
+    .s-title h1 {
+      font-size: 48px; font-weight: 700; line-height: 1.18; margin-bottom: 18px;
+      background: linear-gradient(135deg, #fff 0%, #9eb4da 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .s-title .subtitle {
+      font-size: 17px; color: #8892a4; max-width: 560px;
+      line-height: 1.65; margin: 0 auto;
+    }
+    .s-title .audience {
+      margin-top: 36px;
+      background: rgba(91,138,240,0.08);
+      border: 1px solid rgba(91,138,240,0.22);
+      border-radius: 10px; padding: 14px 28px;
+      font-size: 13px; color: #7da4f5;
+    }
+
+    /* ── Slide 2: Cline ── */
+    .s-cline {
+      background: radial-gradient(ellipse at 30% 60%, #0e1f1a 0%, #0f1117 68%);
+    }
+    .cline-two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; }
+    .cline-pitch {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 28px;
+    }
+    .cline-pitch h3 { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+    .cline-pitch p  { font-size: 13px; color: #8892a4; line-height: 1.65; }
+    .cline-panel {
+      background: #13151f;
+      border: 1px solid rgba(91,138,240,0.25);
+      border-radius: 14px; padding: 24px;
+      font-family: 'Consolas', monospace;
+    }
+    .cline-panel .panel-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 14px;
+    }
+    .cline-msg {
+      background: rgba(91,138,240,0.08);
+      border-left: 3px solid #5b8af0;
+      border-radius: 6px; padding: 12px 14px;
+      font-size: 13px; color: #c8d4f0; line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .cline-response {
+      font-size: 12px; color: #5a7a5a; line-height: 1.6;
+    }
+
+    /* ── Slide 3: Two Concepts ── */
+    .concepts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+    .concept-card {
+      border-radius: 14px; padding: 28px;
+    }
+    .concept-card.template {
+      background: rgba(91,138,240,0.06);
+      border: 1px solid rgba(91,138,240,0.2);
+    }
+    .concept-card.workflow {
+      background: rgba(80,200,130,0.06);
+      border: 1px solid rgba(80,200,130,0.2);
+    }
+    .concept-card .concept-icon { font-size: 32px; margin-bottom: 14px; }
+    .concept-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .concept-card.template h3 { color: #7da4f5; }
+    .concept-card.workflow h3 { color: #50c882; }
+    .concept-card .concept-def { font-size: 14px; color: #8892a4; line-height: 1.65; margin-bottom: 14px; }
+    .concept-card .analogy {
+      font-size: 12px; color: #666;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 12px; font-style: italic;
+    }
+
+    /* ── YAML blocks ── */
+    .yaml-block {
+      background: #13151f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 22px 24px;
+      font-family: 'Consolas', monospace;
+      font-size: 12.5px; line-height: 1.8;
+      width: 100%;
+    }
+    .y-key   { color: #7da4f5; }
+    .y-val   { color: #e8eaf0; }
+    .y-str   { color: #98c379; }
+    .y-com   { color: #555; font-style: italic; }
+    .y-tag {
+      display: inline-block;
+      background: rgba(91,138,240,0.15);
+      border: 1px solid rgba(91,138,240,0.3);
+      color: #7da4f5; font-size: 10px; letter-spacing: 1px;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+      margin-left: 10px; vertical-align: middle; font-style: normal;
+    }
+    .y-tag.green {
+      background: rgba(80,200,130,0.12);
+      border-color: rgba(80,200,130,0.3);
+      color: #50c882;
+    }
+
+    /* ── Slide 5: Post-processor ── */
+    .flow-chain {
+      display: flex; align-items: center; gap: 0; width: 100%; margin-bottom: 24px;
+    }
+    .flow-box {
+      flex: 1; background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 16px 12px; text-align: center;
+    }
+    .flow-box.highlight {
+      background: rgba(91,138,240,0.08);
+      border-color: rgba(91,138,240,0.25);
+    }
+    .flow-box .fb-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 6px;
+    }
+    .flow-box h4 { font-size: 13px; font-weight: 600; color: #fff; }
+    .flow-box p  { font-size: 11px; color: #8892a4; margin-top: 4px; }
+    .flow-arr { color: #5b8af0; font-size: 18px; padding: 0 8px; flex-shrink: 0; }
+
+    .pp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+    .pp-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 16px;
+    }
+    .pp-card h4 { font-size: 13px; font-weight: 600; color: #7da4f5; font-family: 'Consolas', monospace; margin-bottom: 6px; }
+    .pp-card p  { font-size: 12px; color: #8892a4; line-height: 1.5; }
+
+    /* ── Slide 7: Agent chain ── */
+    .chain-outer {
+      width: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px; padding: 28px 32px;
+    }
+    .chain-top {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0; margin-bottom: 20px;
+    }
+    .chain-box {
+      background: rgba(91,138,240,0.1);
+      border: 1px solid rgba(91,138,240,0.3);
+      border-radius: 10px; padding: 14px 22px; text-align: center;
+    }
+    .chain-box .cb-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 4px;
+    }
+    .chain-box h4 { font-size: 14px; font-weight: 700; color: #fff; }
+    .chain-arr { color: #5b8af0; font-size: 20px; padding: 0 14px; }
+    .chain-down { text-align: center; color: #5b8af0; font-size: 20px; margin-bottom: 16px; }
+    .chain-agents {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
+    }
+    .chain-agent {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px; padding: 14px; text-align: center;
+    }
+    .chain-agent .ca-icon { font-size: 22px; margin-bottom: 6px; }
+    .chain-agent h4 { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .chain-agent p  { font-size: 11px; color: #666; line-height: 1.4; }
+    .chain-output {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+    }
+    .chain-out-box {
+      background: rgba(80,200,130,0.08);
+      border: 1px solid rgba(80,200,130,0.25);
+      border-radius: 8px; padding: 10px 20px; text-align: center;
+    }
+    .chain-out-box h4 { font-size: 13px; font-weight: 600; color: #50c882; }
+    .chain-out-box p  { font-size: 11px; color: #8892a4; margin-top: 2px; }
+
+    /* ── Slide 8: Running ── */
+    .run-steps { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    .run-step  { display: flex; align-items: flex-start; gap: 18px; }
+    .run-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(91,138,240,0.15);
+      border: 1px solid rgba(91,138,240,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #5b8af0;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .run-content h3 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .run-content p  { font-size: 12px; color: #8892a4; line-height: 1.5; }
+    .run-content code {
+      font-family: 'Consolas', monospace;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px; padding: 1px 7px; font-size: 12px; color: #c8d4f0;
+    }
+    .output-pills {
+      display: flex; gap: 12px; margin-top: 6px;
+    }
+    .pill {
+      background: rgba(80,200,130,0.08);
+      border: 1px solid rgba(80,200,130,0.25);
+      border-radius: 6px; padding: 6px 14px;
+      font-family: 'Consolas', monospace; font-size: 12px; color: #50c882;
+    }
+
+    /* ── Slide 9: Creating ── */
+    .create-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
+    .create-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 22px;
+    }
+    .create-card .cc-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: #5b8af0; margin-bottom: 10px;
+    }
+    .create-card h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 12px; }
+    .create-card .skill-badge {
+      display: inline-block;
+      background: rgba(91,138,240,0.12);
+      border: 1px solid rgba(91,138,240,0.3);
+      border-radius: 6px; padding: 4px 10px;
+      font-family: 'Consolas', monospace; font-size: 11px; color: #7da4f5;
+      margin-bottom: 12px;
+    }
+    .create-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .create-card li { font-size: 12px; color: #8892a4; line-height: 1.5; padding-left: 14px; position: relative; }
+    .create-card li::before { content: '→'; position: absolute; left: 0; color: #5b8af0; }
+
+    /* ── Slide 10: Best practices ── */
+    .bp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+    .bp-col h3 {
+      font-size: 13px; font-weight: 600; color: #5b8af0;
+      letter-spacing: 1px; text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .bp-item {
+      display: flex; gap: 10px; margin-bottom: 10px;
+      align-items: flex-start;
+    }
+    .bp-check { color: #50c882; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .bp-item p { font-size: 13px; color: #8892a4; line-height: 1.5; }
+    .bp-item strong { color: #c8d4f0; }
+
+    /* ── Slide 11: Setup ── */
+    .s-setup {
+      background: radial-gradient(ellipse at 50% 50%, #0d1f2d 0%, #0f1117 68%);
+    }
+    .setup-steps { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 680px; }
+    .setup-step {
+      display: flex; align-items: flex-start; gap: 20px;
+    }
+    .setup-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(91,138,240,0.15);
+      border: 1px solid rgba(91,138,240,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #5b8af0;
+      flex-shrink: 0;
+    }
+    .setup-content h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .setup-cmd {
+      background: #13151f;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 12px 16px;
+      font-family: 'Consolas', monospace; font-size: 13px; color: #c8d4f0;
+      line-height: 1.7;
+    }
+    .setup-cmd .cmd-comment { color: #555; }
+    .setup-note { font-size: 12px; color: #666; margin-top: 6px; }
+
+    /* ── Quick ref table ── */
+    .qref {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .qref th {
+      text-align: left; font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: #5b8af0;
+      padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .qref td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #8892a4; vertical-align: middle;
+    }
+    .qref tr:last-child td { border-bottom: none; }
+    .qref td:first-child { color: #e8eaf0; font-weight: 500; }
+    .qref code {
+      font-family: 'Consolas', monospace;
+      background: rgba(91,138,240,0.1);
+      border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #7da4f5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- ── 1. Title ── -->
+  <div class="slide s-title active" data-index="0">
+    <div class="eyebrow">Internal Engineering Guide</div>
+    <h1>Agentic Troubleshooting<br>with Cline</h1>
+    <p class="subtitle">
+      Everything you need to diagnose Android connectivity issues —
+      from raw logs and network captures to a clear diagnostic report —
+      in a few minutes, not hours.
+    </p>
+    <div class="audience">
+      👋 For internal engineers already familiar with Android, logcat, and PCAP
+    </div>
+  </div>
+
+  <!-- ── 2. What is Cline ── -->
+  <div class="slide s-cline" data-index="1">
+    <div class="slide-header">
+      <div class="label">Your AI Assistant</div>
+      <h2>Cline Lives in VS Code</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="cline-two">
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="cline-pitch">
+          <h3>What Cline Is</h3>
+          <p>An AI coding agent that runs directly inside VS Code. It can read files, run commands, and take actions — all within your project context. It's already the official AI assistant in our lab.</p>
+        </div>
+        <div class="cline-pitch">
+          <h3>What This System Adds</h3>
+          <p>A set of <strong style="color:#c8d4f0">skills</strong> that extend Cline with troubleshooting superpowers — so instead of grepping logs manually, you describe the problem and get a structured diagnostic report.</p>
+        </div>
+      </div>
+      <div class="cline-panel">
+        <div class="panel-label">Cline Chat</div>
+        <div class="cline-msg">
+          Analyze this dumpstate for IMS registration issues:<br>
+          <span style="color:#7da4f5">/Users/me/samples/dumpstate_2.txt</span>
+        </div>
+        <div class="cline-response">
+          ✓ Running ims-registration workflow…<br>
+          ✓ Filtering 847k lines for SIPMSG patterns…<br>
+          ✓ Found 8 matches across 2 REGISTER flows<br>
+          ✓ Generating diagnostic summary…<br><br>
+          <span style="color:#50c882">→ Report ready: out/ims-registration/report.md</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. The Two Concepts ── -->
+  <div class="slide" data-index="2">
+    <div class="slide-header">
+      <div class="label">Core Concepts</div>
+      <h2>Two Things to Know</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="concepts-grid">
+      <div class="concept-card template">
+        <div class="concept-icon">🔍</div>
+        <h3>Template</h3>
+        <p class="concept-def">
+          A YAML file that defines <strong style="color:#c8d4f0">what to look for</strong> in a log or PCAP file.
+          Contains one or more filter patterns — regex for logs, tshark display filters for PCAPs.
+          Lives in the shared library or your project repo. Reusable across any workflow.
+        </p>
+        <div class="analogy">Think of it as an ingredient — the specific pattern you want to extract.</div>
+      </div>
+      <div class="concept-card workflow">
+        <div class="concept-icon">📋</div>
+        <h3>Workflow</h3>
+        <p class="concept-def">
+          A Markdown file with YAML frontmatter that defines a <strong style="color:#c8d4f0">complete analysis</strong>.
+          It wires together templates, points at input file types, and defines the final
+          diagnostic question to ask the AI. It's what you actually "run".
+        </p>
+        <div class="analogy">Think of it as a recipe — it combines ingredients and describes the desired outcome.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. Inside a Template ── -->
+  <div class="slide" data-index="3">
+    <div class="slide-header">
+      <div class="label">Template Anatomy</div>
+      <h2>What's in a Template</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="yaml-block">
+      <div><span class="y-key">templates</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">id</span><span class="y-val">:</span> <span class="y-str">sipmsg</span> <span class="y-tag">referenced in workflow include:</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">SIP REGISTER and response messages</span> <span class="y-tag">appears in report</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">pattern</span><span class="y-val">:</span> <span class="y-str">"SIPMSG"</span> <span class="y-tag">ripgrep regex</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">context_lines</span><span class="y-val">:</span> <span class="y-val">3</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">post_process</span><span class="y-val">:</span> <span class="y-str">decode_sip.py</span> <span class="y-tag">optional</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did registration succeed? Was there a 401 challenge?"</span> <span class="y-tag">LLM prompt per pattern</span></div>
+    </div>
+    <p style="margin-top:16px; font-size:13px; color:#555; width:100%;">
+      For PCAP templates: replace <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">pattern</code> with <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">filter</code> + <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">fields</code> for tshark field extraction.
+    </p>
+  </div>
+
+  <!-- ── 5. Post-Processor ── -->
+  <div class="slide" data-index="4">
+    <div class="slide-header">
+      <div class="label">Optional Enhancement</div>
+      <h2>What's a Post-Processor</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="flow-chain">
+      <div class="flow-box">
+        <div class="fb-label">Input</div>
+        <h4>Raw Log Lines</h4>
+        <p>Matched by ripgrep</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box highlight">
+        <div class="fb-label">Post-Processor</div>
+        <h4>decode_sip.py</h4>
+        <p>Transforms output</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">
+        <div class="fb-label">Clean Output</div>
+        <h4>Readable Flow</h4>
+        <p>Sent to LLM</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">
+        <div class="fb-label">Result</div>
+        <h4>Better Summary</h4>
+        <p>Meaningful analysis</p>
+      </div>
+    </div>
+    <div class="pp-cards">
+      <div class="pp-card">
+        <h4>decode_sip.py</h4>
+        <p>Turns dense SIPMSG log lines into a clean REGISTER → 401 → REGISTER → 200 OK flow. The LLM gets readable context, not raw timestamps.</p>
+      </div>
+      <div class="pp-card">
+        <h4>your_decoder.py</h4>
+        <p>Live in <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">log-postprocessors/</code> in your project repo. Reads stdin, writes stdout. Reference by filename in the template's <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">post_process:</code> field.</p>
+      </div>
+    </div>
+    <p style="font-size:12px; color:#555; width:100%; margin-top:12px;">Most templates don't need a post-processor. Use one when raw output would confuse the LLM.</p>
+  </div>
+
+  <!-- ── 6. Inside a Workflow ── -->
+  <div class="slide" data-index="5">
+    <div class="slide-header">
+      <div class="label">Workflow Anatomy</div>
+      <h2>What's in a Workflow</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="yaml-block">
+      <div><span class="y-val">---</span></div>
+      <div><span class="y-key">workflow</span><span class="y-val">:</span> <span class="y-str">ims-registration</span> <span class="y-tag">name used for output folder</span></div>
+      <div><span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">IMS registration failure analysis</span></div>
+      <div><span class="y-key">default_max_lines</span><span class="y-val">:</span> <span class="y-val">200</span> <span class="y-tag">cap per pattern</span></div>
+      <div>&nbsp;</div>
+      <div><span class="y-key">input</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">path</span><span class="y-val">:</span> <span class="y-str">"*.txt"</span> <span class="y-tag">file glob to match</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">include</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/sipmsg.yaml</span> <span class="y-tag green">template from library</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/ril.yaml</span></div>
+      <div>&nbsp;</div>
+      <div><span class="y-key">final_summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did IMS registration succeed? If not, what failed and why?"</span> <span class="y-tag">the big question</span></div>
+      <div><span class="y-val">---</span></div>
+    </div>
+  </div>
+
+  <!-- ── 7. How it Works ── -->
+  <div class="slide" data-index="6">
+    <div class="slide-header">
+      <div class="label">Under the Hood</div>
+      <h2>What Happens When You Hit Enter</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="chain-outer">
+      <div class="chain-top">
+        <div class="chain-box">
+          <div class="cb-label">You</div>
+          <h4>💬 Cline Chat</h4>
+        </div>
+        <div class="chain-arr">→</div>
+        <div class="chain-box">
+          <div class="cb-label">Orchestrator</div>
+          <h4>⚙️ Workflow Agent</h4>
+        </div>
+        <div class="chain-arr">→</div>
+      </div>
+      <div class="chain-agents">
+        <div class="chain-agent">
+          <div class="ca-icon">🔍</div>
+          <h4>Context Builder</h4>
+          <p>Runs filters against your log / PCAP file</p>
+        </div>
+        <div class="chain-agent">
+          <div class="ca-icon">🔧</div>
+          <h4>Post-Processor</h4>
+          <p>Cleans and decodes raw matches</p>
+        </div>
+        <div class="chain-agent">
+          <div class="ca-icon">🤖</div>
+          <h4>AI Synthesizer</h4>
+          <p>Generates per-pattern summaries</p>
+        </div>
+        <div class="chain-agent">
+          <div class="ca-icon">📝</div>
+          <h4>Reporting Agent</h4>
+          <p>Writes the final diagnostic report</p>
+        </div>
+      </div>
+      <div class="chain-output">
+        <div class="chain-out-box">
+          <h4>report.md</h4>
+          <p>Full report with matched lines</p>
+        </div>
+        <div style="color:#50c882; font-size:16px;">+</div>
+        <div class="chain-out-box">
+          <h4>summary.md</h4>
+          <p>Final diagnosis only</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. Running ── -->
+  <div class="slide" data-index="7">
+    <div class="slide-header">
+      <div class="label">Running an Analysis</div>
+      <h2>Three Steps, One Report</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="run-steps">
+      <div class="run-step">
+        <div class="run-num">1</div>
+        <div class="run-content">
+          <h3>Open your project in VS Code with Cline</h3>
+          <p>Make sure Cline is active in the sidebar. Your project should have the workflow file in <code>.clinerules/workflows/</code>.</p>
+        </div>
+      </div>
+      <div class="run-step">
+        <div class="run-num">2</div>
+        <div class="run-content">
+          <h3>Tell Cline what to analyze</h3>
+          <p>Just describe it naturally. For example:<br>
+          <em style="color:#c8d4f0">"Use the ims-registration workflow on /path/to/dumpstate.txt"</em><br>
+          or: <em style="color:#c8d4f0">"Analyze this PCAP for IMS issues: capture.pcapng"</em></p>
+        </div>
+      </div>
+      <div class="run-step">
+        <div class="run-num">3</div>
+        <div class="run-content">
+          <h3>Get your report</h3>
+          <p>Cline runs the pipeline and hands you two files:</p>
+          <div class="output-pills">
+            <div class="pill">out/&lt;workflow&gt;/report.md</div>
+            <div class="pill">out/&lt;workflow&gt;/summary.md</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 9. Creating & Updating ── -->
+  <div class="slide" data-index="8">
+    <div class="slide-header">
+      <div class="label">Extending the System</div>
+      <h2>Creating &amp; Updating</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="create-grid">
+      <div class="create-card">
+        <div class="cc-label">New Template</div>
+        <h3>Add a filter pattern</h3>
+        <div class="skill-badge">log-template-creator</div>
+        <ul>
+          <li>Describe what you're looking for</li>
+          <li>Cline asks for regex / tshark filter</li>
+          <li>Tests against a sample file</li>
+          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">filters/log/</code> in your repo</li>
+        </ul>
+      </div>
+      <div class="create-card">
+        <div class="cc-label">New Workflow</div>
+        <h3>Define an analysis</h3>
+        <div class="skill-badge">workflow-creator</div>
+        <ul>
+          <li>Describe the problem you're diagnosing</li>
+          <li>Cline lists available templates</li>
+          <li>Pick templates or create new ones</li>
+          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">.clinerules/workflows/</code></li>
+        </ul>
+      </div>
+      <div class="create-card">
+        <div class="cc-label">New Post-Processor</div>
+        <h3>Transform raw output</h3>
+        <div class="skill-badge">postprocessors</div>
+        <ul>
+          <li>Write a Python script: stdin → stdout</li>
+          <li>Drop in <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">log-postprocessors/</code></li>
+          <li>Reference by filename in template</li>
+          <li>Commit alongside your templates</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:18px; font-size:12px; color:#555; width:100%;">
+      Commit <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">filters/</code>, <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">log-postprocessors/</code> and <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">.clinerules/workflows/</code> to share your work with the team.
+    </p>
+  </div>
+
+  <!-- ── 10. Best Practices ── -->
+  <div class="slide" data-index="9">
+    <div class="slide-header">
+      <div class="label">Best Practices</div>
+      <h2>What Actually Matters</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="bp-grid">
+      <div class="bp-col">
+        <h3>Templates</h3>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>One concern per template.</strong> Don't mix wakelock and power in one file — keep them separate and composable.</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Write a clear description.</strong> It shows up in the report. If it's vague, the summary will be vague.</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Test against a real sample</strong> before committing. A pattern with zero matches on real data isn't useful.</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Use a post-processor</strong> when raw output is hard to read — raw SIP lines produce poor AI summaries.</p>
+        </div>
+      </div>
+      <div class="bp-col">
+        <h3>Workflows</h3>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Name after the problem,</strong> not the tool. <em style="color:#c8d4f0">ims-registration-failure</em> not <em style="color:#666">sip-log-analysis</em>.</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Write the final prompt as a diagnostic question,</strong> not a data request. "Did registration succeed? Why not?" beats "Summarize the logs."</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Start with library templates</strong> — only add project-local ones when what you need doesn't exist.</p>
+        </div>
+        <div class="bp-item">
+          <div class="bp-check">✓</div>
+          <p><strong>Commit workflows with your code.</strong> The person debugging the next failure will thank you.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 11. Setup ── -->
+  <div class="slide s-setup" data-index="10">
+    <div class="slide-header">
+      <div class="label">Getting Started</div>
+      <h2>Setup in Two Steps</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="setup-num">1</div>
+        <div class="setup-content">
+          <h3>Clone the repo and run setup</h3>
+          <div class="setup-cmd">
+            <span class="cmd-comment"># Clone</span><br>
+            git clone https://github.com/hihanifm/cline-skills-log-analysis.git<br>
+            cd cline-skills-log-analysis<br><br>
+            <span class="cmd-comment"># Install skills (ripgrep + tshark must already be installed)</span><br>
+            python3 setup.py --skip-cli
+          </div>
+          <div class="setup-note">This deploys all skills to ~/.cline/skills/ and workflows to ~/Documents/Cline/Workflows/</div>
+        </div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-num">2</div>
+        <div class="setup-content">
+          <h3>Open your project in VS Code with Cline active</h3>
+          <div class="setup-cmd">
+            <span class="cmd-comment"># Start Cline in VS Code, then ask it to run a workflow</span><br>
+            "Use the ims-registration workflow on /path/to/dumpstate.txt"
+          </div>
+          <div class="setup-note">That's it. No environment setup, no API keys needed for basic use.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button id="prev" onclick="go(-1)" disabled>← Prev</button>
+  <span class="slide-counter" id="counter">1 / 11</span>
+  <button id="next" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function go(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 380);
+    current = next;
+    slides[current].classList.add('active');
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === total - 1;
+    document.getElementById('counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('progress').style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  });
+
+  document.getElementById('progress').style.width = `${(1 / total) * 100}%`;
+</script>
+
+</body>
+</html>
