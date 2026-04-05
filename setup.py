@@ -33,10 +33,10 @@ WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "lens-workflow-creator", "exam
 
 # Shared Python modules copied into skill scripts/ dirs that import them.
 # Only skills that actually use these modules are listed here.
-SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_config.yaml"]
+SHARED_MODULES = ["lib/yaml_utils.py", "lib/config.py", "workflow_config.yaml"]
 SKILL_SHARED_MODULES = {
-    "lens-template-runner-agent":      ["yaml_utils.py"],
-    "lens-workflow-orchestrator-agent": ["yaml_utils.py", "config.py", "workflow_config.yaml"],
+    "lens-template-runner-agent":      ["lib/yaml_utils.py"],
+    "lens-workflow-orchestrator-agent": ["lib/yaml_utils.py", "lib/config.py", "workflow_config.yaml"],
 }
 
 
@@ -244,7 +244,7 @@ def install_skills():
             for mod in modules:
                 src = os.path.join(REPO_ROOT, mod)
                 if os.path.isfile(src):
-                    shutil.copy2(src, os.path.join(scripts_dir, mod))
+                    shutil.copy2(src, os.path.join(scripts_dir, os.path.basename(mod)))
     ok("Copied shared modules to skill script dirs")
 
 

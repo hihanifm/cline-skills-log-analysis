@@ -28,13 +28,15 @@ from typing import Optional
 
 
 # Add shared modules dir to sys.path.
-# In dev mode this is the repo root (contains yaml_utils.py).
 # In deployed mode setup.py copies shared modules alongside this script.
+# In dev mode they live in lib/ under the repo root.
 def _find_shared_modules_dir():
     d = os.path.dirname(os.path.abspath(__file__))
     while True:
-        if os.path.isfile(os.path.join(d, "yaml_utils.py")):
+        if os.path.isfile(os.path.join(d, "yaml_utils.py")):          # deployed
             return d
+        if os.path.isfile(os.path.join(d, "lib", "yaml_utils.py")):   # dev/repo
+            return os.path.join(d, "lib")
         parent = os.path.dirname(d)
         if parent == d:
             raise ImportError("Cannot find yaml_utils.py. Run setup.py to install.")
@@ -78,8 +80,8 @@ def _load_skill_module(skill_name: str, module_name: str):
     module_path = os.path.join(skill_dir, f"{module_name}.py")
 
     if not os.path.isfile(module_path):
-        # Fallback: look relative to shared modules dir (dev mode, _SHARED == repo root)
-        module_path = os.path.join(_SHARED, "skills", skill_name, "scripts", f"{module_name}.py")
+        # Dev fallback: skills/ lives next to lib/ under the repo root
+        module_path = os.path.join(os.path.dirname(_SHARED), "skills", skill_name, "scripts", f"{module_name}.py")
 
     if not os.path.isfile(module_path):
         raise ImportError(f"Cannot find {module_name}.py for skill '{skill_name}'. "
@@ -333,7 +335,7 @@ def main():
         postprocessors_dir = os.path.join(
             os.path.expanduser("~"), ".cline", "skills", "lens-postprocessors", "scripts"
         )
-        postprocessors_dir_dev = os.path.join(_SHARED, "skills", "lens-postprocessors", "scripts")
+        postprocessors_dir_dev = os.path.join(os.path.dirname(_SHARED), "skills", "lens-postprocessors", "scripts")
         project_postprocessors_dir = _find_project_dir(workflow_dir, "log-postprocessors")
         script_dirs = [
             workflow_scripts_dir,

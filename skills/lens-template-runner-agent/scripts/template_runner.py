@@ -24,8 +24,10 @@ from typing import Optional
 def _find_shared_modules_dir():
     d = os.path.dirname(os.path.abspath(__file__))
     while True:
-        if os.path.isfile(os.path.join(d, "yaml_utils.py")):
+        if os.path.isfile(os.path.join(d, "yaml_utils.py")):          # deployed
             return d
+        if os.path.isfile(os.path.join(d, "lib", "yaml_utils.py")):   # dev/repo
+            return os.path.join(d, "lib")
         parent = os.path.dirname(d)
         if parent == d:
             raise ImportError("Cannot find yaml_utils.py. Run setup.py to install.")
@@ -85,8 +87,8 @@ def load_skill_module(skill_name: str, module_name: str):
     module_path = os.path.join(skill_dir, f"{module_name}.py")
 
     if not os.path.isfile(module_path):
-        # Dev fallback: _SHARED is the repo root in dev mode
-        module_path = os.path.join(_SHARED, "skills", skill_name, "scripts", f"{module_name}.py")
+        # Dev fallback: skills/ lives next to lib/ under the repo root
+        module_path = os.path.join(os.path.dirname(_SHARED), "skills", skill_name, "scripts", f"{module_name}.py")
 
     if not os.path.isfile(module_path):
         raise ImportError(

@@ -39,11 +39,11 @@ jobs:
         run: >
           pyinstaller --onefile --console --name cline-log-analysis-setup-%VERSION%
           --add-data "skills;skills"
-          --add-data "yaml_utils.py;."
-          --add-data "config.py;."
+          --add-data "lib/yaml_utils.py;."
+          --add-data "lib/config.py;."
           --add-data "workflow_config.yaml;."
           --add-data "VERSION;."
-          windows_installer.py
+          build/windows_installer.py
 
       - name: Upload workflow artifact
         if: github.event_name == 'workflow_dispatch'
