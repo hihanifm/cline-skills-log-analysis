@@ -71,9 +71,9 @@ The report will contain `<!-- SUMMARY_PROMPT: <id> ... -->` markers.
 Fill in each marker: read the context in the code block above it and replace
 the marker with a `**SUMMARY:**` section containing your analysis.
 
-After filling all markers, extract the content of the `## FINAL SUMMARY` section
-from `report.md` and write it to `summary.md` in the same directory, with this
-header:
+After filling all markers, copy the content of the `## FINAL SUMMARY` section
+from `report.md` and write it to `summary.md` in the same directory — do not
+remove it from `report.md`. Use this header for `summary.md`:
 
 ```
 # <workflow-name> — Summary
