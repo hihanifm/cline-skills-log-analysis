@@ -36,6 +36,17 @@ Ask for them now.
 
 ---
 
+## Scope Restriction — IMPORTANT
+
+**Only work with the exact input path the user provided.**
+
+- Do NOT search parent directories, sibling directories, or any other location.
+- Do NOT attempt to locate a log file on the user's behalf.
+- Do NOT retry with a different file if the given path fails.
+- If the script exits non-zero for any reason, show the stderr output to the user and stop immediately.
+
+---
+
 ## Step 2 — Build Context
 
 Run the context builder. It handles input resolution (file/folder/zip), pattern
@@ -51,7 +62,7 @@ python3 ~/.cline/skills/lens-workflow-orchestrator-agent/scripts/context_builder
 
 Capture stdout — it prints the path to the generated `log-context.md`.
 
-If exit code is non-zero, show the stderr output and stop.
+If exit code is non-zero, show the stderr output to the user and stop. Do not attempt any recovery or alternative input paths.
 
 ---
 

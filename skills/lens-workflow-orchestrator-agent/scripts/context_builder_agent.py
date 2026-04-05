@@ -113,11 +113,16 @@ def _resolve_input_files(input_path: str, glob_pattern: str) -> list:
         for fname in os.listdir(input_path):
             if fnmatch.fnmatch(fname, glob_pattern):
                 matches.append(os.path.join(input_path, fname))
+        if not matches:
+            print(f"  [ERROR] No files matching '{glob_pattern}' found in: {input_path}", file=sys.stderr)
+            print(f"  [ERROR] Only the provided input path is searched — no fallback locations.", file=sys.stderr)
+            sys.exit(1)
         return sorted(matches)
 
     else:
         print(f"  [ERROR] Input path not found: {input_path}", file=sys.stderr)
-        return []
+        print(f"  [ERROR] Only the exact path provided is used — no parent or sibling directories are searched.", file=sys.stderr)
+        sys.exit(1)
 
 
 def _extract_from_zip(zip_path: str, glob_pattern: str) -> list:
