@@ -54,6 +54,27 @@ def is_installed(binary):
     return shutil.which(binary) is not None
 
 
+def find_tshark():
+    """Return absolute path to tshark, or None. Checks PATH first, then known locations."""
+    found = shutil.which("tshark")
+    if found:
+        return found
+    system = platform.system()
+    if system == "Darwin":
+        candidates = ["/Applications/Wireshark.app/Contents/MacOS/tshark"]
+    elif system == "Linux":
+        candidates = ["/usr/local/bin/tshark", "/opt/wireshark/bin/tshark"]
+    elif system == "Windows":
+        candidates = [r"C:\Program Files\Wireshark\tshark.exe",
+                      r"C:\Program Files (x86)\Wireshark\tshark.exe"]
+    else:
+        candidates = []
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
 def cline_skills_dir():
     return os.path.join(os.path.expanduser("~"), ".cline", "skills")
 
@@ -117,8 +138,28 @@ def install_ripgrep():
 
 
 def install_tshark():
-    if is_installed("tshark"):
+    if shutil.which("tshark") is not None:
         ok("tshark already installed")
+        return True
+
+    tshark_path = find_tshark()
+    if tshark_path:
+        warn(f"tshark found outside PATH: {tshark_path}")
+        system = platform.system()
+        if system in ("Darwin", "Linux"):
+            symlink_target = "/usr/local/bin/tshark"
+            try:
+                if os.path.lexists(symlink_target):
+                    os.remove(symlink_target)
+                os.symlink(tshark_path, symlink_target)
+                ok(f"Created symlink: {symlink_target} -> {tshark_path}")
+            except OSError as e:
+                warn(f"Could not create symlink at {symlink_target}: {e}")
+                info("Add tshark to PATH manually:")
+                info(f'  export PATH="{os.path.dirname(tshark_path)}:$PATH"')
+        elif system == "Windows":
+            info(f"Add tshark to PATH manually. Found at: {tshark_path}")
+            info(f"  Run in PowerShell: $env:PATH += ';{os.path.dirname(tshark_path)}'")
         return True
 
     info("Installing tshark...")
@@ -271,13 +312,20 @@ def main():
         install_workflows(project_dest)
 
     section("Verification")
-    for binary, label in [("rg", "ripgrep"), ("tshark", "tshark")]:
-        if is_installed(binary):
-            result = subprocess.run([binary, "--version"], capture_output=True, text=True)
-            version = result.stdout.splitlines()[0] if result.stdout else "unknown"
-            ok(f"{label}: {version}")
-        else:
-            warn(f"{label}: not found in PATH")
+    if is_installed("rg"):
+        result = subprocess.run(["rg", "--version"], capture_output=True, text=True)
+        version = result.stdout.splitlines()[0] if result.stdout else "unknown"
+        ok(f"ripgrep: {version}")
+    else:
+        warn("ripgrep: not found in PATH")
+
+    tshark_bin = find_tshark()
+    if tshark_bin:
+        result = subprocess.run([tshark_bin, "--version"], capture_output=True, text=True)
+        version = result.stdout.splitlines()[0] if result.stdout else "unknown"
+        ok(f"tshark: {version}")
+    else:
+        warn("tshark: not found in PATH or known locations")
 
     skills_dir = cline_skills_dir()
     for skill in SKILLS:

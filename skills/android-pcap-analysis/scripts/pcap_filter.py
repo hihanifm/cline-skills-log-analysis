@@ -20,6 +20,28 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 
+def _find_tshark():
+    """Return absolute path to tshark, or None. Checks PATH first, then known locations."""
+    found = shutil.which("tshark")
+    if found:
+        return found
+    import platform
+    system = platform.system()
+    if system == "Darwin":
+        candidates = ["/Applications/Wireshark.app/Contents/MacOS/tshark"]
+    elif system == "Linux":
+        candidates = ["/usr/local/bin/tshark", "/opt/wireshark/bin/tshark"]
+    elif system == "Windows":
+        candidates = [r"C:\Program Files\Wireshark\tshark.exe",
+                      r"C:\Program Files (x86)\Wireshark\tshark.exe"]
+    else:
+        candidates = []
+    for path in candidates:
+        if os.path.isfile(path):
+            return path
+    return None
+
+
 class ToolNotFoundError(Exception):
     """Raised when tshark is not installed."""
     pass
@@ -35,12 +57,13 @@ class FilterResult:
     error: Optional[str] = None
 
 
-def check_dependencies():
+def check_dependencies() -> str:
     """
-    Check that tshark is installed.
+    Check that tshark is installed and return its absolute path.
     Raises ToolNotFoundError with install instructions if missing.
     """
-    if shutil.which("tshark") is None:
+    tshark_path = _find_tshark()
+    if tshark_path is None:
         raise ToolNotFoundError(
             "tshark is not installed or not in PATH.\n"
             "Install instructions:\n"
@@ -49,7 +72,10 @@ def check_dependencies():
             "  Linux (dnf):    sudo dnf install wireshark-cli\n"
             "  Windows:        winget install WiresharkFoundation.Wireshark\n"
             "                  (or https://www.wireshark.org/download.html)\n"
+            "If tshark is installed but not in PATH, add its directory to PATH\n"
+            "or create a symlink: sudo ln -s /path/to/tshark /usr/local/bin/tshark\n"
         )
+    return tshark_path
 
 
 def filter_pcap(
@@ -60,6 +86,7 @@ def filter_pcap(
     max_lines: int = 200,
     post_process: Optional[str] = None,
     post_process_search_dirs: Optional[list] = None,
+    tshark_path: Optional[str] = None,
 ) -> FilterResult:
     """
     Run tshark on filepath with a display filter, extracting specified fields.
@@ -79,7 +106,8 @@ def filter_pcap(
     source_name = os.path.basename(filepath)
 
     # Build tshark command
-    tshark_cmd = ["tshark", "-r", filepath, "-Y", display_filter, "-T", "fields"]
+    _tshark = tshark_path or _find_tshark() or "tshark"
+    tshark_cmd = [_tshark, "-r", filepath, "-Y", display_filter, "-T", "fields"]
     for f in fields:
         tshark_cmd += ["-e", f]
     tshark_cmd += ["-E", "header=y", "-E", "separator=|"]
@@ -163,7 +191,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        check_dependencies()
+        tshark_bin = check_dependencies()
     except ToolNotFoundError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
@@ -173,6 +201,7 @@ if __name__ == "__main__":
         display_filter=args.display_filter,
         fields=args.fields,
         max_lines=args.max_lines,
+        tshark_path=tshark_bin,
     )
 
     if result.error:
