@@ -52,13 +52,15 @@ class PatternSection:
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-# Android logcat full format: MM-DD HH:MM:SS.mmm  PID TID LEVEL TAG: msg
+# Android logcat: optional line-number prefix (e.g. "187639:"), then
+# MM-DD HH:MM:SS.mmm, one or more PID/TID/UID numbers, LEVEL, TAG: msg.
+# Tag may contain brackets: SIPMSG[0,2].
 _LOGCAT_RE = re.compile(
-    r'^(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+\d+\s+\d+\s+([VDIWEF])\s+([\w./:-]+):\s*(.*)'
+    r'^(?:\d+:)?(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?:\d+\s+)+([VDIWEF])\s+([\w./:\[\],-]+):\s*(.*)'
 )
-# Simpler fallback: just timestamp at start of line
+# Simpler fallback: optional line-number prefix + timestamp at start of line
 _TS_ONLY_RE = re.compile(
-    r'^(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(.*)'
+    r'^(?:\d+:)?(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(.*)'
 )
 # report.md section header line
 _SECTION_HDR_RE = re.compile(
