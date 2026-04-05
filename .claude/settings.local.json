@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls /Users/hanifm/work/cline-skills-log-analysis/*.py /Users/hanifm/work/cline-skills-log-analysis/*.yaml)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git push:*)"
+    ]
+  }
+}
