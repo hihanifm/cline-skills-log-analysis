@@ -1,5 +1,5 @@
 ---
-name: postprocessors
+name: lens-postprocessors
 description: >-
   Collection of post-processing scripts that transform raw filter output
   (ripgrep lines or tshark rows) into structured, human-readable form before
@@ -13,7 +13,7 @@ description: >-
 
 Each script in this skill reads raw filter output from stdin and writes
 enriched output to stdout. They are invoked automatically by the
-`workflow-orchestrator` pipeline when a template pattern specifies
+`lens-workflow-orchestrator-agent` pipeline when a template pattern specifies
 `post_process: <script_name>`.
 
 ---
@@ -82,7 +82,7 @@ Follow the convention: `decode_<feature>.py`
 
 ### Step 3 — Write the Script
 
-Write `log-postprocessors/<name>.py` in the project repo root following this contract:
+Write `log-lens-postprocessors/<name>.py` in the project repo root following this contract:
 
 **Required:**
 - Reads from `sys.stdin`
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 ### Step 4 — Test (if sample input available)
 
 ```
-echo "<sample_lines>" | python3 skills/postprocessors/scripts/<name>.py
+echo "<sample_lines>" | python3 skills/lens-postprocessors/scripts/<name>.py
 ```
 
 ### Step 5 — Wire It Up
@@ -136,5 +136,5 @@ Reference it in your template pattern:
 post_process: <name>.py
 ```
 
-Commit `log-postprocessors/<name>.py` to your project repo so colleagues
+Commit `log-lens-postprocessors/<name>.py` to your project repo so colleagues
 can use it too. No deployment needed — the pipeline finds it automatically.

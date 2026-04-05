@@ -277,7 +277,7 @@ def main():
     context_path = str(out_dir / "log-context.md")
 
     # Load template engine
-    template_runner = _load_skill_module("template-engine", "template_runner")
+    template_runner = _load_skill_module("lens-template-runner-agent", "template_runner")
 
     # Process input entries
     sections = []
@@ -320,9 +320,9 @@ def main():
             print(f"  Errors:    {errors_path}", file=sys.stderr)
             sys.exit(1)
         if not skill_name:
-            skill_name = "android-pcap-analysis" if any(
+            skill_name = "lens-pcap-filter" if any(
                 "filter" in p and "fields" in p for p in all_patterns
-            ) else "android-log-analysis"
+            ) else "lens-log-filter"
 
         # Script search dirs for post_process resolution.
         # Project postprocessors/ is found by walking up from workflow_dir.
@@ -331,9 +331,9 @@ def main():
         )
         workflow_scripts_dir = os.path.join(workflow_dir, "scripts")
         postprocessors_dir = os.path.join(
-            os.path.expanduser("~"), ".cline", "skills", "postprocessors", "scripts"
+            os.path.expanduser("~"), ".cline", "skills", "lens-postprocessors", "scripts"
         )
-        postprocessors_dir_dev = os.path.join(_SHARED, "skills", "postprocessors", "scripts")
+        postprocessors_dir_dev = os.path.join(_SHARED, "skills", "lens-postprocessors", "scripts")
         project_postprocessors_dir = _find_project_dir(workflow_dir, "log-postprocessors")
         script_dirs = [
             workflow_scripts_dir,

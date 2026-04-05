@@ -1,9 +1,9 @@
 ---
-name: android-pcap-analysis
+name: lens-pcap-filter
 description: >-
   Filters PCAP/PCAPNG network capture files using tshark display filters and
   field extraction. Use directly when you want to extract packets without
-  running a full workflow. Can also be invoked by the workflow-orchestrator
+  running a full workflow. Can also be invoked by the lens-workflow-orchestrator-agent
   skill automatically.
 ---
 

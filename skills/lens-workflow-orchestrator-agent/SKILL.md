@@ -1,5 +1,5 @@
 ---
-name: workflow-orchestrator
+name: lens-workflow-orchestrator-agent
 description: >-
   Runs a full analysis workflow against log files, PCAP/PCAPNG captures, zip
   archives, or folders. Given a workflow config file and an input path, builds
@@ -41,10 +41,10 @@ Ask for them now.
 Run the context builder. It handles input resolution (file/folder/zip), pattern
 loading, filtering, and output — all deterministically.
 
-The agent scripts live in `~/.cline/skills/workflow-orchestrator/scripts/`.
+The agent scripts live in `~/.cline/skills/lens-workflow-orchestrator-agent/scripts/`.
 
 ```
-python3 ~/.cline/skills/workflow-orchestrator/scripts/context_builder_agent.py \
+python3 ~/.cline/skills/lens-workflow-orchestrator-agent/scripts/context_builder_agent.py \
   --workflow <path_to_workflow_file> \
   --input <user_provided_path>
 ```
@@ -60,7 +60,7 @@ If exit code is non-zero, show the stderr output and stop.
 Run the synthesizer against the context file:
 
 ```
-python3 ~/.cline/skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
+python3 ~/.cline/skills/lens-workflow-orchestrator-agent/scripts/log_synthesizer_agent.py \
   --context <context_txt_path>
 ```
 

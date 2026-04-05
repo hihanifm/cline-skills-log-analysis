@@ -1,10 +1,10 @@
 ---
-name: log-template-creator
+name: lens-log-template-creator
 description: >-
   Guides a developer through creating a reusable log template YAML for the
-  android-log-analysis skill. Asks for ripgrep regex patterns, tests them
+  lens-log-filter skill. Asks for ripgrep regex patterns, tests them
   against a sample log file if available, and writes the template to
-  log-templates/log/. Use this before workflow-creator when you need new patterns.
+  log-templates/log/. Use this before lens-workflow-creator when you need new patterns.
 ---
 
 # Log Template Creator Skill
@@ -12,7 +12,7 @@ description: >-
 ## What This Skill Does
 
 Helps a developer author a new log template YAML file. Log templates define
-ripgrep regex patterns used by `android-log-analysis` to filter Android log
+ripgrep regex patterns used by `lens-log-filter` to filter Android log
 files (logcat, bugreport, etc.). The resulting YAML can be included in any
 workflow via `include:` in the workflow frontmatter.
 
@@ -46,7 +46,7 @@ For each pattern the developer wants to add, gather:
 - **Context lines** — lines before/after each match to include (default: 3)
 - **Description** — what this pattern captures and why it matters
 - **Summary prompt** (optional) — an AI analysis prompt that describes what to look for in the matches, e.g. "Identify failed connection attempts and their error codes."
-- **Post-process script** (optional) — only needed if matches require custom decoding. Available scripts live in `skills/postprocessors/scripts/` (e.g. `decode_wakelock.py`, `decode_ril.py`, `decode_carriers.py`, `decode_timestamps.py`). Leave blank if none apply.
+- **Post-process script** (optional) — only needed if matches require custom decoding. Available scripts live in `skills/lens-postprocessors/scripts/` (e.g. `decode_wakelock.py`, `decode_ril.py`, `decode_carriers.py`, `decode_timestamps.py`). Leave blank if none apply.
 
 Ask: "Do you want to add another pattern?" Repeat until done.
 
@@ -55,7 +55,7 @@ Ask: "Do you want to add another pattern?" Repeat until done.
 ## Step 4 — Test Patterns (if sample file provided)
 
 If the developer provided a sample log file, test each pattern by invoking the
-`android-log-analysis` skill with the pattern and file. Show the match count
+`lens-log-filter` skill with the pattern and file. Show the match count
 and a preview of the first few matches. If a pattern returns zero matches,
 suggest refining it.
 
@@ -96,4 +96,4 @@ Show the developer the written file path. Then tell them:
 > include:
 >   - log/<id>.yaml
 > ```
-> Run `workflow-creator` to build a new workflow, or add it to an existing one.
+> Run `lens-workflow-creator` to build a new workflow, or add it to an existing one.

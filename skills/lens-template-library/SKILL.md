@@ -1,5 +1,5 @@
 ---
-name: template-library
+name: lens-template-library
 description: >-
   Browse and discover available filter templates. Lists all templates from
   project-local and shared default locations, with their IDs, descriptions,
@@ -26,8 +26,8 @@ Search the following directories in order. Read every `.yaml` file found.
 - `log-templates/pcap/` — relative to the current working directory
 
 **Shared defaults (deployed):**
-- `~/.cline/skills/template-library/templates/log/`
-- `~/.cline/skills/template-library/templates/pcap/`
+- `~/.cline/skills/lens-template-library/templates/log/`
+- `~/.cline/skills/lens-template-library/templates/pcap/`
 
 For each YAML file found, read its contents and extract:
 - `templates[*].id` — the template ID (used in `include:`)
@@ -71,5 +71,5 @@ If project-local templates exist, list them first under **Project-local**.
 After presenting the catalogue, ask the user what they'd like to do:
 
 - **Use a template** → tell them to add it to a workflow `include:` using its short path (e.g. `log/wakelock.yaml`)
-- **Create a new template** → direct them to run `log-template-creator` or `pcap-template-creator`
+- **Create a new template** → direct them to run `lens-log-template-creator` or `lens-pcap-template-creator`
 - **See pattern details** → read the full YAML for any template and show the filter expressions and field lists

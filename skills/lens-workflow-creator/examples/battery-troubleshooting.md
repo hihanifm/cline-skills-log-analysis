@@ -1,6 +1,6 @@
 ---
 workflow: battery-troubleshooting
-skill: workflow-orchestrator
+skill: lens-workflow-orchestrator-agent
 description: Battery drain and power management analysis for Android devices
 
 
@@ -8,7 +8,7 @@ default_max_lines: 200
 
 input:
   - path: "logcat*.txt"
-    skill: android-log-analysis
+    skill: lens-log-filter
     include:
       - log/wakelock.yaml
       - log/power.yaml
@@ -33,7 +33,7 @@ input:
           battery drain and can cause throttling or emergency shutdown.
 
   - path: "bugreport*.txt"
-    skill: android-log-analysis
+    skill: lens-log-filter
     include:
       - log/ril.yaml
     templates:
@@ -57,4 +57,4 @@ final_summary_prompt: >
 
 # Battery Troubleshooting
 
-Run using the `workflow-orchestrator` skill.
+Run using the `lens-workflow-orchestrator-agent` skill.

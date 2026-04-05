@@ -1,10 +1,10 @@
 ---
-name: template-engine
+name: lens-template-runner-agent
 description: >-
   Applies a template YAML directly to a log or pcap file, running each filter
   definition in the template against the input. Use when you want to apply a
   template to a file without running a full workflow. Also used internally by
-  the workflow-orchestrator skill.
+  the lens-workflow-orchestrator-agent skill.
 ---
 
 # Template Engine Skill
@@ -22,7 +22,7 @@ on the template's pattern structure.
 Ask the user for:
 - **Template path** — path to a `.yaml` template file (e.g. `templates/log/wakelock.yaml`)
 - **Input file** — log or pcap file to apply it to
-- **Skill** (optional) — `android-log-analysis` or `android-pcap-analysis`; auto-detected if omitted
+- **Skill** (optional) — `lens-log-filter` or `lens-pcap-filter`; auto-detected if omitted
 - **Max lines** (optional, default 200)
 
 ---
@@ -35,7 +35,7 @@ Resolve the scripts directory relative to this skill file, then run:
 python3 <skill_scripts_dir>/template_runner.py \
   --template <template_path> \
   --file <input_file> \
-  [--skill android-log-analysis] \
+  [--skill lens-log-filter] \
   [--max-lines 200]
 ```
 

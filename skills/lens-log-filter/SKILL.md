@@ -1,9 +1,9 @@
 ---
-name: android-log-analysis
+name: lens-log-filter
 description: >-
   Filters Android logcat files using ripgrep and a regex pattern. Use directly
   when you want to extract matching lines from a log file without running a full
-  workflow. Can also be invoked by the workflow-orchestrator skill automatically.
+  workflow. Can also be invoked by the lens-workflow-orchestrator-agent skill automatically.
 ---
 
 # Android Log Analysis Skill

@@ -11,7 +11,7 @@ Usage (CLI):
     python3 template_runner.py \
         --template /path/to/wakelock.yaml \
         --file /path/to/logcat.txt \
-        [--skill android-log-analysis] \
+        [--skill lens-log-filter] \
         [--max-lines 200]
 """
 
@@ -37,15 +37,15 @@ if _SHARED not in sys.path:
 
 import yaml_utils
 
-# Template search dirs — templates live in the template-library skill, not here.
-# Deployed: ~/.cline/skills/template-library/templates/
-# Dev:      <repo>/skills/template-library/templates/
+# Template search dirs — templates live in the lens-template-library skill, not here.
+# Deployed: ~/.cline/skills/lens-template-library/templates/
+# Dev:      <repo>/skills/lens-template-library/templates/
 _LIB_ROOT_DEPLOYED = os.path.join(
-    os.path.expanduser("~"), ".cline", "skills", "template-library"
+    os.path.expanduser("~"), ".cline", "skills", "lens-template-library"
 )
 _LIB_ROOT_DEV = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "..", "template-library"
+    "..", "lens-template-library"
 )
 _SKILL_TEMPLATE_DIRS = [
     os.path.join(_LIB_ROOT_DEPLOYED, "templates"),
@@ -109,8 +109,8 @@ def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
     Resolution order for relative paths:
       1. Relative to base_dir (workflow file's directory)
       2. Relative to project repo log-templates/ (walked up from base_dir)
-      3. Relative to ~/.cline/skills/template-library/templates/ (deployed)
-      4. Relative to <repo>/skills/template-library/templates/ (dev)
+      3. Relative to ~/.cline/skills/lens-template-library/templates/ (deployed)
+      4. Relative to <repo>/skills/lens-template-library/templates/ (dev)
 
     If errors list is provided, warnings/errors are appended to it in addition
     to being printed to stderr.
@@ -170,7 +170,7 @@ def run_patterns(
     Args:
         input_file:   Path to the log or pcap file.
         patterns:     List of pattern dicts (already resolved via resolve_patterns).
-        skill:        "android-log-analysis" or "android-pcap-analysis".
+        skill:        "lens-log-filter" or "lens-pcap-filter".
         max_lines:    Default cap (overridden per-pattern if pattern has max_lines).
         script_dirs:  Search dirs for post_process scripts.
 
@@ -180,10 +180,10 @@ def run_patterns(
             description, filtered_lines, summary_prompt, error
     """
     script_dirs = script_dirs or []
-    is_pcap = skill == "android-pcap-analysis"
+    is_pcap = skill == "lens-pcap-filter"
 
-    log_filter = load_skill_module("android-log-analysis", "log_filter")
-    pcap_filter = load_skill_module("android-pcap-analysis", "pcap_filter")
+    log_filter = load_skill_module("lens-log-filter", "log_filter")
+    pcap_filter = load_skill_module("lens-pcap-filter", "pcap_filter")
 
     sections = []
     for pattern in patterns:
@@ -249,9 +249,9 @@ def run_template(
         return []
 
     if not skill:
-        skill = "android-pcap-analysis" if any(
+        skill = "lens-pcap-filter" if any(
             "filter" in p and "fields" in p for p in patterns
-        ) else "android-log-analysis"
+        ) else "lens-log-filter"
 
     return run_patterns(
         input_file=input_file,
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--skill",
         default=None,
-        help="Skill to use: android-log-analysis or android-pcap-analysis (auto-detected if omitted)",
+        help="Skill to use: lens-log-filter or lens-pcap-filter (auto-detected if omitted)",
     )
     parser.add_argument("--max-lines", type=int, default=200, help="Max lines per pattern (default: 200)")
     args = parser.parse_args()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-setup.py — Cross-platform setup script for android-log-analysis skills.
+setup.py — Cross-platform setup script for Lens skills.
 
 Installs:
   - ripgrep (rg)
@@ -26,17 +26,17 @@ import subprocess
 import argparse
 
 
-SKILLS = ["android-log-analysis", "android-pcap-analysis", "template-engine", "workflow-orchestrator", "postprocessors", "log-template-creator", "pcap-template-creator", "workflow-creator", "template-library"]
+SKILLS = ["lens-log-filter", "lens-pcap-filter", "lens-template-runner-agent", "lens-workflow-orchestrator-agent", "lens-postprocessors", "lens-log-template-creator", "lens-pcap-template-creator", "lens-workflow-creator", "lens-template-library"]
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 SKILLS_SRC = os.path.join(REPO_ROOT, "skills")
-WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "workflow-creator", "examples")
+WORKFLOWS_SRC = os.path.join(REPO_ROOT, "skills", "lens-workflow-creator", "examples")
 
 # Shared Python modules copied into skill scripts/ dirs that import them.
 # Only skills that actually use these modules are listed here.
 SHARED_MODULES = ["yaml_utils.py", "config.py", "workflow_config.yaml"]
 SKILL_SHARED_MODULES = {
-    "template-engine":        ["yaml_utils.py"],
-    "workflow-orchestrator":  ["yaml_utils.py", "config.py", "workflow_config.yaml"],
+    "lens-template-runner-agent":      ["yaml_utils.py"],
+    "lens-workflow-orchestrator-agent": ["yaml_utils.py", "config.py", "workflow_config.yaml"],
 }
 
 
@@ -336,12 +336,12 @@ def main():
             fail(f"skill missing: {skill}")
             errors.append(f"skill not installed: {skill}")
 
-    wo_agent = os.path.join(skills_dir, "workflow-orchestrator", "scripts", "context_builder_agent.py")
+    wo_agent = os.path.join(skills_dir, "lens-workflow-orchestrator-agent", "scripts", "context_builder_agent.py")
     if os.path.isfile(wo_agent):
-        ok("workflow-orchestrator agents deployed")
+        ok("lens-workflow-orchestrator-agent agents deployed")
     else:
-        fail("workflow-orchestrator agents missing")
-        errors.append("workflow-orchestrator agents not deployed")
+        fail("lens-workflow-orchestrator-agent agents missing")
+        errors.append("lens-workflow-orchestrator-agent agents not deployed")
 
     if os.path.isdir(global_dest):
         count = len([f for f in os.listdir(global_dest) if f.endswith(".md")])

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-windows_installer.py — Windows .exe installer for android-log-analysis skills.
+windows_installer.py — Windows .exe installer for Lens skills.
 
 Double-click the built .exe to:
   - Install ripgrep and tshark (via winget/scoop/choco)
@@ -19,20 +19,20 @@ import subprocess
 
 
 SKILLS = [
-    "android-log-analysis",
-    "android-pcap-analysis",
-    "template-engine",
-    "workflow-orchestrator",
-    "postprocessors",
-    "log-template-creator",
-    "pcap-template-creator",
-    "workflow-creator",
-    "template-library",
+    "lens-log-filter",
+    "lens-pcap-filter",
+    "lens-template-runner-agent",
+    "lens-workflow-orchestrator-agent",
+    "lens-postprocessors",
+    "lens-log-template-creator",
+    "lens-pcap-template-creator",
+    "lens-workflow-creator",
+    "lens-template-library",
 ]
 
 SKILL_SHARED_MODULES = {
-    "template-engine":       ["yaml_utils.py"],
-    "workflow-orchestrator": ["yaml_utils.py", "config.py", "workflow_config.yaml"],
+    "lens-template-runner-agent":       ["yaml_utils.py"],
+    "lens-workflow-orchestrator-agent": ["yaml_utils.py", "config.py", "workflow_config.yaml"],
 }
 
 # When frozen by PyInstaller, data files are unpacked to sys._MEIPASS.
@@ -43,7 +43,7 @@ else:
     DATA_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SKILLS_SRC = os.path.join(DATA_ROOT, "skills")
-WORKFLOWS_SRC = os.path.join(DATA_ROOT, "skills", "workflow-creator", "examples")
+WORKFLOWS_SRC = os.path.join(DATA_ROOT, "skills", "lens-workflow-creator", "examples")
 
 _version_file = os.path.join(DATA_ROOT, "VERSION")
 VERSION = open(_version_file).read().strip() if os.path.isfile(_version_file) else "dev"
@@ -219,12 +219,12 @@ def verify():
             fail(f"skill missing: {skill}")
             errors.append(f"skill not installed: {skill}")
 
-    wo_agent = os.path.join(skills_dir, "workflow-orchestrator", "scripts", "context_builder_agent.py")
+    wo_agent = os.path.join(skills_dir, "lens-workflow-orchestrator-agent", "scripts", "context_builder_agent.py")
     if os.path.isfile(wo_agent):
-        ok("workflow-orchestrator agents deployed")
+        ok("lens-workflow-orchestrator-agent agents deployed")
     else:
-        fail("workflow-orchestrator agents missing")
-        errors.append("workflow-orchestrator agents not deployed")
+        fail("lens-workflow-orchestrator-agent agents missing")
+        errors.append("lens-workflow-orchestrator-agent agents not deployed")
 
     wf_dir = global_workflows_dir()
     if os.path.isdir(wf_dir):

@@ -1,6 +1,6 @@
 ---
 workflow: emergency-call-troubleshooting
-skill: workflow-orchestrator
+skill: lens-workflow-orchestrator-agent
 description: Emergency call (E911/SOS) failure analysis for Android devices
 
 
@@ -8,7 +8,7 @@ default_max_lines: 200
 
 input:
   - path: "logcat*.txt"
-    skill: android-log-analysis
+    skill: lens-log-filter
     include:
       - log/ims-sip.yaml
       - log/ril.yaml
@@ -48,7 +48,7 @@ input:
           network or device issue.
 
   - path: "bugreport*.txt"
-    skill: android-log-analysis
+    skill: lens-log-filter
     include:
       - log/ril.yaml
     templates:
@@ -73,4 +73,4 @@ final_summary_prompt: >
 
 # Emergency Call Troubleshooting
 
-Run using the `workflow-orchestrator` skill.
+Run using the `lens-workflow-orchestrator-agent` skill.

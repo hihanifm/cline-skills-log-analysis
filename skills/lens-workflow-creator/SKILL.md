@@ -1,10 +1,10 @@
 ---
-name: workflow-creator
+name: lens-workflow-creator
 description: >-
   Guides a developer through creating a new analysis workflow .md file.
   Discovers available templates, asks which inputs to analyze and which
   templates to apply, and writes a ready-to-run workflow. Depends on
-  log-template-creator and pcap-template-creator for creating new templates.
+  lens-log-template-creator and lens-pcap-template-creator for creating new templates.
 ---
 
 # Workflow Creator Skill
@@ -15,7 +15,7 @@ Helps a developer author a new workflow markdown file. Workflows are the
 top-level entry point for analysis: they define what log/PCAP files to read,
 which templates to apply, and what the final report should summarize.
 
-Once created, a workflow is run end-to-end by the `workflow-orchestrator` skill.
+Once created, a workflow is run end-to-end by the `lens-workflow-orchestrator-agent` skill.
 
 ---
 
@@ -29,7 +29,7 @@ Ask the developer:
 
 ## Step 2 — Discover Available Templates
 
-List the contents of `log-templates/log/` and `log-templates/pcap/` in the project repo, and also `~/.cline/skills/template-library/templates/log/` and `~/.cline/skills/template-library/templates/pcap/` for shared defaults. For each YAML file
+List the contents of `log-templates/log/` and `log-templates/pcap/` in the project repo, and also `~/.cline/skills/lens-template-library/templates/log/` and `~/.cline/skills/lens-template-library/templates/pcap/` for shared defaults. For each YAML file
 found, read its `id` and `description` fields and show the developer a summary:
 
 ```
@@ -47,8 +47,8 @@ PCAP templates:
 
 Ask: "Do any of these cover what you need, or do you need new templates?"
 
-- If they need **new log templates** → tell them to run `log-template-creator` first, then come back.
-- If they need **new PCAP templates** → tell them to run `pcap-template-creator` first, then come back.
+- If they need **new log templates** → tell them to run `lens-log-template-creator` first, then come back.
+- If they need **new PCAP templates** → tell them to run `lens-pcap-template-creator` first, then come back.
 - Otherwise continue.
 
 ---
@@ -66,7 +66,7 @@ Ask for:
 For each type of input file the developer wants to analyze, ask:
 
 - **File glob** — pattern to match input files (e.g. `logcat*.txt`, `*.pcap`)
-- **Skill** — `android-log-analysis` for text logs, `android-pcap-analysis` for PCAP
+- **Skill** — `lens-log-filter` for text logs, `lens-pcap-filter` for PCAP
 - **Templates to include** — which templates from Step 2 apply to this input type. List them as `include:` paths.
 - **Inline patterns** (optional) — any one-off patterns specific to this workflow that don't belong in a shared template. For each: gather `id`, `pattern` (or `filter`+`fields` for PCAP), `context_lines`, `description`, and optional `summary_prompt`.
 
@@ -94,14 +94,14 @@ Write the workflow to `.clinerules/workflows/<name>.md` in the project repo usin
 ```markdown
 ---
 workflow: <name>
-skill: workflow-orchestrator
+skill: lens-workflow-orchestrator-agent
 description: <description>
 
 default_max_lines: 200
 
 input:
   - path: "<glob>"
-    skill: android-log-analysis
+    skill: lens-log-filter
     include:
       - log-templates/log/<template>.yaml
     templates:
@@ -134,7 +134,7 @@ Tell the developer:
 
 > Workflow written to `.clinerules/workflows/<name>.md`.
 >
-> Commit this file (along with any `log-templates/` and `log-postprocessors/` you created)
+> Commit this file (along with any `log-templates/` and `log-lens-postprocessors/` you created)
 > so colleagues can run the same workflow on their machines.
 >
-> To run it, invoke the `workflow-orchestrator` skill and point it at this workflow file.
+> To run it, invoke the `lens-workflow-orchestrator-agent` skill and point it at this workflow file.

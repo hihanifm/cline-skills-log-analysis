@@ -1,6 +1,6 @@
 ---
 workflow: ims-pcap-troubleshooting
-skill: workflow-orchestrator
+skill: lens-workflow-orchestrator-agent
 description: IMS/VoLTE network capture analysis — SIP signaling and DNS for call and registration issues
 
 
@@ -8,7 +8,7 @@ default_max_lines: 200
 
 input:
   - path: "*.pcap*"
-    skill: android-pcap-analysis
+    skill: lens-pcap-filter
     include:
       - pcap/sip.yaml
       - pcap/dns.yaml
@@ -68,4 +68,4 @@ final_summary_prompt: >
 
 # IMS PCAP Troubleshooting
 
-Run using the `workflow-orchestrator` skill.
+Run using the `lens-workflow-orchestrator-agent` skill.

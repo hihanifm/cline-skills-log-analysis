@@ -41,12 +41,12 @@ This will:
 **1. Install skills:**
 ```bash
 # macOS / Linux
-cp -r skills/android-log-analysis ~/.cline/skills/
-cp -r skills/android-pcap-analysis ~/.cline/skills/
+cp -r skills/lens-log-filter ~/.cline/skills/
+cp -r skills/lens-pcap-filter ~/.cline/skills/
 
 # Windows (PowerShell)
-Copy-Item -Recurse skills\android-log-analysis $env:USERPROFILE\.cline\skills\
-Copy-Item -Recurse skills\android-pcap-analysis $env:USERPROFILE\.cline\skills\
+Copy-Item -Recurse skills\lens-log-filter $env:USERPROFILE\.cline\skills\
+Copy-Item -Recurse skills\lens-pcap-filter $env:USERPROFILE\.cline\skills\
 ```
 
 **2. Install workflows** (project-level, version controlled):
@@ -118,7 +118,7 @@ written relative to the input file location (previous behavior).
 
 ```
 skills/
-  android-log-analysis/       ← Cline skill for logcat files (uses rg)
+  lens-log-filter/       ← Cline skill for logcat files (uses rg)
     SKILL.md                  ← Skill instructions
     patterns/                 ← Shared reusable pattern templates
       wakelock.yaml
@@ -130,7 +130,7 @@ skills/
       decode_carriers.py      ← Carrier code → full name
       decode_timestamps.py    ← Normalize timestamps to ISO 8601
 
-  android-pcap-analysis/      ← Cline skill for PCAP files (uses tshark)
+  lens-pcap-filter/      ← Cline skill for PCAP files (uses tshark)
     SKILL.md
     patterns/
       sip.yaml
@@ -168,8 +168,8 @@ All workflows accept:
 3. No changes to skills needed
 
 **Add a new shared pattern template:**
-1. Create `skills/android-log-analysis/patterns/my-pattern.yaml`
-2. Copy to `~/.cline/skills/android-log-analysis/patterns/`
+1. Create `skills/lens-log-filter/patterns/my-pattern.yaml`
+2. Copy to `~/.cline/skills/lens-log-filter/patterns/`
 3. Reference it in any workflow with `include: [my-pattern]`
 
 **Add a post-processing script:**

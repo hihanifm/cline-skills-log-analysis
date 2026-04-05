@@ -46,21 +46,21 @@ LOGCAT_FIXTURE = os.path.join(FIXTURES_DIR, "logcat_sample.txt")
 BUGREPORT_FIXTURE = os.path.join(FIXTURES_DIR, "bugreport_sample.txt")
 
 WAKELOCK_TEMPLATE = os.path.join(
-    REPO_ROOT, "skills", "template-library", "templates", "log", "wakelock.yaml"
+    REPO_ROOT, "skills", "lens-template-library", "templates", "log", "wakelock.yaml"
 )
 BATTERY_WORKFLOW = os.path.join(
-    REPO_ROOT, "skills", "workflow-creator", "examples", "battery-troubleshooting.md"
+    REPO_ROOT, "skills", "lens-workflow-creator", "examples", "battery-troubleshooting.md"
 )
 CONTEXT_BUILDER = os.path.join(
-    REPO_ROOT, "skills", "workflow-orchestrator", "scripts", "context_builder_agent.py"
+    REPO_ROOT, "skills", "lens-workflow-orchestrator-agent", "scripts", "context_builder_agent.py"
 )
 SYNTHESIZER = os.path.join(
-    REPO_ROOT, "skills", "workflow-orchestrator", "scripts", "log_synthesizer_agent.py"
+    REPO_ROOT, "skills", "lens-workflow-orchestrator-agent", "scripts", "log_synthesizer_agent.py"
 )
 
 # Make log_filter and template_runner importable from the repo in dev mode.
-sys.path.insert(0, os.path.join(REPO_ROOT, "skills", "android-log-analysis", "scripts"))
-sys.path.insert(0, os.path.join(REPO_ROOT, "skills", "template-engine", "scripts"))
+sys.path.insert(0, os.path.join(REPO_ROOT, "skills", "lens-log-filter", "scripts"))
+sys.path.insert(0, os.path.join(REPO_ROOT, "skills", "lens-template-runner-agent", "scripts"))
 
 RG_AVAILABLE = shutil.which("rg") is not None
 

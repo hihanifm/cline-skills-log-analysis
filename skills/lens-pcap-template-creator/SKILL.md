@@ -1,10 +1,10 @@
 ---
-name: pcap-template-creator
+name: lens-pcap-template-creator
 description: >-
   Guides a developer through creating a reusable PCAP template YAML for the
-  android-pcap-analysis skill. Asks for tshark display filters and field lists,
+  lens-pcap-filter skill. Asks for tshark display filters and field lists,
   tests them against a sample PCAP if available, and writes the template to
-  log-templates/pcap/. Use this before workflow-creator when you need new PCAP patterns.
+  log-templates/pcap/. Use this before lens-workflow-creator when you need new PCAP patterns.
 ---
 
 # PCAP Template Creator Skill
@@ -12,7 +12,7 @@ description: >-
 ## What This Skill Does
 
 Helps a developer author a new PCAP template YAML file. PCAP templates define
-tshark display filters and field extraction lists used by `android-pcap-analysis`
+tshark display filters and field extraction lists used by `lens-pcap-filter`
 to analyze `.pcap` / `.pcapng` capture files. The resulting YAML can be included
 in any workflow via `include:` in the workflow frontmatter.
 
@@ -58,7 +58,7 @@ For each pattern the developer wants to add, gather:
 
 - **Description** — what this filter captures and why it matters
 - **Summary prompt** (optional) — AI analysis prompt describing what to look for in the output
-- **Post-process script** (optional) — available scripts live in `skills/postprocessors/scripts/` (e.g. `decode_sip.py`). Leave blank if none apply.
+- **Post-process script** (optional) — available scripts live in `skills/lens-postprocessors/scripts/` (e.g. `decode_sip.py`). Leave blank if none apply.
 
 Ask: "Do you want to add another pattern?" Repeat until done.
 
@@ -67,7 +67,7 @@ Ask: "Do you want to add another pattern?" Repeat until done.
 ## Step 4 — Test Patterns (if sample file provided)
 
 If the developer provided a sample PCAP file, test each pattern by invoking the
-`android-pcap-analysis` skill with the filter, fields, and file. Show the packet
+`lens-pcap-filter` skill with the filter, fields, and file. Show the packet
 count and a preview of the first few rows. If a filter returns zero packets, suggest
 refining the display filter.
 
@@ -112,4 +112,4 @@ Show the developer the written file path. Then tell them:
 > include:
 >   - pcap/<id>.yaml
 > ```
-> Run `workflow-creator` to build a new workflow, or add it to an existing one.
+> Run `lens-workflow-creator` to build a new workflow, or add it to an existing one.
