@@ -205,6 +205,15 @@ def write_report(context: dict, output_path: str):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
+    # Optionally render report.html alongside report.md
+    if get_output_config().get("html_report", True):
+        _scripts_dir = os.path.dirname(os.path.abspath(__file__))
+        if _scripts_dir not in sys.path:
+            sys.path.insert(0, _scripts_dir)
+        import report_html_renderer
+        html_path = report_html_renderer.render(output_path)
+        print(f"  HTML report: {html_path}", file=sys.stderr)
+
     # Write summary.md — final summary only (openai mode only;
     # in cline mode Cline fills the placeholder and writes summary.md itself)
     if backend == "openai" and final_prompt:

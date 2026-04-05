@@ -15,3 +15,6 @@ output:
   # Set to false to overwrite the same out/<workflow-name>/ directory each run.
   # Set to true (default) to create out/<workflow-name>-2/, -3/, etc.
   versioned: true
+
+  # Set to false to skip generating report.html alongside report.md.
+  html_report: true
