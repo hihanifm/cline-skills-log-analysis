@@ -104,8 +104,8 @@ _CSS = """
 
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #0f1117;
-  color: #e8eaf0;
+  background: #fdf6ec;
+  color: #1c1208;
   font-size: 14px;
   line-height: 1.6;
 }
@@ -119,31 +119,31 @@ body {
 /* ── Header ───────────────────────────────────────────────────────────────── */
 #hdr {
   padding: 1.5rem 0 1rem;
-  border-bottom: 1px solid #2a2d3a;
+  border-bottom: 1px solid rgba(28,18,8,0.15);
   margin-bottom: 1.25rem;
 }
 
 #hdr h1 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: #1c1208;
   margin-bottom: 0.4rem;
 }
 
 .meta {
   font-size: 13px;
-  color: #8899aa;
+  color: #7a6050;
   margin-bottom: 0.3rem;
 }
 
 .meta code {
-  background: #1a1d27;
-  border: 1px solid #2a2d3a;
+  background: #ede0cc;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 3px;
   padding: 0.1em 0.4em;
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 0.9em;
-  color: #e8b86d;
+  color: #b84810;
 }
 
 .stats {
@@ -155,14 +155,14 @@ body {
 h2 {
   font-size: 1rem;
   font-weight: 600;
-  color: #c8cfe8;
+  color: #1c1208;
   margin: 0 0 0.75rem;
 }
 
 /* ── Controls ─────────────────────────────────────────────────────────────── */
 #controls {
-  background: #131620;
-  border: 1px solid #2a2d3a;
+  background: #f0e4d0;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 8px;
   padding: 0.85rem 1rem;
   margin-bottom: 1.25rem;
@@ -183,7 +183,7 @@ h2 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #5a6070;
+  color: #7a6050;
   min-width: 58px;
 }
 
@@ -199,7 +199,7 @@ h2 {
   border-radius: 999px;
   border: 1.5px solid var(--c, #e87830);
   background: transparent;
-  color: #5a6070;
+  color: #7a6050;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
   font-family: inherit;
@@ -226,7 +226,7 @@ h2 {
   align-items: center;
   gap: 0.35rem;
   font-size: 12.5px;
-  color: #c8cfe8;
+  color: #3a2010;
   cursor: pointer;
 }
 
@@ -240,8 +240,8 @@ h2 {
 
 /* ── Timeline ─────────────────────────────────────────────────────────────── */
 #timeline-section {
-  background: #0a0c12;
-  border: 1px solid #2a2d3a;
+  background: #f0e4d0;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 8px;
   padding: 1rem 1rem 0.5rem;
   margin-bottom: 1.25rem;
@@ -261,7 +261,7 @@ h2 {
 .ts-label {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 10px;
-  fill: #4a5060;
+  fill: #7a6050;
 }
 
 .evt-dot {
@@ -274,7 +274,7 @@ h2 {
 }
 
 .no-ts-note {
-  color: #5a6070;
+  color: #7a6050;
   font-size: 13px;
   font-style: italic;
   padding: 0.5rem 0;
@@ -284,12 +284,12 @@ h2 {
 #visible-count {
   font-size: 13px;
   font-weight: 400;
-  color: #5a6070;
+  color: #7a6050;
 }
 
 .pattern-group {
-  background: #131620;
-  border: 1px solid #2a2d3a;
+  background: #f0e4d0;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 8px;
   margin-bottom: 0.6rem;
   overflow: hidden;
@@ -305,7 +305,7 @@ h2 {
 }
 
 .group-hdr:hover {
-  background: #1a1d27;
+  background: #ede0cc;
 }
 
 .group-dot {
@@ -319,13 +319,13 @@ h2 {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 12.5px;
   font-weight: 600;
-  color: #e8eaf0;
+  color: #1c1208;
   flex-shrink: 0;
 }
 
 .group-desc {
   font-size: 12px;
-  color: #6a7890;
+  color: #7a6050;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -334,18 +334,18 @@ h2 {
 
 .group-count {
   font-size: 11px;
-  color: #4a5060;
+  color: #7a6050;
   flex-shrink: 0;
 }
 
 .chevron {
-  color: #4a5060;
+  color: #7a6050;
   font-size: 13px;
   flex-shrink: 0;
 }
 
 .group-body {
-  border-top: 1px solid #2a2d3a;
+  border-top: 1px solid rgba(28,18,8,0.15);
 }
 
 /* ── Event cards ──────────────────────────────────────────────────────────── */
@@ -355,7 +355,7 @@ h2 {
   gap: 0.5rem;
   padding: 0.3rem 0.9rem;
   font-size: 12px;
-  border-bottom: 1px solid #1a1d27;
+  border-bottom: 1px solid rgba(28,18,8,0.08);
   transition: background 0.1s;
   min-width: 0;
 }
@@ -365,11 +365,11 @@ h2 {
 }
 
 .event-card:hover {
-  background: #1a1d27;
+  background: #ede0cc;
 }
 
 .event-card.highlighted {
-  background: rgba(232,120,48,0.10);
+  background: rgba(232,120,48,0.12);
   outline: 1px solid rgba(232,120,48,0.5);
   outline-offset: -1px;
 }
@@ -388,7 +388,7 @@ h2 {
 .ev-tag {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 11px;
-  color: #7a8898;
+  color: #7a6050;
   flex-shrink: 0;
   max-width: 180px;
   overflow: hidden;
@@ -399,7 +399,7 @@ h2 {
 .ev-ts {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 11px;
-  color: #506070;
+  color: #7a6050;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -407,7 +407,7 @@ h2 {
 .ev-msg {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 11.5px;
-  color: #b8c0d0;
+  color: #3a2010;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

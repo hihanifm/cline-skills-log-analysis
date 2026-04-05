@@ -26,8 +26,8 @@ _HTML_CSS = """
 
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: #0f1117;
-  color: #e8eaf0;
+  background: #fdf6ec;
+  color: #1c1208;
   max-width: 980px;
   margin: 0 auto;
   padding: 2rem 2.5rem 4rem;
@@ -38,17 +38,17 @@ body {
 h1 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #1c1208;
   margin: 1.75rem 0 0.5rem;
 }
 
 h2 {
   font-size: 1.15rem;
   font-weight: 600;
-  color: #c8cfe8;
+  color: #3a2010;
   margin: 1.5rem 0 0.4rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #2a2d3a;
+  border-bottom: 1px solid rgba(28,18,8,0.15);
 }
 
 p {
@@ -57,13 +57,13 @@ p {
 
 hr {
   border: none;
-  border-top: 1px solid #2a2d3a;
+  border-top: 1px solid rgba(28,18,8,0.15);
   margin: 1.5rem 0;
 }
 
 pre {
-  background: #1a1d27;
-  border: 1px solid #2a2d3a;
+  background: #ede0cc;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 6px;
   padding: 1rem 1.25rem;
   overflow-x: auto;
@@ -83,11 +83,11 @@ summary.log-summary {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.85rem;
-  background: #151820;
-  border: 1px solid #2a2d3a;
+  background: #f0e4d0;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 6px;
   font-size: 12px;
-  color: #5a6878;
+  color: #7a6050;
   transition: background 0.12s, color 0.12s;
 }
 
@@ -103,7 +103,7 @@ summary.log-summary::before {
 
 details[open] > summary.log-summary {
   border-radius: 6px 6px 0 0;
-  border-bottom-color: #1e2232;
+  border-bottom-color: rgba(28,18,8,0.08);
 }
 
 details[open] > summary.log-summary::before {
@@ -111,8 +111,8 @@ details[open] > summary.log-summary::before {
 }
 
 summary.log-summary:hover {
-  background: #1a1d27;
-  color: #8899aa;
+  background: #ede0cc;
+  color: #6b5a48;
 }
 
 details.log-block > pre {
@@ -124,7 +124,7 @@ details.log-block > pre {
 pre code {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace;
   font-size: 12.5px;
-  color: #8ec07c;
+  color: #7a4818;
   white-space: pre;
   background: none;
   border: none;
@@ -132,32 +132,32 @@ pre code {
 }
 
 code {
-  background: #1a1d27;
-  border: 1px solid #2a2d3a;
+  background: #ede0cc;
+  border: 1px solid rgba(28,18,8,0.18);
   border-radius: 3px;
   padding: 0.1em 0.4em;
   font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
   font-size: 0.88em;
-  color: #e8b86d;
+  color: #b84810;
 }
 
 strong {
-  color: #ffffff;
+  color: #1c1208;
   font-weight: 600;
 }
 
 em {
-  color: #9ab8d8;
+  color: #7a4818;
   font-style: italic;
 }
 
 blockquote {
-  border-left: 3px solid #e8903a;
+  border-left: 3px solid #e87830;
   margin: 0.6rem 0;
   padding: 0.45rem 0.85rem;
-  background: #1f1a0e;
+  background: rgba(232,120,48,0.08);
   border-radius: 0 4px 4px 0;
-  color: #e8c87a;
+  color: #7a4818;
 }
 """.strip()
 
