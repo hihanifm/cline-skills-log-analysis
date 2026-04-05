@@ -23,7 +23,7 @@ Android log and PCAP network capture analysis system for Cline (VS Code AI assis
 
 Skills are deployed to `~/.cline/skills/`, workflows to `~/Documents/Cline/Workflows/`.
 
-One Python dependency: `PyYAML` (used by `yaml_utils.py`). All other scripts use stdlib only.
+One Python dependency: `PyYAML` (used by `lib/yaml_utils.py`). All other scripts use stdlib only.
 
 ## Running the Pipeline Manually
 
@@ -42,7 +42,7 @@ Progress messages go to stderr; the output file path goes to stdout (for Cline t
 
 ## Configuration
 
-**`workflow_config.yaml`** (repo root) — central config for LLM backend and output directories. Loaded by `config.py`, which caches and merges it with built-in defaults.
+**`workflow_config.yaml`** (repo root) — central config for LLM backend and output directories. Loaded by `lib/config.py`, which caches and merges it with built-in defaults.
 
 Key settings:
 - `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `openai` (calls OpenAI-compatible API directly). Override at runtime with the `LLM_BACKEND` env var.
@@ -60,9 +60,9 @@ Output is written to `out/<workflow-name>/` relative to the working directory. I
 
 ## Architecture
 
-### Shared Python modules (repo root)
-- **`yaml_utils.py`** — PyYAML wrapper: `load_yaml()`, `load_yaml_frontmatter()`, `write_yaml()`. All callers use this instead of importing PyYAML directly.
-- **`config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()` and `get_output_config()`.
+### Shared Python modules (`lib/`)
+- **`lib/yaml_utils.py`** — PyYAML wrapper: `load_yaml()`, `load_yaml_frontmatter()`, `write_yaml()`. All callers use this instead of importing PyYAML directly.
+- **`lib/config.py`** — Loads `workflow_config.yaml`; exposes `get_llm_config()` and `get_output_config()`.
 
 ### Skills (`skills/`)
 Each skill has a `SKILL.md` (instructions for Cline) and an optional `scripts/` directory. Nine skills:
@@ -100,3 +100,21 @@ All decode/format scripts read from stdin and write to stdout, and optionally ac
 **New post-processor:** Create `log-lens-postprocessors/<name>.py` in the project repo. Invoke `lens-postprocessors` skill for guidance. Reference with `post_process: <name>.py` in a template pattern.
 
 Project-local assets (`log-templates/`, `log-lens-postprocessors/`, `.clinerules/workflows/`) take priority over the shared skill defaults and can be committed to the project repo for team sharing.
+
+## HTML Slide Color Palette
+
+Both `docs/presentation.html` and `docs/user-guide.html` use a **warm orange/amber dark theme**.
+
+| Role | Value |
+|------|-------|
+| Primary accent | `#e87830` (burnt orange) |
+| Secondary accent | `#e8b840` (warm amber) |
+| Bright text highlight | `#f0a060` |
+| Soft text highlight | `#f0d4a8` |
+| Heading gradient | `#ffffff` → `#d4a060` |
+| Background (base) | `#0f1117` |
+| Slide bg gradients | Warm brown/amber dark tones (`#241a08`, `#201510`, `#1c1208`, `#1c1408`, `#1a1408`) |
+| Orange rgba overlay | `rgba(232,120,48,…)` |
+| Amber rgba overlay | `rgba(232,184,64,…)` |
+
+When generating or updating HTML slides, use this warm orange/amber palette — not blue/green defaults.
