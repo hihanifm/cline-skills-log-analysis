@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lens YOLO Mode — Autonomous RCA Loop</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e8eaf0;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    section {
+      padding: 72px 0 0;
+    }
+
+    /* ── Section labels ── */
+    .label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #5b8af0;
+      margin-bottom: 10px;
+    }
+
+    .rule {
+      width: 48px;
+      height: 3px;
+      background: #5b8af0;
+      border-radius: 2px;
+      margin-top: 14px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 96px 0 0;
+      background: radial-gradient(ellipse at 60% 30%, #0d1a30 0%, #0f1117 65%);
+      margin: 0 -40px;
+      padding-left: 40px;
+      padding-right: 40px;
+    }
+
+    .hero .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #f0a55b;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff 0%, #a0b4d8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero .subhead {
+      font-size: 19px;
+      color: #8892a4;
+      max-width: 560px;
+      margin-bottom: 36px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-bottom: 72px;
+    }
+
+    .tag {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .tag-blue {
+      background: rgba(91,138,240,0.12);
+      border: 1px solid rgba(91,138,240,0.3);
+      color: #7da4f5;
+    }
+
+    .tag-amber {
+      background: rgba(240,165,91,0.12);
+      border: 1px solid rgba(240,165,91,0.3);
+      color: #f0a55b;
+    }
+
+    .tag-green {
+      background: rgba(91,240,138,0.1);
+      border: 1px solid rgba(91,240,138,0.25);
+      color: #5bf08a;
+    }
+
+    .tag-purple {
+      background: rgba(165,91,240,0.12);
+      border: 1px solid rgba(165,91,240,0.3);
+      color: #c07df5;
+    }
+
+    /* ── Section headings ── */
+    h2 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    /* ── Loop diagram ── */
+    .loop-wrap {
+      margin-top: 36px;
+    }
+
+    .loop-nodes {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+    }
+
+    .loop-node {
+      flex: 1;
+      background: rgba(91,138,240,0.07);
+      border: 1px solid rgba(91,138,240,0.2);
+      border-radius: 12px;
+      padding: 20px 14px;
+      text-align: center;
+      position: relative;
+    }
+
+    .loop-node.trigger {
+      background: rgba(240,165,91,0.08);
+      border-color: rgba(240,165,91,0.3);
+    }
+
+    .loop-node.kb {
+      background: rgba(165,91,240,0.08);
+      border-color: rgba(165,91,240,0.3);
+    }
+
+    .loop-node.eval {
+      background: rgba(91,240,138,0.07);
+      border-color: rgba(91,240,138,0.25);
+    }
+
+    .loop-node .node-icon {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .loop-node .node-num {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .loop-node.trigger .node-num { color: #f0a55b; }
+    .loop-node.kb .node-num      { color: #c07df5; }
+    .loop-node.eval .node-num    { color: #5bf08a; }
+    .loop-node .node-num          { color: #5b8af0; }
+
+    .loop-node h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .loop-node p {
+      font-size: 11px;
+      color: #8892a4;
+      line-height: 1.5;
+    }
+
+    .loop-arrow {
+      color: #5b8af0;
+      font-size: 18px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      align-self: center;
+    }
+
+    /* Return arc */
+    .loop-feedback {
+      position: relative;
+      margin-top: 0;
+      height: 52px;
+      display: flex;
+      align-items: center;
+    }
+
+    .loop-feedback-track {
+      flex: 1;
+      height: 2px;
+      background: rgba(240,165,91,0.25);
+      position: relative;
+    }
+
+    .loop-feedback-track::before {
+      content: '';
+      position: absolute;
+      left: 0; top: -16px;
+      width: 2px; height: 18px;
+      background: rgba(240,165,91,0.35);
+      border-radius: 2px;
+    }
+
+    .loop-feedback-track::after {
+      content: '';
+      position: absolute;
+      right: 0; top: -16px;
+      width: 2px; height: 18px;
+      background: rgba(240,165,91,0.35);
+      border-radius: 2px;
+    }
+
+    .loop-feedback-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 16px;
+      font-size: 11px;
+      color: #f0a55b;
+      white-space: nowrap;
+      background: #0f1117;
+      padding: 0 10px;
+    }
+
+    .loop-feedback-arrow {
+      font-size: 14px;
+      color: #f0a55b;
+      flex-shrink: 0;
+      padding: 0 4px;
+      margin-top: -2px;
+    }
+
+    /* Exit pill */
+    .exit-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      background: rgba(91,240,138,0.08);
+      border: 1px solid rgba(91,240,138,0.25);
+      border-radius: 24px;
+      padding: 8px 18px;
+      font-size: 13px;
+      color: #5bf08a;
+    }
+
+    .exit-pill .check {
+      font-size: 15px;
+    }
+
+    /* ── Comparison table ── */
+    .compare-wrap {
+      margin-top: 36px;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .compare-table th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-bottom: 2px solid rgba(255,255,255,0.08);
+    }
+
+    .compare-table th:first-child { color: #8892a4; }
+    .compare-table th:last-child  { color: #5b8af0; }
+
+    .compare-table td {
+      padding: 14px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: top;
+    }
+
+    .compare-table tr:last-child td { border-bottom: none; }
+
+    .compare-table td:first-child {
+      color: #8892a4;
+      background: rgba(255,255,255,0.02);
+      border-radius: 0;
+    }
+
+    .compare-table td:last-child {
+      color: #e8eaf0;
+      background: rgba(91,138,240,0.04);
+      font-weight: 500;
+    }
+
+    .compare-table tr td:first-child { border-right: 1px solid rgba(255,255,255,0.05); }
+
+    /* ── Building blocks ── */
+    .blocks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 36px;
+    }
+
+    .block-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .block-card .block-icon {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    .block-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .block-card p {
+      font-size: 13px;
+      color: #8892a4;
+      line-height: 1.6;
+    }
+
+    .block-card .block-tag {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 11px;
+      font-family: 'Consolas', monospace;
+      color: #5b8af0;
+      background: rgba(91,138,240,0.1);
+      border: 1px solid rgba(91,138,240,0.2);
+      border-radius: 4px;
+      padding: 3px 8px;
+    }
+
+    /* ── Footer CTA ── */
+    .footer {
+      margin-top: 80px;
+      padding: 48px 40px;
+      margin-left: -40px;
+      margin-right: -40px;
+      background: radial-gradient(ellipse at 50% 50%, #111d35 0%, #0f1117 70%);
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .footer h2 {
+      font-size: 36px;
+      background: linear-gradient(135deg, #ffffff 0%, #a0b4d8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+    }
+
+    .footer p {
+      font-size: 15px;
+      color: #8892a4;
+      max-width: 460px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .footer .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 28px;
+      background: rgba(240,165,91,0.1);
+      border: 1px solid rgba(240,165,91,0.25);
+      border-radius: 24px;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: #f0a55b;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f0a55b;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="eyebrow">Future Idea — Lens YOLO Mode</div>
+    <h1>Autonomous RCA Loop</h1>
+    <p class="subhead">Give it a problem and logs. It figures out the rest.</p>
+    <div class="tags">
+      <span class="tag tag-amber">Agentic</span>
+      <span class="tag tag-blue">Zero Human-in-the-Loop</span>
+      <span class="tag tag-green">Self-Improving</span>
+      <span class="tag tag-purple">Knowledge DB</span>
+      <span class="tag tag-blue">Iterative</span>
+    </div>
+  </section>
+
+  <!-- The Loop -->
+  <section>
+    <div class="label">The Core Idea</div>
+    <h2>The Autonomous RCA Loop</h2>
+    <div class="rule"></div>
+
+    <div class="loop-wrap">
+      <div class="loop-nodes">
+        <!-- Node 1 -->
+        <div class="loop-node trigger">
+          <div class="node-icon">📥</div>
+          <div class="node-num">Input</div>
+          <h3>Problem + Logs</h3>
+          <p>Problem description and raw log / PCAP files</p>
+        </div>
+        <div class="loop-arrow">→</div>
+
+        <!-- Node 2 -->
+        <div class="loop-node">
+          <div class="node-icon">🔍</div>
+          <div class="node-num">Step 1</div>
+          <h3>Discover Templates</h3>
+          <p>Scan template library; match candidates to the problem</p>
+        </div>
+        <div class="loop-arrow">→</div>
+
+        <!-- Node 3 -->
+        <div class="loop-node kb">
+          <div class="node-icon">🧠</div>
+          <div class="node-num">Step 2</div>
+          <h3>Re-rank via KB</h3>
+          <p>Score by historical success rate + semantic similarity</p>
+        </div>
+        <div class="loop-arrow">→</div>
+
+        <!-- Node 4 -->
+        <div class="loop-node">
+          <div class="node-icon">⚙️</div>
+          <div class="node-num">Step 3</div>
+          <h3>Run Pipeline</h3>
+          <p>Context builder → LLM synthesizer with top templates</p>
+        </div>
+        <div class="loop-arrow">→</div>
+
+        <!-- Node 5 -->
+        <div class="loop-node eval">
+          <div class="node-icon">📊</div>
+          <div class="node-num">Step 4</div>
+          <h3>Evaluate Confidence</h3>
+          <p>LLM + heuristics judge RCA completeness</p>
+        </div>
+      </div>
+
+      <!-- Return arc -->
+      <div class="loop-feedback">
+        <div class="loop-feedback-arrow">↙</div>
+        <div class="loop-feedback-track">
+          <span class="loop-feedback-label">refine &amp; retry if confidence &lt; threshold</span>
+        </div>
+        <div class="loop-feedback-arrow">↘</div>
+      </div>
+
+      <div class="exit-pill">
+        <span class="check">✓</span>
+        Confidence ≥ threshold → emit <code style="font-family:'Consolas',monospace; font-size:12px;">report.md</code> + <code style="font-family:'Consolas',monospace; font-size:12px;">summary.md</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section>
+    <div class="label">What Changes</div>
+    <h2>Today vs YOLO Mode</h2>
+    <div class="rule"></div>
+
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Today (Manual / Assisted)</th>
+            <th>YOLO Mode</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User picks a workflow</td>
+            <td>Agent discovers the right workflow automatically</td>
+          </tr>
+          <tr>
+            <td>Fixed template set per run</td>
+            <td>Templates re-ranked per problem context</td>
+          </tr>
+          <tr>
+            <td>One-shot synthesis</td>
+            <td>Iterative loop — refines until confident</td>
+          </tr>
+          <tr>
+            <td>Human judges report quality</td>
+            <td>Confidence scoring drives the exit condition</td>
+          </tr>
+          <tr>
+            <td>Static template library</td>
+            <td>Knowledge DB grows with every resolved issue</td>
+          </tr>
+          <tr>
+            <td>Expert needed to set up each workflow</td>
+            <td>Tribal knowledge encoded once; reused forever</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Building Blocks -->
+  <section>
+    <div class="label">What Needs to Be Built</div>
+    <h2>Key Building Blocks</h2>
+    <div class="rule"></div>
+
+    <div class="blocks-grid">
+      <div class="block-card">
+        <div class="block-icon">🔡</div>
+        <h3>Problem Embedding</h3>
+        <p>Embed the incoming problem description (and optionally a few sampled log lines) to find semantically similar past issues in the knowledge DB — seeds the initial template shortlist.</p>
+        <span class="block-tag">semantic-search</span>
+      </div>
+
+      <div class="block-card">
+        <div class="block-icon">📐</div>
+        <h3>Template Ranker</h3>
+        <p>Scores each candidate template by two signals: semantic relevance to the current problem, and historical success rate on similar past problems. Returns a ranked shortlist.</p>
+        <span class="block-tag">retrieval + scoring</span>
+      </div>
+
+      <div class="block-card">
+        <div class="block-icon">🎯</div>
+        <h3>Confidence Scorer</h3>
+        <p>After each synthesis pass, evaluates the generated report: Did the LLM identify a root cause? Are key patterns covered? Returns a confidence score that drives the loop exit.</p>
+        <span class="block-tag">LLM + heuristics</span>
+      </div>
+
+      <div class="block-card">
+        <div class="block-icon">🗄️</div>
+        <h3>Knowledge DB</h3>
+        <p>Grows with every completed run. Stores: problem description → templates used → RCA outcome → confidence. Future runs use this to bootstrap a better template shortlist from day one.</p>
+        <span class="block-tag">persistent store</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Footer CTA -->
+<div class="footer">
+  <h2>The Next Frontier for Lens</h2>
+  <p>
+    The pipeline already handles the hard parts — filtering, extraction, synthesis.
+    YOLO mode adds the loop that makes it truly autonomous.
+  </p>
+  <div class="status-badge">
+    <div class="status-dot"></div>
+    Concept — not yet implemented
+  </div>
+</div>
+
+</body>
+</html>
