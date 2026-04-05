@@ -70,6 +70,57 @@ pre {
   margin: 0.5rem 0 1rem;
 }
 
+/* ── Collapsible log block ──────────────────────────────────────── */
+details.log-block {
+  margin: 0.5rem 0 1rem;
+}
+
+summary.log-summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background: #151820;
+  border: 1px solid #2a2d3a;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #5a6878;
+  transition: background 0.12s, color 0.12s;
+}
+
+summary.log-summary::-webkit-details-marker { display: none; }
+summary.log-summary::marker { content: ""; }
+
+summary.log-summary::before {
+  content: "▶";
+  font-size: 9px;
+  color: #e87830;
+  flex-shrink: 0;
+}
+
+details[open] > summary.log-summary {
+  border-radius: 6px 6px 0 0;
+  border-bottom-color: #1e2232;
+}
+
+details[open] > summary.log-summary::before {
+  content: "▼";
+}
+
+summary.log-summary:hover {
+  background: #1a1d27;
+  color: #8899aa;
+}
+
+details.log-block > pre {
+  margin-top: 0;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
 pre code {
   font-family: 'Cascadia Code', 'Fira Code', Consolas, 'Courier New', monospace;
   font-size: 12.5px;
@@ -131,26 +182,41 @@ def _inline_md(text: str) -> str:
 
 # ── Markdown → HTML converter ─────────────────────────────────────────────────
 
+def _emit_code_block(out: list, code_lines: list) -> None:
+    """Emit a collapsible <details> block for a buffered code block."""
+    n = len(code_lines)
+    label = f"{n} line{'s' if n != 1 else ''}"
+    body = "\n".join(code_lines)
+    out.append(
+        f'<details class="log-block">'
+        f'<summary class="log-summary">{label}</summary>'
+        f'<pre><code>{body}</code></pre>'
+        f'</details>'
+    )
+
+
 def _md_to_html(md_text: str, title: str) -> str:
     """Convert report.md markdown text to a complete HTML document."""
     out = []
     in_code_block = False
+    code_buf: list = []
 
     # Multi-line Cline placeholder comments may be stored as a single element
     # in the lines list containing literal \n, OR as separate lines.
     # We process the raw text line-by-line; a comment spanning multiple lines
     # is detected by tracking an open <!-- without a closing -->.
     in_html_comment = False
-    comment_buf: list[str] = []
+    comment_buf: list = []
 
     for raw_line in md_text.splitlines():
         # ── Inside a fenced code block ──────────────────────────────────────
         if in_code_block:
             if raw_line.strip() == "```":
-                out.append("</code></pre>")
+                _emit_code_block(out, code_buf)
+                code_buf = []
                 in_code_block = False
             else:
-                out.append(html.escape(raw_line, quote=False))
+                code_buf.append(html.escape(raw_line, quote=False))
             continue
 
         # ── Accumulating an HTML comment (Cline placeholder) ────────────────
@@ -174,8 +240,8 @@ def _md_to_html(md_text: str, title: str) -> str:
 
         # ── Fenced code block open ──────────────────────────────────────────
         if raw_line.strip() == "```":
-            out.append("<pre><code>")
             in_code_block = True
+            code_buf = []
             continue
 
         # ── Structural elements ─────────────────────────────────────────────
@@ -207,7 +273,7 @@ def _md_to_html(md_text: str, title: str) -> str:
 
     # Close any unclosed code block (shouldn't happen with well-formed input)
     if in_code_block:
-        out.append("</code></pre>")
+        _emit_code_block(out, code_buf)
 
     body = "\n".join(out)
     escaped_title = html.escape(title)
