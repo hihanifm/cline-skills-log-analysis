@@ -405,7 +405,7 @@
         </div>
         <div class="cline-pitch">
           <h3>What This System Adds</h3>
-          <p>A set of <strong style="color:#c8d4f0">skills</strong> that extend Cline with troubleshooting superpowers — so instead of grepping logs manually, you describe the problem and get a structured diagnostic report.</p>
+          <p>A set of <strong style="color:#c8d4f0">agentic skills</strong> that extend Cline with troubleshooting superpowers — so instead of grepping logs manually, you describe the problem and get a structured diagnostic report.</p>
         </div>
       </div>
       <div class="cline-panel">
@@ -425,129 +425,8 @@
     </div>
   </div>
 
-  <!-- ── 3. The Two Concepts ── -->
+  <!-- ── 3. How it Works ── -->
   <div class="slide" data-index="2">
-    <div class="slide-header">
-      <div class="label">Core Concepts</div>
-      <h2>Two Things to Know</h2>
-      <div class="rule"></div>
-    </div>
-    <div class="concepts-grid">
-      <div class="concept-card template">
-        <div class="concept-icon">🔍</div>
-        <h3>Template</h3>
-        <p class="concept-def">
-          A YAML file that defines <strong style="color:#c8d4f0">what to look for</strong> in a log or PCAP file.
-          Contains one or more filter patterns — regex for logs, tshark display filters for PCAPs.
-          Lives in the shared library or your project repo. Reusable across any workflow.
-        </p>
-        <div class="analogy">Think of it as an ingredient — the specific pattern you want to extract.</div>
-      </div>
-      <div class="concept-card workflow">
-        <div class="concept-icon">📋</div>
-        <h3>Workflow</h3>
-        <p class="concept-def">
-          A Markdown file with YAML frontmatter that defines a <strong style="color:#c8d4f0">complete analysis</strong>.
-          It wires together templates, points at input file types, and defines the final
-          diagnostic question to ask the AI. It's what you actually "run".
-        </p>
-        <div class="analogy">Think of it as a recipe — it combines ingredients and describes the desired outcome.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── 4. Inside a Template ── -->
-  <div class="slide" data-index="3">
-    <div class="slide-header">
-      <div class="label">Template Anatomy</div>
-      <h2>What's in a Template</h2>
-      <div class="rule"></div>
-    </div>
-    <div class="yaml-block">
-      <div><span class="y-key">templates</span><span class="y-val">:</span></div>
-      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">id</span><span class="y-val">:</span> <span class="y-str">sipmsg</span> <span class="y-tag">referenced in workflow include:</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">SIP REGISTER and response messages</span> <span class="y-tag">appears in report</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">pattern</span><span class="y-val">:</span> <span class="y-str">"SIPMSG"</span> <span class="y-tag">ripgrep regex</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">context_lines</span><span class="y-val">:</span> <span class="y-val">3</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">post_process</span><span class="y-val">:</span> <span class="y-str">decode_sip.py</span> <span class="y-tag">optional</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did registration succeed? Was there a 401 challenge?"</span> <span class="y-tag">LLM prompt per pattern</span></div>
-    </div>
-    <p style="margin-top:16px; font-size:13px; color:#555; width:100%;">
-      For PCAP templates: replace <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">pattern</code> with <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">filter</code> + <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">fields</code> for tshark field extraction.
-    </p>
-  </div>
-
-  <!-- ── 5. Post-Processor ── -->
-  <div class="slide" data-index="4">
-    <div class="slide-header">
-      <div class="label">Optional Enhancement</div>
-      <h2>What's a Post-Processor</h2>
-      <div class="rule"></div>
-    </div>
-    <div class="flow-chain">
-      <div class="flow-box">
-        <div class="fb-label">Input</div>
-        <h4>Raw Log Lines</h4>
-        <p>Matched by ripgrep</p>
-      </div>
-      <div class="flow-arr">→</div>
-      <div class="flow-box highlight">
-        <div class="fb-label">Post-Processor</div>
-        <h4>decode_sip.py</h4>
-        <p>Transforms output</p>
-      </div>
-      <div class="flow-arr">→</div>
-      <div class="flow-box">
-        <div class="fb-label">Clean Output</div>
-        <h4>Readable Flow</h4>
-        <p>Sent to LLM</p>
-      </div>
-      <div class="flow-arr">→</div>
-      <div class="flow-box">
-        <div class="fb-label">Result</div>
-        <h4>Better Summary</h4>
-        <p>Meaningful analysis</p>
-      </div>
-    </div>
-    <div class="pp-cards">
-      <div class="pp-card">
-        <h4>decode_sip.py</h4>
-        <p>Turns dense SIPMSG log lines into a clean REGISTER → 401 → REGISTER → 200 OK flow. The LLM gets readable context, not raw timestamps.</p>
-      </div>
-      <div class="pp-card">
-        <h4>your_decoder.py</h4>
-        <p>Live in <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">log-postprocessors/</code> in your project repo. Reads stdin, writes stdout. Reference by filename in the template's <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">post_process:</code> field.</p>
-      </div>
-    </div>
-    <p style="font-size:12px; color:#555; width:100%; margin-top:12px;">Most templates don't need a post-processor. Use one when raw output would confuse the LLM.</p>
-  </div>
-
-  <!-- ── 6. Inside a Workflow ── -->
-  <div class="slide" data-index="5">
-    <div class="slide-header">
-      <div class="label">Workflow Anatomy</div>
-      <h2>What's in a Workflow</h2>
-      <div class="rule"></div>
-    </div>
-    <div class="yaml-block">
-      <div><span class="y-val">---</span></div>
-      <div><span class="y-key">workflow</span><span class="y-val">:</span> <span class="y-str">ims-registration</span> <span class="y-tag">name used for output folder</span></div>
-      <div><span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">IMS registration failure analysis</span></div>
-      <div><span class="y-key">default_max_lines</span><span class="y-val">:</span> <span class="y-val">200</span> <span class="y-tag">cap per pattern</span></div>
-      <div>&nbsp;</div>
-      <div><span class="y-key">input</span><span class="y-val">:</span></div>
-      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">path</span><span class="y-val">:</span> <span class="y-str">"*.txt"</span> <span class="y-tag">file glob to match</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">include</span><span class="y-val">:</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/sipmsg.yaml</span> <span class="y-tag green">template from library</span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/ril.yaml</span></div>
-      <div>&nbsp;</div>
-      <div><span class="y-key">final_summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did IMS registration succeed? If not, what failed and why?"</span> <span class="y-tag">the big question</span></div>
-      <div><span class="y-val">---</span></div>
-    </div>
-  </div>
-
-  <!-- ── 7. How it Works ── -->
-  <div class="slide" data-index="6">
     <div class="slide-header">
       <div class="label">Under the Hood</div>
       <h2>What Happens When You Hit Enter</h2>
@@ -600,6 +479,127 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ── 4. The Two Concepts ── -->
+  <div class="slide" data-index="3">
+    <div class="slide-header">
+      <div class="label">Core Concepts</div>
+      <h2>Two Things to Know</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="concepts-grid">
+      <div class="concept-card workflow">
+        <div class="concept-icon">📋</div>
+        <h3>Workflow</h3>
+        <p class="concept-def">
+          A Markdown file with YAML frontmatter that defines a <strong style="color:#c8d4f0">complete analysis</strong>.
+          It wires together templates, points at input file types, and defines the final
+          diagnostic question to ask the AI. It's what you actually "run".
+        </p>
+        <div class="analogy">Think of it as a recipe — it combines ingredients and describes the desired outcome.</div>
+      </div>
+      <div class="concept-card template">
+        <div class="concept-icon">🔍</div>
+        <h3>Template</h3>
+        <p class="concept-def">
+          A YAML file that defines <strong style="color:#c8d4f0">what to look for</strong> in a log or PCAP file.
+          Contains one or more filter patterns — regex for logs, tshark display filters for PCAPs.
+          Lives in the shared library or your project repo. Reusable across any workflow.
+        </p>
+        <div class="analogy">Think of it as an ingredient — the specific pattern you want to extract.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. Inside a Workflow ── -->
+  <div class="slide" data-index="4">
+    <div class="slide-header">
+      <div class="label">Workflow Anatomy</div>
+      <h2>What's in a Workflow</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="yaml-block">
+      <div><span class="y-val">---</span></div>
+      <div><span class="y-key">workflow</span><span class="y-val">:</span> <span class="y-str">ims-registration</span> <span class="y-tag">name used for output folder</span></div>
+      <div><span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">IMS registration failure analysis</span></div>
+      <div><span class="y-key">default_max_lines</span><span class="y-val">:</span> <span class="y-val">200</span> <span class="y-tag">cap per pattern</span></div>
+      <div>&nbsp;</div>
+      <div><span class="y-key">input</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">path</span><span class="y-val">:</span> <span class="y-str">"*.txt"</span> <span class="y-tag">file glob to match</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">include</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/sipmsg.yaml</span> <span class="y-tag green">template from library</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-str">log/ril.yaml</span></div>
+      <div>&nbsp;</div>
+      <div><span class="y-key">final_summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did IMS registration succeed? If not, what failed and why?"</span> <span class="y-tag">the big question</span></div>
+      <div><span class="y-val">---</span></div>
+    </div>
+  </div>
+
+  <!-- ── 6. Inside a Template ── -->
+  <div class="slide" data-index="5">
+    <div class="slide-header">
+      <div class="label">Template Anatomy</div>
+      <h2>What's in a Template</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="yaml-block">
+      <div><span class="y-key">templates</span><span class="y-val">:</span></div>
+      <div>&nbsp;&nbsp;<span class="y-val">-</span> <span class="y-key">id</span><span class="y-val">:</span> <span class="y-str">sipmsg</span> <span class="y-tag">referenced in workflow include:</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">description</span><span class="y-val">:</span> <span class="y-str">SIP REGISTER and response messages</span> <span class="y-tag">appears in report</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">pattern</span><span class="y-val">:</span> <span class="y-str">"SIPMSG"</span> <span class="y-tag">ripgrep regex</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">context_lines</span><span class="y-val">:</span> <span class="y-val">3</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">post_process</span><span class="y-val">:</span> <span class="y-str">decode_sip.py</span> <span class="y-tag">optional</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did registration succeed? Was there a 401 challenge?"</span> <span class="y-tag">LLM prompt per pattern</span></div>
+    </div>
+    <p style="margin-top:16px; font-size:13px; color:#555; width:100%;">
+      For PCAP templates: replace <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">pattern</code> with <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">filter</code> + <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#c8d4f0">fields</code> for tshark field extraction.
+    </p>
+  </div>
+
+  <!-- ── 7. Post-Processor ── -->
+  <div class="slide" data-index="6">
+    <div class="slide-header">
+      <div class="label">Optional Enhancement</div>
+      <h2>What's a Post-Processor</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="flow-chain">
+      <div class="flow-box">
+        <div class="fb-label">Input</div>
+        <h4>Raw Log Lines</h4>
+        <p>Matched by ripgrep</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box highlight">
+        <div class="fb-label">Post-Processor</div>
+        <h4>decode_sip.py</h4>
+        <p>Transforms output</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">
+        <div class="fb-label">Clean Output</div>
+        <h4>Readable Flow</h4>
+        <p>Sent to LLM</p>
+      </div>
+      <div class="flow-arr">→</div>
+      <div class="flow-box">
+        <div class="fb-label">Result</div>
+        <h4>Better Summary</h4>
+        <p>Meaningful analysis</p>
+      </div>
+    </div>
+    <div class="pp-cards">
+      <div class="pp-card">
+        <h4>decode_sip.py</h4>
+        <p>Turns dense SIPMSG log lines into a clean REGISTER → 401 → REGISTER → 200 OK flow. The LLM gets readable context, not raw timestamps.</p>
+      </div>
+      <div class="pp-card">
+        <h4>your_decoder.py</h4>
+        <p>Live in <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">log-postprocessors/</code> in your project repo. Reads stdin, writes stdout. Reference by filename in the template's <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">post_process:</code> field.</p>
+      </div>
+    </div>
+    <p style="font-size:12px; color:#555; width:100%; margin-top:12px;">Most templates don't need a post-processor. Use one when raw output would confuse the LLM.</p>
   </div>
 
   <!-- ── 8. Running ── -->
@@ -752,10 +752,9 @@
             <span class="cmd-comment"># Clone</span><br>
             git clone https://github.com/hihanifm/cline-skills-log-analysis.git<br>
             cd cline-skills-log-analysis<br><br>
-            <span class="cmd-comment"># Install skills (ripgrep + tshark must already be installed)</span><br>
-            python3 setup.py --skip-cli
+            python3 setup.py
           </div>
-          <div class="setup-note">This deploys all skills to ~/.cline/skills/ and workflows to ~/Documents/Cline/Workflows/</div>
+          <div class="setup-note">Installs ripgrep + tshark if needed, deploys all skills to ~/.cline/skills/ and workflows to ~/Documents/Cline/Workflows/</div>
         </div>
       </div>
       <div class="setup-step">
