@@ -625,6 +625,9 @@ def _build_timeline_svg(sections: List[PatternSection],
         )
 
     # Lanes: label + center line + event dots
+    DOT_R = 5
+    MIN_SEP = DOT_R * 2 + 2  # minimum px between dot centres
+
     for i, section in enumerate(sections):
         cy = i * LANE_H + LANE_H // 2
         color = pattern_colors[section.pattern_id]
@@ -640,15 +643,39 @@ def _build_timeline_svg(sections: List[PatternSection],
             f'stroke="{color}" stroke-width="0.5" opacity="0.3"/>'
         )
 
-        for evt in section.events:
-            if evt.ts_minutes is None:
-                continue
-            cx = LEFT + (evt.ts_minutes / TS_RANGE) * TW
+        # Collect events with timestamps, compute raw cx
+        timed = [(LEFT + (evt.ts_minutes / TS_RANGE) * TW, evt)
+                 for evt in section.events if evt.ts_minutes is not None]
+        if not timed:
+            continue
+
+        # Sort by raw cx, then apply bidirectional min-separation:
+        # 1) forward pass: push dots right if too close
+        # 2) backward pass: pull back from RIGHT boundary, preserving spacing
+        # 3) final left-clamp: shift whole lane right if first dot is left of LEFT
+        timed.sort(key=lambda t: t[0])
+        adj = [t[0] for t in timed]
+        # Forward pass
+        for k in range(1, len(adj)):
+            if adj[k] - adj[k - 1] < MIN_SEP:
+                adj[k] = adj[k - 1] + MIN_SEP
+        # Backward pass from RIGHT
+        if adj[-1] > RIGHT:
+            adj[-1] = RIGHT
+            for k in range(len(adj) - 2, -1, -1):
+                if adj[k + 1] - adj[k] < MIN_SEP:
+                    adj[k] = adj[k + 1] - MIN_SEP
+        # Left clamp
+        if adj[0] < LEFT:
+            shift = LEFT - adj[0]
+            adj = [x + shift for x in adj]
+
+        for cx, (_, evt) in zip(adj, timed):
             sev_color = _SEVERITY_COLOR.get(evt.severity, "#8ec07c")
             tip = html.escape(evt.message[:80], quote=False)
             pid_esc = html.escape(evt.pattern_id, quote=True)
             parts.append(
-                f'  <circle class="evt-dot" cx="{cx:.1f}" cy="{cy}" r="5" '
+                f'  <circle class="evt-dot" cx="{cx:.1f}" cy="{cy}" r="{DOT_R}" '
                 f'fill="{sev_color}" stroke="{color}" stroke-width="1.5" '
                 f'data-id="{evt.event_id}" data-pattern="{pid_esc}" '
                 f'data-severity="{evt.severity}">'
