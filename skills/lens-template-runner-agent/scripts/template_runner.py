@@ -104,9 +104,9 @@ def load_skill_module(skill_name: str, module_name: str):
 
 # ── Template loading ──────────────────────────────────────────────────────────
 
-def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
+def load_template(path: str, base_dir: str = "", errors: list = None) -> dict:
     """
-    Load a template YAML file and return its list of template entries.
+    Load a template YAML file and return a dict with 'skill' and 'templates' keys.
 
     Resolution order for relative paths:
       1. Relative to base_dir (workflow file's directory)
@@ -117,6 +117,8 @@ def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
     If errors list is provided, warnings/errors are appended to it in addition
     to being printed to stderr.
     """
+    _empty = {"skill": None, "templates": []}
+
     if os.path.isabs(path):
         candidates = [path]
     else:
@@ -130,7 +132,7 @@ def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
         print(f"  [WARN] {msg}", file=sys.stderr)
         if errors is not None:
             errors.append(f"[WARN] {msg}")
-        return []
+        return _empty
     try:
         data = yaml_utils.load_yaml(resolved) or {}
     except Exception as exc:
@@ -138,23 +140,67 @@ def load_template(path: str, base_dir: str = "", errors: list = None) -> list:
         print(f"  [ERROR] {msg}", file=sys.stderr)
         if errors is not None:
             errors.append(f"[ERROR] {msg}")
-        return []
-    return data.get("templates", [])
+        return _empty
+    return {"skill": data.get("skill"), "templates": data.get("templates", [])}
 
 
-def resolve_patterns(input_entry: dict, base_dir: str = "", errors: list = None) -> list:
+def resolve_patterns(input_entry: dict, base_dir: str = "", errors: list = None) -> tuple:
     """
-    Merge template entries from `include:` paths + inline `templates:` list.
-    Inline entries win on id clash. Relative paths resolve against base_dir.
+    Resolve template entries from `include:` paths and return (skill, patterns).
+
+    Inline `templates:` blocks in the workflow input entry are not allowed —
+    all patterns must live in template library files referenced via `include:`.
+
+    Returns a 2-tuple: (skill_name: str, patterns: list)
     If errors list is provided, template load warnings are appended to it.
     """
+    glob_path = input_entry.get("path", "<unknown>")
+
+    # Hard error: inline templates are not allowed in workflows.
+    if input_entry.get("templates"):
+        sys.exit(
+            f"\nERROR: Workflow input entry for path '{glob_path}' contains an inline "
+            f"`templates:` block.\n"
+            f"Inline templates are not supported. Extract them to a template YAML file "
+            f"in the template library and reference via `include:`.\n"
+        )
+
     merged = {}
+    skills_seen = []
+
     for template_path in (input_entry.get("include") or []):
-        for p in load_template(template_path, base_dir, errors=errors):
+        result = load_template(template_path, base_dir, errors=errors)
+        if result["skill"]:
+            skills_seen.append(result["skill"])
+        for p in result["templates"]:
             merged[p["id"]] = p
-    for p in (input_entry.get("templates") or []):
-        merged[p["id"]] = p
-    return list(merged.values())
+
+    # Validate skill consistency across included templates.
+    unique_skills = list(dict.fromkeys(skills_seen))  # preserve order, deduplicate
+    if len(unique_skills) > 1:
+        sys.exit(
+            f"\nERROR: Conflicting skill declarations across included templates for "
+            f"path '{glob_path}': {unique_skills}\n"
+            f"All templates in a single input entry must declare the same skill.\n"
+        )
+    elif unique_skills:
+        skill = unique_skills[0]
+    else:
+        # No template declared a skill — fall back to content heuristic.
+        patterns_so_far = list(merged.values())
+        skill = "lens-pcap-filter" if any(
+            "filter" in p and "fields" in p for p in patterns_so_far
+        ) else "lens-log-filter"
+        msg = (
+            f"No `skill:` declared in templates for path '{glob_path}'. "
+            f"Inferred '{skill}' from pattern structure. "
+            f"Add `skill:` to your template YAML files to make this explicit."
+        )
+        print(f"  [WARN] {msg}", file=sys.stderr)
+        if errors is not None:
+            errors.append(f"[WARN] {msg}")
+
+    return skill, list(merged.values())
 
 
 # ── Core runner ───────────────────────────────────────────────────────────────
@@ -246,14 +292,17 @@ def run_template(
     Auto-detects skill (log vs pcap) from pattern structure if skill is None.
     Returns list of section dicts (same shape as run_patterns).
     """
-    patterns = load_template(template_path, base_dir)
+    result = load_template(template_path, base_dir)
+    patterns = result["templates"]
     if not patterns:
         return []
 
     if not skill:
-        skill = "lens-pcap-filter" if any(
-            "filter" in p and "fields" in p for p in patterns
-        ) else "lens-log-filter"
+        skill = result["skill"] or (
+            "lens-pcap-filter" if any(
+                "filter" in p and "fields" in p for p in patterns
+            ) else "lens-log-filter"
+        )
 
     return run_patterns(
         input_file=input_file,

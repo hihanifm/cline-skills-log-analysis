@@ -79,6 +79,7 @@ Write the template to `log-templates/pcap/<id>.yaml` in the project repo root us
 
 ```yaml
 id: <id>
+skill: lens-pcap-filter
 description: <description>
 
 templates:

@@ -1,4 +1,5 @@
 id: power
+skill: lens-log-filter
 description: PowerManager, BatteryStats, and battery drain patterns
 
 templates:

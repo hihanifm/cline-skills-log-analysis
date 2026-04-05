@@ -1,4 +1,5 @@
 id: http
+skill: lens-pcap-filter
 description: HTTP/HTTPS request and response patterns for connectivity and API analysis
 
 templates:

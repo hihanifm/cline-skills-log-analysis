@@ -67,6 +67,7 @@ Write the template to `log-templates/log/<id>.yaml` in the project repo root usi
 
 ```yaml
 id: <id>
+skill: lens-log-filter
 description: <description>
 
 templates:

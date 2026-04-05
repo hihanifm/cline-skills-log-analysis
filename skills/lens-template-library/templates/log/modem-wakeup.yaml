@@ -1,0 +1,15 @@
+id: modem-wakeup
+skill: lens-log-filter
+description: Modem wakeup events found in bugreport logs
+
+templates:
+  - id: modem_wakeup
+    pattern: "modem.*wakeup|wakeup.*modem|WAKEUP.*RIL"
+    context_lines: 5
+    description: >
+      Modem wakeup events found in bugreport. Frequent modem wakeups
+      prevent deep sleep and are a significant source of battery drain.
+    summary_prompt: >
+      Count modem wakeup events and estimate frequency. Determine if
+      the modem is waking the device more than once per minute, which
+      would indicate a network or configuration issue.

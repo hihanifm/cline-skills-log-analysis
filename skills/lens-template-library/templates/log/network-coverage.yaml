@@ -1,0 +1,15 @@
+id: network-coverage
+skill: lens-log-filter
+description: No service and out-of-service coverage loss patterns
+
+templates:
+  - id: no_service
+    pattern: "no.*service|NO_SERVICE|OUT_OF_SERVICE|signal.*lost|NETWORK_TYPE_UNKNOWN"
+    context_lines: 5
+    description: >
+      No service / out of service events. If the device had no network
+      coverage at the time of the emergency call, this explains the failure.
+    summary_prompt: >
+      Was the device out of service at the time of the emergency call?
+      Note how long the no-service condition lasted and whether
+      limited-service mode was available.

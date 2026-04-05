@@ -1,4 +1,5 @@
 id: sip
+skill: lens-pcap-filter
 description: SIP (Session Initiation Protocol) signaling patterns for IMS/VoLTE analysis
 
 templates:

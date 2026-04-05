@@ -66,9 +66,9 @@ Ask for:
 For each type of input file the developer wants to analyze, ask:
 
 - **File glob** — pattern to match input files (e.g. `logcat*.txt`, `*.pcap`)
-- **Skill** — `lens-log-filter` for text logs, `lens-pcap-filter` for PCAP
 - **Templates to include** — which templates from Step 2 apply to this input type. List them as `include:` paths.
-- **Inline patterns** (optional) — any one-off patterns specific to this workflow that don't belong in a shared template. For each: gather `id`, `pattern` (or `filter`+`fields` for PCAP), `context_lines`, `description`, and optional `summary_prompt`.
+
+All patterns must be defined in template library files — there are no inline patterns in workflows. If the developer needs a new pattern that doesn't exist yet, tell them to run `lens-log-template-creator` or `lens-pcap-template-creator` first to create a proper template file, then come back.
 
 Ask: "Do you want to add another input type?" Repeat until done.
 
@@ -101,17 +101,8 @@ default_max_lines: 200
 
 input:
   - path: "<glob>"
-    skill: lens-log-filter
     include:
       - log-templates/log/<template>.yaml
-    templates:
-      - id: <inline_id>
-        pattern: "<regex>"
-        context_lines: 3
-        description: >
-          <description>
-        summary_prompt: >
-          <summary_prompt>
 
 final_summary_prompt: >
   <final_summary_prompt>
@@ -123,8 +114,7 @@ final_summary_prompt: >
 and when a developer should use it.>
 ```
 
-Omit the `templates:` block under an input entry if no inline patterns were added.
-For PCAP inputs, use `filter:` + `fields:` instead of `pattern:` + `context_lines:`.
+The skill type (log vs PCAP) is declared inside each template file — workflows do not specify it. Each input entry is just a file glob plus a list of templates to apply.
 
 ---
 

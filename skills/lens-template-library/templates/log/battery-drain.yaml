@@ -1,0 +1,23 @@
+id: battery-drain
+skill: lens-log-filter
+description: Battery drain rate and thermal event patterns
+
+templates:
+  - id: high_drain
+    pattern: "drain_rate.*[5-9][0-9]%|mDischargeCurrentLevel.*[5-9][0-9]"
+    context_lines: 5
+    description: >
+      Abnormally high battery drain rate (>50%). Indicates aggressive
+      background activity, a hardware issue, or a misbehaving app.
+    post_process: decode_wakelock.py
+    summary_prompt: >
+      Identify the highest drain rate events. Note timestamps and any
+      correlating wakelocks or services active at the time. Flag any
+      drain rate above 5%/hr during screen-off periods as critical.
+
+  - id: thermal_event
+    pattern: "thermal|temperature.*(hot|critical|shutdown|throttl)"
+    context_lines: 3
+    description: >
+      Thermal events and temperature warnings. High temperature accelerates
+      battery drain and can cause throttling or emergency shutdown.

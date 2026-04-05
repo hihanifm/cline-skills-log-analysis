@@ -305,8 +305,7 @@ def main():
             continue
 
         # Resolve skill and patterns via template_runner
-        skill_name = input_entry.get("skill")
-        all_patterns = template_runner.resolve_patterns(input_entry, workflow_dir, errors=errors)
+        skill_name, all_patterns = template_runner.resolve_patterns(input_entry, workflow_dir, errors=errors)
         if not all_patterns:
             msg = f"No patterns resolved for glob '{glob_pattern}' — check include paths and template IDs."
             print(f"  [ERROR] {msg}", file=sys.stderr)
@@ -321,10 +320,6 @@ def main():
                     f.write(e + "\n")
             print(f"  Errors:    {errors_path}", file=sys.stderr)
             sys.exit(1)
-        if not skill_name:
-            skill_name = "lens-pcap-filter" if any(
-                "filter" in p and "fields" in p for p in all_patterns
-            ) else "lens-log-filter"
 
         # Script search dirs for post_process resolution.
         # Project postprocessors/ is found by walking up from workflow_dir.

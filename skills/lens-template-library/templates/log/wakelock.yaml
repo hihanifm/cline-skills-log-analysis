@@ -1,4 +1,5 @@
 id: wakelock
+skill: lens-log-filter
 description: WakeLock acquisition, release, and leak detection patterns
 
 templates:

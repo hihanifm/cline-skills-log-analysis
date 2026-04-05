@@ -1,4 +1,5 @@
 id: ims-sip
+skill: lens-log-filter
 description: IMS (IP Multimedia Subsystem) SIP signaling and registration patterns
 
 templates:

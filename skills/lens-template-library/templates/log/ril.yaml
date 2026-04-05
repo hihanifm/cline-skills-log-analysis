@@ -1,4 +1,5 @@
 id: ril
+skill: lens-log-filter
 description: RIL (Radio Interface Layer) network, data, and call handling patterns
 
 templates:

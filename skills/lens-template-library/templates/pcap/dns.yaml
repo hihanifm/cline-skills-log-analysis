@@ -1,4 +1,5 @@
 id: dns
+skill: lens-pcap-filter
 description: DNS query and response patterns for network connectivity analysis
 
 templates:
