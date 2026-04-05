@@ -1,0 +1,32 @@
+01-15 08:30:00.100  1234  1234 I PowerManagerService: WakeLock.acquire() tag=*display* flags=0x1 workSource=uid=1000
+01-15 08:30:00.200  1234  1234 I AudioMixer: starting playback session
+01-15 08:30:00.300  1234  1234 I PowerManagerService: WakeLock.acquire() tag=AlarmManager flags=0x1 workSource=uid=1000
+01-15 08:30:15.000  1234  1234 I PowerManagerService: WakeLock.release() tag=*display* flags=0x1
+01-15 08:30:15.100  1234  1234 I ActivityManager: Process com.example.app is resumed
+01-15 08:30:20.000  1234  1234 W PowerManagerService: WakeLock LEAK detected: tag=AlarmManager uid=1000 pid=789 held for 19700ms
+01-15 08:30:20.100  1234  1234 I PowerManagerService: WakeLock LEAK releasing: tag=AlarmManager
+01-15 08:30:25.000  1234  1234 I PowerManagerService: WakeLock timeout tag=*bluetooth* uid=1001 held too long
+01-15 08:30:25.100  1234  1234 I BluetoothService: connection timeout, releasing wakelock
+01-15 08:30:30.000  1234  1234 I PowerManagerService: WakeLock held 35200ms tag=*display* releasing
+01-15 08:30:30.100  1234  1234 I PowerManagerService: WakeLock held 19700ms tag=AlarmManager was leaked
+01-15 08:30:35.000  1234  1234 I BatteryStatsImpl: discharge level=85 voltage=3900 temp=280
+01-15 08:30:35.200  1234  1234 I BatteryStatsImpl: battery level=80 status=discharging health=good
+01-15 08:30:40.000  1234  1234 I BatteryStatsImpl: plugged AC charger connected
+01-15 08:30:40.100  1234  1234 I BatteryStatsImpl: charging started voltage=5000
+01-15 08:30:45.000  1234  1234 I PowerManager: goToSleep() time=1736925045000 reason=SLEEP_REASON_TIMEOUT
+01-15 08:30:45.100  1234  1234 I PowerManager: screen off animating
+01-15 08:30:50.000  1234  1234 I PowerManager: wakeUp() time=1736925050000 reason=WAKEUP_REASON_POWER_BUTTON
+01-15 08:30:50.100  1234  1234 I PowerManager: screen on turning on display
+01-15 08:30:55.000  1234  1234 I DeviceIdleController: enter idle light mode
+01-15 08:30:55.100  1234  1234 I DeviceIdleController: Doze enter light idle
+01-15 08:31:00.000  1234  1234 I DeviceIdleController: exit idle state due to motion
+01-15 08:31:00.100  1234  1234 I Doze: exit light idle pending wakeup
+01-15 08:31:05.000  1234  1234 I BatteryStatsImpl: mDischargeRateAdjusted=12 (uA avg)
+01-15 08:31:05.200  1234  1234 I BatteryStatsImpl: mDischargeCurrentLevel=78 reporting
+01-15 08:31:10.000  1234  1234 I BatteryStatsImpl: drain_rate 75% over last 60s
+01-15 08:31:10.100  1234  1234 I BatteryStatsImpl: drain_rate 60% corrected estimate
+01-15 08:31:15.000  1234  1234 I BatteryStatsImpl: mDischargeCurrentLevel=55 (critical region)
+01-15 08:31:20.000  1234  1234 W ThermalService: thermal throttling CPU cores: temperature 42C
+01-15 08:31:20.100  1234  1234 W ThermalService: temperature hot threshold exceeded skin_temp=43.2
+01-15 08:31:25.000  1234  1234 E ThermalService: temperature critical shutdown may occur at 60C
+01-15 08:31:30.000  1234  1234 W SensorManager: thermal throttl event reported to clients
