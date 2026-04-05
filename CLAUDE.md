@@ -103,18 +103,23 @@ Project-local assets (`log-templates/`, `log-lens-postprocessors/`, `.clinerules
 
 ## HTML Slide Color Palette
 
-Both `docs/presentation.html` and `docs/user-guide.html` use a **warm orange/amber dark theme**.
+All HTML slides (`docs/presentation.html`, `docs/user-guide.html`, `docs/yolo-mode.html`) use a **warm cream/parchment light theme** with burnt orange/amber accents.
 
 | Role | Value |
 |------|-------|
+| Background (base) | `#fdf6ec` (warm cream/parchment) |
+| Slide bg gradient tints | Subtle warm tones (`#f0e4d0`, `#f0e0d0`, `#f2e8d4`) |
+| Code panels | `#ede0cc` |
+| Primary text | `#1c1208` (dark warm brown) |
+| Secondary text | `#6b5a48` (medium warm brown) |
+| Muted text | `#7a6050` |
 | Primary accent | `#e87830` (burnt orange) |
 | Secondary accent | `#e8b840` (warm amber) |
-| Bright text highlight | `#f0a060` |
-| Soft text highlight | `#f0d4a8` |
-| Heading gradient | `#ffffff` → `#d4a060` |
-| Background (base) | `#0f1117` |
-| Slide bg gradients | Warm brown/amber dark tones (`#241a08`, `#201510`, `#1c1208`, `#1c1408`, `#1a1408`) |
+| Text highlight (dark) | `#b84810` |
+| Text highlight (soft) | `#7a4818` |
+| Heading gradient | `#1c1208` → `#a06010` |
+| Dark overlay (card bg/borders) | `rgba(28,18,8,…)` |
 | Orange rgba overlay | `rgba(232,120,48,…)` |
 | Amber rgba overlay | `rgba(232,184,64,…)` |
 
-When generating or updating HTML slides, use this warm orange/amber palette — not blue/green defaults.
+When generating or updating HTML slides, use this warm cream/parchment light theme — not dark backgrounds or blue/green defaults.

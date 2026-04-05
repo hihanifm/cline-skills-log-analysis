@@ -9,8 +9,8 @@
 
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: #0f1117;
-      color: #e8eaf0;
+      background: #fdf6ec;
+      color: #1c1208;
       height: 100vh;
       overflow: hidden;
     }
@@ -40,14 +40,14 @@
       display: flex; align-items: center; gap: 18px; z-index: 100;
     }
     .nav button {
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.13);
-      color: #e8eaf0; padding: 9px 22px; border-radius: 8px;
+      background: rgba(28,18,8,0.07);
+      border: 1px solid rgba(28,18,8,0.13);
+      color: #1c1208; padding: 9px 22px; border-radius: 8px;
       cursor: pointer; font-size: 13px; transition: background 0.2s;
     }
-    .nav button:hover { background: rgba(255,255,255,0.14); }
+    .nav button:hover { background: rgba(28,18,8,0.14); }
     .nav button:disabled { opacity: 0.28; cursor: default; }
-    .slide-counter { font-size: 12px; color: #555; min-width: 54px; text-align: center; }
+    .slide-counter { font-size: 12px; color: #7a6050; min-width: 54px; text-align: center; }
 
     .progress {
       position: fixed; top: 0; left: 0; height: 3px;
@@ -68,7 +68,7 @@
 
     /* ── Slide 1: Title ── */
     .s-title {
-      background: radial-gradient(ellipse at 55% 40%, #1c1408 0%, #0f1117 68%);
+      background: radial-gradient(ellipse at 55% 40%, #f2e8d4 0%, #fdf6ec 68%);
       text-align: center;
     }
     .s-title .eyebrow {
@@ -77,11 +77,11 @@
     }
     .s-title h1 {
       font-size: 48px; font-weight: 700; line-height: 1.18; margin-bottom: 18px;
-      background: linear-gradient(135deg, #fff 0%, #d4a060 100%);
+      background: linear-gradient(135deg, #fff 0%, #a06010 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .s-title .subtitle {
-      font-size: 17px; color: #8892a4; max-width: 560px;
+      font-size: 17px; color: #6b5a48; max-width: 560px;
       line-height: 1.65; margin: 0 auto;
     }
     .s-title .audience {
@@ -89,23 +89,23 @@
       background: rgba(232,120,48,0.08);
       border: 1px solid rgba(232,120,48,0.22);
       border-radius: 10px; padding: 14px 28px;
-      font-size: 13px; color: #f0a060;
+      font-size: 13px; color: #b84810;
     }
 
     /* ── Slide 2: Cline ── */
     .s-cline {
-      background: radial-gradient(ellipse at 30% 60%, #1a1408 0%, #0f1117 68%);
+      background: radial-gradient(ellipse at 30% 60%, #f0e4d0 0%, #fdf6ec 68%);
     }
     .cline-two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; }
     .cline-pitch {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(28,18,8,0.03);
+      border: 1px solid rgba(28,18,8,0.08);
       border-radius: 14px; padding: 28px;
     }
     .cline-pitch h3 { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 10px; }
-    .cline-pitch p  { font-size: 13px; color: #8892a4; line-height: 1.65; }
+    .cline-pitch p  { font-size: 13px; color: #6b5a48; line-height: 1.65; }
     .cline-panel {
-      background: #151208;
+      background: #ede0cc;
       border: 1px solid rgba(232,120,48,0.25);
       border-radius: 14px; padding: 24px;
       font-family: 'Consolas', monospace;
@@ -118,7 +118,7 @@
       background: rgba(232,120,48,0.08);
       border-left: 3px solid #e87830;
       border-radius: 6px; padding: 12px 14px;
-      font-size: 13px; color: #f0d4a8; line-height: 1.5;
+      font-size: 13px; color: #7a4818; line-height: 1.5;
       margin-bottom: 10px;
     }
     .cline-response {
@@ -140,33 +140,33 @@
     }
     .concept-card .concept-icon { font-size: 32px; margin-bottom: 14px; }
     .concept-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-    .concept-card.template h3 { color: #f0a060; }
+    .concept-card.template h3 { color: #b84810; }
     .concept-card.workflow h3 { color: #e8b840; }
-    .concept-card .concept-def { font-size: 14px; color: #8892a4; line-height: 1.65; margin-bottom: 14px; }
+    .concept-card .concept-def { font-size: 14px; color: #6b5a48; line-height: 1.65; margin-bottom: 14px; }
     .concept-card .analogy {
-      font-size: 12px; color: #666;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 12px; color: #7a6050;
+      border-top: 1px solid rgba(28,18,8,0.06);
       padding-top: 12px; font-style: italic;
     }
 
     /* ── YAML blocks ── */
     .yaml-block {
-      background: #151208;
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #ede0cc;
+      border: 1px solid rgba(28,18,8,0.08);
       border-radius: 12px; padding: 22px 24px;
       font-family: 'Consolas', monospace;
       font-size: 12.5px; line-height: 1.8;
       width: 100%;
     }
-    .y-key   { color: #f0a060; }
-    .y-val   { color: #e8eaf0; }
+    .y-key   { color: #b84810; }
+    .y-val   { color: #1c1208; }
     .y-str   { color: #98c379; }
-    .y-com   { color: #555; font-style: italic; }
+    .y-com   { color: #7a6050; font-style: italic; }
     .y-tag {
       display: inline-block;
       background: rgba(232,120,48,0.15);
       border: 1px solid rgba(232,120,48,0.3);
-      color: #f0a060; font-size: 10px; letter-spacing: 1px;
+      color: #b84810; font-size: 10px; letter-spacing: 1px;
       text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
       margin-left: 10px; vertical-align: middle; font-style: normal;
     }
@@ -181,8 +181,8 @@
       display: flex; align-items: center; gap: 0; width: 100%; margin-bottom: 24px;
     }
     .flow-box {
-      flex: 1; background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      flex: 1; background: rgba(28,18,8,0.03);
+      border: 1px solid rgba(28,18,8,0.08);
       border-radius: 10px; padding: 16px 12px; text-align: center;
     }
     .flow-box.highlight {
@@ -194,23 +194,23 @@
       color: #e87830; margin-bottom: 6px;
     }
     .flow-box h4 { font-size: 13px; font-weight: 600; color: #fff; }
-    .flow-box p  { font-size: 11px; color: #8892a4; margin-top: 4px; }
+    .flow-box p  { font-size: 11px; color: #6b5a48; margin-top: 4px; }
     .flow-arr { color: #e87830; font-size: 18px; padding: 0 8px; flex-shrink: 0; }
 
     .pp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
     .pp-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(28,18,8,0.03);
+      border: 1px solid rgba(28,18,8,0.07);
       border-radius: 10px; padding: 16px;
     }
-    .pp-card h4 { font-size: 13px; font-weight: 600; color: #f0a060; font-family: 'Consolas', monospace; margin-bottom: 6px; }
-    .pp-card p  { font-size: 12px; color: #8892a4; line-height: 1.5; }
+    .pp-card h4 { font-size: 13px; font-weight: 600; color: #b84810; font-family: 'Consolas', monospace; margin-bottom: 6px; }
+    .pp-card p  { font-size: 12px; color: #6b5a48; line-height: 1.5; }
 
     /* ── Slide 7: Agent chain ── */
     .chain-outer {
       width: 100%;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(28,18,8,0.02);
+      border: 1px solid rgba(28,18,8,0.07);
       border-radius: 16px; padding: 28px 32px;
     }
     .chain-top {
@@ -233,13 +233,13 @@
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
     }
     .chain-agent {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(28,18,8,0.04);
+      border: 1px solid rgba(28,18,8,0.09);
       border-radius: 10px; padding: 14px; text-align: center;
     }
     .chain-agent .ca-icon { font-size: 22px; margin-bottom: 6px; }
     .chain-agent h4 { font-size: 12px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-    .chain-agent p  { font-size: 11px; color: #666; line-height: 1.4; }
+    .chain-agent p  { font-size: 11px; color: #7a6050; line-height: 1.4; }
     .chain-output {
       display: flex; align-items: center; justify-content: center; gap: 16px;
     }
@@ -249,7 +249,7 @@
       border-radius: 8px; padding: 10px 20px; text-align: center;
     }
     .chain-out-box h4 { font-size: 13px; font-weight: 600; color: #e8b840; }
-    .chain-out-box p  { font-size: 11px; color: #8892a4; margin-top: 2px; }
+    .chain-out-box p  { font-size: 11px; color: #6b5a48; margin-top: 2px; }
 
     /* ── Slide 8: Running ── */
     .run-steps { display: flex; flex-direction: column; gap: 14px; width: 100%; }
@@ -263,11 +263,11 @@
       flex-shrink: 0; margin-top: 2px;
     }
     .run-content h3 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-    .run-content p  { font-size: 12px; color: #8892a4; line-height: 1.5; }
+    .run-content p  { font-size: 12px; color: #6b5a48; line-height: 1.5; }
     .run-content code {
       font-family: 'Consolas', monospace;
-      background: rgba(255,255,255,0.07);
-      border-radius: 4px; padding: 1px 7px; font-size: 12px; color: #f0d4a8;
+      background: rgba(28,18,8,0.07);
+      border-radius: 4px; padding: 1px 7px; font-size: 12px; color: #7a4818;
     }
     .output-pills {
       display: flex; gap: 12px; margin-top: 6px;
@@ -282,8 +282,8 @@
     /* ── Slide 9: Creating ── */
     .create-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
     .create-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(28,18,8,0.03);
+      border: 1px solid rgba(28,18,8,0.08);
       border-radius: 12px; padding: 22px;
     }
     .create-card .cc-label {
@@ -296,11 +296,11 @@
       background: rgba(232,120,48,0.12);
       border: 1px solid rgba(232,120,48,0.3);
       border-radius: 6px; padding: 4px 10px;
-      font-family: 'Consolas', monospace; font-size: 11px; color: #f0a060;
+      font-family: 'Consolas', monospace; font-size: 11px; color: #b84810;
       margin-bottom: 12px;
     }
     .create-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-    .create-card li { font-size: 12px; color: #8892a4; line-height: 1.5; padding-left: 14px; position: relative; }
+    .create-card li { font-size: 12px; color: #6b5a48; line-height: 1.5; padding-left: 14px; position: relative; }
     .create-card li::before { content: '→'; position: absolute; left: 0; color: #e87830; }
 
     /* ── Slide 10: Best practices ── */
@@ -315,12 +315,12 @@
       align-items: flex-start;
     }
     .bp-check { color: #e8b840; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-    .bp-item p { font-size: 13px; color: #8892a4; line-height: 1.5; }
-    .bp-item strong { color: #f0d4a8; }
+    .bp-item p { font-size: 13px; color: #6b5a48; line-height: 1.5; }
+    .bp-item strong { color: #7a4818; }
 
     /* ── Slide 11: Setup ── */
     .s-setup {
-      background: radial-gradient(ellipse at 50% 50%, #1c1208 0%, #0f1117 68%);
+      background: radial-gradient(ellipse at 50% 50%, #f0e4d0 0%, #fdf6ec 68%);
     }
     .setup-steps { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 680px; }
     .setup-step {
@@ -336,14 +336,14 @@
     }
     .setup-content h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 8px; }
     .setup-cmd {
-      background: #151208;
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #ede0cc;
+      border: 1px solid rgba(28,18,8,0.08);
       border-radius: 8px; padding: 12px 16px;
-      font-family: 'Consolas', monospace; font-size: 13px; color: #f0d4a8;
+      font-family: 'Consolas', monospace; font-size: 13px; color: #7a4818;
       line-height: 1.7;
     }
-    .setup-cmd .cmd-comment { color: #555; }
-    .setup-note { font-size: 12px; color: #666; margin-top: 6px; }
+    .setup-cmd .cmd-comment { color: #7a6050; }
+    .setup-note { font-size: 12px; color: #7a6050; margin-top: 6px; }
 
     /* ── Quick ref table ── */
     .qref {
@@ -354,19 +354,19 @@
     .qref th {
       text-align: left; font-size: 10px; letter-spacing: 2px;
       text-transform: uppercase; color: #e87830;
-      padding: 8px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 16px; border-bottom: 1px solid rgba(28,18,8,0.08);
     }
     .qref td {
       padding: 10px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      color: #8892a4; vertical-align: middle;
+      border-bottom: 1px solid rgba(28,18,8,0.05);
+      color: #6b5a48; vertical-align: middle;
     }
     .qref tr:last-child td { border-bottom: none; }
-    .qref td:first-child { color: #e8eaf0; font-weight: 500; }
+    .qref td:first-child { color: #1c1208; font-weight: 500; }
     .qref code {
       font-family: 'Consolas', monospace;
       background: rgba(232,120,48,0.1);
-      border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #f0a060;
+      border-radius: 4px; padding: 2px 8px; font-size: 12px; color: #b84810;
     }
   </style>
 </head>
@@ -405,14 +405,14 @@
         </div>
         <div class="cline-pitch">
           <h3>What This System Adds</h3>
-          <p>A set of <strong style="color:#f0d4a8">agentic skills</strong> that extend Cline with troubleshooting superpowers — so instead of grepping logs manually, you describe the problem and get a structured diagnostic report.</p>
+          <p>A set of <strong style="color:#7a4818">agentic skills</strong> that extend Cline with troubleshooting superpowers — so instead of grepping logs manually, you describe the problem and get a structured diagnostic report.</p>
         </div>
       </div>
       <div class="cline-panel">
         <div class="panel-label">Cline Chat</div>
         <div class="cline-msg">
           Analyze this dumpstate for IMS registration issues:<br>
-          <span style="color:#f0a060">/Users/me/samples/dumpstate_2.txt</span>
+          <span style="color:#b84810">/Users/me/samples/dumpstate_2.txt</span>
         </div>
         <div class="cline-response">
           ✓ Running ims-registration workflow…<br>
@@ -493,7 +493,7 @@
         <div class="concept-icon">📋</div>
         <h3>Workflow</h3>
         <p class="concept-def">
-          A Markdown file with YAML frontmatter that defines a <strong style="color:#f0d4a8">complete analysis</strong>.
+          A Markdown file with YAML frontmatter that defines a <strong style="color:#7a4818">complete analysis</strong>.
           It wires together templates, points at input file types, and defines the final
           diagnostic question to ask the AI. It's what you actually "run".
         </p>
@@ -503,7 +503,7 @@
         <div class="concept-icon">🔍</div>
         <h3>Template</h3>
         <p class="concept-def">
-          A YAML file that defines <strong style="color:#f0d4a8">what to look for</strong> in a log or PCAP file.
+          A YAML file that defines <strong style="color:#7a4818">what to look for</strong> in a log or PCAP file.
           Contains one or more filter patterns — regex for logs, tshark display filters for PCAPs.
           Lives in the shared library or your project repo. Reusable across any workflow.
         </p>
@@ -553,7 +553,7 @@
       <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="y-key">summary_prompt</span><span class="y-val">:</span> <span class="y-str">"Did registration succeed? Was there a 401 challenge?"</span> <span class="y-tag">LLM prompt per pattern</span></div>
     </div>
     <p style="margin-top:16px; font-size:13px; color:#555; width:100%;">
-      For PCAP templates: replace <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#f0d4a8">pattern</code> with <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#f0d4a8">filter</code> + <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:4px;color:#f0d4a8">fields</code> for tshark field extraction.
+      For PCAP templates: replace <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:2px 8px;border-radius:4px;color:#7a4818">pattern</code> with <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:2px 8px;border-radius:4px;color:#7a4818">filter</code> + <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:2px 8px;border-radius:4px;color:#7a4818">fields</code> for tshark field extraction.
     </p>
   </div>
 
@@ -596,7 +596,7 @@
       </div>
       <div class="pp-card">
         <h4>your_decoder.py</h4>
-        <p>Live in <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">log-postprocessors/</code> in your project repo. Reads stdin, writes stdout. Reference by filename in the template's <code style="font-family:Consolas;font-size:11px;background:rgba(255,255,255,0.07);padding:1px 6px;border-radius:3px">post_process:</code> field.</p>
+        <p>Live in <code style="font-family:Consolas;font-size:11px;background:rgba(28,18,8,0.07);padding:1px 6px;border-radius:3px">log-postprocessors/</code> in your project repo. Reads stdin, writes stdout. Reference by filename in the template's <code style="font-family:Consolas;font-size:11px;background:rgba(28,18,8,0.07);padding:1px 6px;border-radius:3px">post_process:</code> field.</p>
       </div>
     </div>
     <p style="font-size:12px; color:#555; width:100%; margin-top:12px;">Most templates don't need a post-processor. Use one when raw output would confuse the LLM.</p>
@@ -622,8 +622,8 @@
         <div class="run-content">
           <h3>Tell Cline what to analyze</h3>
           <p>Just describe it naturally. For example:<br>
-          <em style="color:#f0d4a8">"Use the ims-registration workflow on /path/to/dumpstate.txt"</em><br>
-          or: <em style="color:#f0d4a8">"Analyze this PCAP for IMS issues: capture.pcapng"</em></p>
+          <em style="color:#7a4818">"Use the ims-registration workflow on /path/to/dumpstate.txt"</em><br>
+          or: <em style="color:#7a4818">"Analyze this PCAP for IMS issues: capture.pcapng"</em></p>
         </div>
       </div>
       <div class="run-step">
@@ -656,7 +656,7 @@
           <li>Describe what you're looking for</li>
           <li>Cline asks for regex / tshark filter</li>
           <li>Tests against a sample file</li>
-          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">filters/log/</code> in your repo</li>
+          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 5px;border-radius:3px">filters/log/</code> in your repo</li>
         </ul>
       </div>
       <div class="create-card">
@@ -667,7 +667,7 @@
           <li>Describe the problem you're diagnosing</li>
           <li>Cline lists available templates</li>
           <li>Pick templates or create new ones</li>
-          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">.clinerules/workflows/</code></li>
+          <li>Writes to <code style="font-size:11px;font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 5px;border-radius:3px">.clinerules/workflows/</code></li>
         </ul>
       </div>
       <div class="create-card">
@@ -676,14 +676,14 @@
         <div class="skill-badge">postprocessors</div>
         <ul>
           <li>Write a Python script: stdin → stdout</li>
-          <li>Drop in <code style="font-size:11px;font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 5px;border-radius:3px">log-postprocessors/</code></li>
+          <li>Drop in <code style="font-size:11px;font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 5px;border-radius:3px">log-postprocessors/</code></li>
           <li>Reference by filename in template</li>
           <li>Commit alongside your templates</li>
         </ul>
       </div>
     </div>
     <p style="margin-top:18px; font-size:12px; color:#555; width:100%;">
-      Commit <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">filters/</code>, <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">log-postprocessors/</code> and <code style="font-family:Consolas;background:rgba(255,255,255,0.07);padding:1px 7px;border-radius:3px;font-size:12px">.clinerules/workflows/</code> to share your work with the team.
+      Commit <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 7px;border-radius:3px;font-size:12px">filters/</code>, <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 7px;border-radius:3px;font-size:12px">log-postprocessors/</code> and <code style="font-family:Consolas;background:rgba(28,18,8,0.07);padding:1px 7px;border-radius:3px;font-size:12px">.clinerules/workflows/</code> to share your work with the team.
     </p>
   </div>
 
@@ -718,7 +718,7 @@
         <h3>Workflows</h3>
         <div class="bp-item">
           <div class="bp-check">✓</div>
-          <p><strong>Name after the problem,</strong> not the tool. <em style="color:#f0d4a8">ims-registration-failure</em> not <em style="color:#666">sip-log-analysis</em>.</p>
+          <p><strong>Name after the problem,</strong> not the tool. <em style="color:#7a4818">ims-registration-failure</em> not <em style="color:#666">sip-log-analysis</em>.</p>
         </div>
         <div class="bp-item">
           <div class="bp-check">✓</div>
