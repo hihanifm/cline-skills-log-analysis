@@ -45,6 +45,9 @@ else:
 SKILLS_SRC = os.path.join(DATA_ROOT, "skills")
 WORKFLOWS_SRC = os.path.join(DATA_ROOT, "skills", "workflow-creator", "examples")
 
+_version_file = os.path.join(DATA_ROOT, "VERSION")
+VERSION = open(_version_file).read().strip() if os.path.isfile(_version_file) else "dev"
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -238,7 +241,7 @@ def verify():
 
 def main():
     print()
-    print("  Android Log & PCAP Analysis — Windows Installer")
+    print(f"  Android Log & PCAP Analysis — Windows Installer v{VERSION}")
     print(f"  Platform: {platform.system()} {platform.machine()}")
     print()
 

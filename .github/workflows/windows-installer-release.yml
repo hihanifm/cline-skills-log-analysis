@@ -1,4 +1,4 @@
-# Build cline-log-analysis-setup.exe (PyInstaller) and attach it to GitHub Releases.
+# Build cline-log-analysis-setup-<version>.exe (PyInstaller) and attach it to GitHub Releases.
 # Mirrors build_windows_exe.bat. Manual runs produce a workflow artifact only.
 
 name: Windows installer (exe)
@@ -26,14 +26,23 @@ jobs:
       - name: Install PyInstaller
         run: python -m pip install --upgrade pip pyinstaller
 
+      - name: Resolve version
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"          # strip leading 'v' (e.g. v1.0.0 → 1.0.0)
+          VERSION="${VERSION:-dev}"   # fall back to 'dev' for workflow_dispatch runs
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
       - name: Build exe
         shell: cmd
         run: >
-          pyinstaller --onefile --console --name cline-log-analysis-setup
+          pyinstaller --onefile --console --name cline-log-analysis-setup-%VERSION%
           --add-data "skills;skills"
           --add-data "yaml_utils.py;."
           --add-data "config.py;."
           --add-data "workflow_config.yaml;."
+          --add-data "VERSION;."
           windows_installer.py
 
       - name: Upload workflow artifact
@@ -41,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cline-log-analysis-setup-windows
-          path: dist/cline-log-analysis-setup.exe
+          path: dist/cline-log-analysis-setup-dev.exe
 
       - name: Upload to release
         if: github.event_name == 'release'
@@ -49,6 +58,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release upload "${{ github.event.release.tag_name }}"
-          "dist/cline-log-analysis-setup.exe"
+          "dist/cline-log-analysis-setup-%VERSION%.exe"
           --repo "${{ github.repository }}"
           --clobber
