@@ -49,7 +49,7 @@ python3 ~/.cline/skills/workflow-orchestrator/scripts/context_builder_agent.py \
   --input <user_provided_path>
 ```
 
-Capture stdout — it prints the path to the generated `context.txt`.
+Capture stdout — it prints the path to the generated `log-context.md`.
 
 If exit code is non-zero, show the stderr output and stop.
 

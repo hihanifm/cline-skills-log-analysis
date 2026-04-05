@@ -470,13 +470,13 @@
       <div class="pipe-step">
         <div class="step-num">Stage 1</div>
         <h3>Context Builder</h3>
-        <p>Deterministic. Runs ripgrep / tshark filters defined in YAML templates. Outputs a structured <code>context.txt</code>.</p>
+        <p>Deterministic. Runs ripgrep / tshark filters defined in YAML templates. Outputs a structured <code>log-context.md</code>.</p>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step">
         <div class="step-num">Stage 2</div>
         <h3>LLM Synthesizer</h3>
-        <p>Reads <code>context.txt</code> and generates per-pattern summaries + a final diagnostic report using Cline or Anthropic API.</p>
+        <p>Reads <code>log-context.md</code> and generates per-pattern summaries + a final diagnostic report using Cline or Anthropic API.</p>
       </div>
       <div class="pipe-arrow">→</div>
       <div class="pipe-step">

@@ -5,8 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Purpose
 
 Android log and PCAP network capture analysis system for Cline (VS Code AI assistant). Uses a two-stage pipeline:
-1. **Deterministic context builder** — ripgrep/tshark filters log/PCAP files into a structured `context.txt`
-2. **LLM synthesizer** — reads `context.txt` and produces a human-readable markdown report
+1. **Deterministic context builder** — ripgrep/tshark filters log/PCAP files into a structured `log-context.md`
+2. **LLM synthesizer** — reads `log-context.md` and produces a human-readable markdown report
 
 ## Setup & Installation
 
@@ -28,14 +28,14 @@ One Python dependency: `PyYAML` (used by `yaml_utils.py`). All other scripts use
 ## Running the Pipeline Manually
 
 ```bash
-# Step 1: Build context → out/battery-troubleshooting/context.txt
+# Step 1: Build context → out/battery-troubleshooting/log-context.md
 python3 skills/workflow-orchestrator/scripts/context_builder_agent.py \
   --workflow skills/workflow-creator/examples/battery-troubleshooting.md \
   --input /path/to/logcat.txt
 
 # Step 2: Synthesize report → out/battery-troubleshooting/report.md
 python3 skills/workflow-orchestrator/scripts/log_synthesizer_agent.py \
-  --context out/battery-troubleshooting/context.txt
+  --context out/battery-troubleshooting/log-context.md
 ```
 
 Progress messages go to stderr; the output file path goes to stdout (for Cline to capture).
@@ -51,7 +51,7 @@ Key settings:
 - API key: set the `LLM_API_KEY` environment variable — never stored in config files
 
 Output is written to `out/<workflow-name>/` relative to the working directory. If that directory already exists, a new one is created (`out/<workflow-name>-2/`, `-3/`, etc.) so previous runs are preserved:
-- `out/<workflow-name>/context.txt` — structured filter context
+- `out/<workflow-name>/log-context.md` — structured filter context
 - `out/<workflow-name>/report.md` — full report with filtered log lines + summaries
 - `out/<workflow-name>/summary.md` — final summary only (no log lines)
 - `out/<workflow-name>/errors.txt` — warnings and errors (only written if issues occurred)

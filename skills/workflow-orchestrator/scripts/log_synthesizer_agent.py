@@ -1,7 +1,7 @@
 """
 log_synthesizer_agent.py — LLM synthesis for log analysis context.
 
-Reads context.txt produced by context_builder_agent.py, generates
+Reads log-context.md produced by context_builder_agent.py, generates
 per-pattern summaries and a final summary using either an OpenAI-compatible
 API or placeholder markers (for Cline to fill).
 
@@ -14,7 +14,7 @@ Output is always written to:
 
 Usage:
     python3 log_synthesizer_agent.py \
-        --context /path/to/out/<workflow-name>/context.txt
+        --context /path/to/out/<workflow-name>/log-context.md
 
 Prints report path to stdout. Progress goes to stderr.
 """
@@ -49,7 +49,7 @@ from config import get_llm_config
 # ── Context reader ────────────────────────────────────────────────────────────
 
 def load_context_yaml(path: str) -> dict:
-    """Read context.txt produced by context_builder_agent.py."""
+    """Read log-context.md produced by context_builder_agent.py."""
     data = yaml_utils.load_yaml(path) or {}
     data.setdefault("sections", [])
     return data
@@ -238,7 +238,7 @@ def _cline_placeholder(pattern_id: str, prompt: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Synthesize log analysis context into a report.")
-    parser.add_argument("--context", required=True, help="Path to context.txt from context_builder_agent.py")
+    parser.add_argument("--context", required=True, help="Path to log-context.md from context_builder_agent.py")
     args = parser.parse_args()
 
     context_path = os.path.abspath(args.context)

@@ -6,7 +6,7 @@ delegates filtering to the template-engine skill, and writes a structured
 context file for log_synthesizer_agent.py to process.
 
 Output is always written to:
-    out/<workflow-name>/context.txt
+    out/<workflow-name>/log-context.md
 
 Usage:
     python3 context_builder_agent.py \
@@ -274,7 +274,7 @@ def main():
                 break
             n += 1
     out_dir.mkdir(parents=True, exist_ok=True)
-    context_path = str(out_dir / "context.txt")
+    context_path = str(out_dir / "log-context.md")
 
     # Load template engine
     template_runner = _load_skill_module("template-engine", "template_runner")
