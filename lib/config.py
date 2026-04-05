@@ -15,7 +15,10 @@ import yaml_utils
 
 
 _REPO_ROOT = Path(os.path.dirname(os.path.abspath(__file__)))
+# In dev mode config.py lives inside lib/; look one level up if needed.
 _CONFIG_PATH = _REPO_ROOT / "workflow_config.yaml"
+if not _CONFIG_PATH.is_file():
+    _CONFIG_PATH = _REPO_ROOT.parent / "workflow_config.yaml"
 
 _CONFIG_CACHE: Dict[str, Any] | None = None
 

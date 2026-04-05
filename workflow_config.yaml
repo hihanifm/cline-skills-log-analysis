@@ -18,3 +18,8 @@ output:
 
   # Set to false to skip generating report.html alongside report.md.
   html_report: true
+
+  # Set to false to skip generating report_interactive.html — a self-contained
+  # interactive report with a per-template timeline and filterable event cards.
+  # Works with any backend (no LLM required for this step).
+  interactive_html: true

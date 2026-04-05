@@ -45,7 +45,7 @@ if _SHARED not in sys.path:
     sys.path.insert(0, _SHARED)
 
 import yaml_utils
-from config import get_llm_config
+from config import get_llm_config, get_output_config
 
 
 # ── Context reader ────────────────────────────────────────────────────────────
@@ -215,6 +215,18 @@ def write_report(context: dict, output_path: str):
         import report_html_renderer
         html_path = report_html_renderer.render(output_path)
         print(f"  HTML report: {html_path}", file=sys.stderr)
+
+    # Optionally render report_interactive.html (no LLM needed — any backend)
+    if get_output_config().get("interactive_html", True):
+        _scripts_dir = os.path.dirname(os.path.abspath(__file__))
+        if _scripts_dir not in sys.path:
+            sys.path.insert(0, _scripts_dir)
+        import interactive_html_generator
+        try:
+            ihtml_path = interactive_html_generator.render(output_path)
+            print(f"  Interactive HTML: {ihtml_path}", file=sys.stderr)
+        except Exception as e:
+            print(f"  [WARN] Interactive HTML generation failed: {e}", file=sys.stderr)
 
     # Write summary.md — final summary only (openai mode only;
     # in cline mode Cline fills the placeholder and writes summary.md itself)
