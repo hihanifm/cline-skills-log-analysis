@@ -2,12 +2,12 @@
 log_synthesizer_agent.py — LLM synthesis for log analysis context.
 
 Reads context.txt produced by context_builder_agent.py, generates
-per-pattern summaries and a final summary using either the Anthropic
+per-pattern summaries and a final summary using either an OpenAI-compatible
 API or placeholder markers (for Cline to fill).
 
 LLM backend is controlled by workflow_config.yaml (llm.backend) or the
-LLM_BACKEND environment variable. API key is read from the environment
-variable named by llm.api_key_env (default: ANTHROPIC_API_KEY).
+LLM_BACKEND environment variable. API key is read from the LLM_API_KEY
+environment variable.
 
 Output is always written to:
     out/<workflow-name>/report.md
@@ -55,16 +55,16 @@ def load_context_yaml(path: str) -> dict:
     return data
 
 
-# ── Anthropic API caller ──────────────────────────────────────────────────────
+# ── LLM API caller ────────────────────────────────────────────────────────────
 
-def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 1024) -> str:
-    """Call Anthropic Messages API. Returns generated text."""
+def call_llm(api_key: str, prompt: str, context: str, base_url: str, model: str, max_tokens: int = 1024) -> str:
+    """Call an OpenAI-compatible Chat Completions API. Returns generated text."""
     import json
     import urllib.request
     import urllib.error
 
     payload = {
-        "model": "claude-3-5-haiku-20241022",
+        "model": model,
         "max_tokens": max_tokens,
         "messages": [
             {
@@ -74,12 +74,12 @@ def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 10
         ]
     }
 
+    url = base_url.rstrip("/") + "/chat/completions"
     req = urllib.request.Request(
-        "https://api.anthropic.com/v1/messages",
+        url,
         data=json.dumps(payload).encode("utf-8"),
         headers={
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
+            "Authorization": f"Bearer {api_key}",
             "content-type": "application/json",
         },
         method="POST",
@@ -88,10 +88,10 @@ def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 10
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
-            return data["content"][0]["text"]
+            return data["choices"][0]["message"]["content"]
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Anthropic API error {e.code}: {body}")
+        raise RuntimeError(f"LLM API error {e.code}: {body}")
 
 
 # ── Report writer ─────────────────────────────────────────────────────────────
@@ -99,13 +99,14 @@ def call_anthropic(api_key: str, prompt: str, context: str, max_tokens: int = 10
 def write_report(context: dict, output_path: str):
     llm_cfg = get_llm_config()
     default_backend = str(llm_cfg.get("backend", "cline")).lower()
-    api_key_env = llm_cfg.get("api_key_env", "ANTHROPIC_API_KEY")
+    base_url = str(llm_cfg.get("base_url", "https://api.openai.com/v1"))
+    model = str(llm_cfg.get("model", "gpt-4o-mini"))
 
     backend = os.environ.get("LLM_BACKEND", default_backend).lower()
-    api_key = os.environ.get(api_key_env, "")
+    api_key = os.environ.get("LLM_API_KEY", "")
 
-    if backend == "anthropic" and not api_key:
-        print("  [WARN] LLM_BACKEND=anthropic but ANTHROPIC_API_KEY not set. "
+    if backend == "openai" and not api_key:
+        print("  [WARN] LLM_BACKEND=openai but LLM_API_KEY not set. "
               "Falling back to cline mode.", file=sys.stderr)
         backend = "cline"
 
@@ -163,10 +164,10 @@ def write_report(context: dict, output_path: str):
 
             # Summary
             if summary_prompt and count > 0:
-                if backend == "anthropic":
+                if backend == "openai":
                     print(f"    Summarizing pattern: {pid}", file=sys.stderr)
                     try:
-                        summary = call_anthropic(api_key, summary_prompt, filtered)
+                        summary = call_llm(api_key, summary_prompt, filtered, base_url, model)
                         lines.append(f"**SUMMARY:**")
                         lines.append(summary.strip())
                         lines.append("")
@@ -183,7 +184,7 @@ def write_report(context: dict, output_path: str):
         lines.append("## FINAL SUMMARY")
         lines.append("")
 
-        if backend == "anthropic":
+        if backend == "openai":
             print("  Generating final summary...", file=sys.stderr)
             # Build a condensed context of all summaries for the final call
             all_context = "\n".join(
@@ -192,7 +193,7 @@ def write_report(context: dict, output_path: str):
                 for s in context.get("sections", [])
             )
             try:
-                final_summary = call_anthropic(api_key, final_prompt, all_context, max_tokens=2048)
+                final_summary = call_llm(api_key, final_prompt, all_context, base_url, model, max_tokens=2048)
                 lines.append(final_summary.strip())
                 lines.append("")
             except RuntimeError as e:
@@ -204,9 +205,9 @@ def write_report(context: dict, output_path: str):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
-    # Write summary.md — final summary only (anthropic mode only;
+    # Write summary.md — final summary only (openai mode only;
     # in cline mode Cline fills the placeholder and writes summary.md itself)
-    if backend == "anthropic" and final_prompt:
+    if backend == "openai" and final_prompt:
         summary_path = os.path.join(os.path.dirname(output_path), "summary.md")
         summary_lines = [
             f"# {workflow} — Summary",

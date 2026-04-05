@@ -45,8 +45,10 @@ Progress messages go to stderr; the output file path goes to stdout (for Cline t
 **`workflow_config.yaml`** (repo root) — central config for LLM backend and output directories. Loaded by `config.py`, which caches and merges it with built-in defaults.
 
 Key settings:
-- `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `anthropic` (calls API directly). Override at runtime with the `LLM_BACKEND` env var.
-- `llm.api_key_env`: env var name for the Anthropic API key (default: `ANTHROPIC_API_KEY`)
+- `llm.backend`: `cline` (default, writes `<!-- SUMMARY_PROMPT -->` markers) or `openai` (calls OpenAI-compatible API directly). Override at runtime with the `LLM_BACKEND` env var.
+- `llm.base_url`: base URL for the OpenAI-compatible API (default: `https://api.openai.com/v1`). Works with OpenAI, Azure, Ollama, LM Studio, etc.
+- `llm.model`: model name to use when backend is `openai` (default: `gpt-4o-mini`)
+- API key: set the `LLM_API_KEY` environment variable — never stored in config files
 
 Output is written to `out/<workflow-name>/` relative to the working directory. If that directory already exists, a new one is created (`out/<workflow-name>-2/`, `-3/`, etc.) so previous runs are preserved:
 - `out/<workflow-name>/context.txt` — structured filter context

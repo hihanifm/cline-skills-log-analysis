@@ -1,11 +1,15 @@
 llm:
   # Default backend for log_synthesizer_agent:
-  # - "cline"     → write SUMMARY_PROMPT markers for Cline to fill
-  # - "anthropic" → call Anthropic API directly
+  # - "cline"  → write SUMMARY_PROMPT markers for Cline to fill
+  # - "openai" → call OpenAI-compatible API directly (set LLM_API_KEY env var)
   backend: cline
 
-  # Name of the environment variable that holds the Anthropic API key.
-  api_key_env: ANTHROPIC_API_KEY
+  # Base URL for the OpenAI-compatible API. Uncomment to override.
+  # Works with OpenAI, Azure OpenAI, local models (Ollama, LM Studio), etc.
+  # base_url: https://api.openai.com/v1
+
+  # Model to use when backend is "openai". Uncomment to override.
+  # model: gpt-4o-mini
 
 output:
   # Set to false to overwrite the same out/<workflow-name>/ directory each run.

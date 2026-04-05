@@ -32,7 +32,8 @@ def _load_raw_config() -> Dict[str, Any]:
     default: Dict[str, Any] = {
         "llm": {
             "backend": "cline",
-            "api_key_env": "ANTHROPIC_API_KEY",
+            "base_url": "https://api.openai.com/v1",
+            "model": "gpt-4o-mini",
         },
     }
 
@@ -62,8 +63,9 @@ def get_llm_config() -> Dict[str, Any]:
     Return LLM-related configuration.
 
     Keys:
-        backend:     "cline" or "anthropic" (default: "cline")
-        api_key_env: name of env var holding the Anthropic API key
+        backend:  "cline" or "openai" (default: "cline")
+        base_url: base URL for the OpenAI-compatible API (default: https://api.openai.com/v1)
+        model:    model name to use (default: gpt-4o-mini)
     """
     return _load_raw_config().get("llm", {})
 
