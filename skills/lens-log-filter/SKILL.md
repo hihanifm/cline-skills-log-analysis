@@ -1,10 +1,11 @@
 ---
-name: lens-log-filter
+
+## name: lens-log-filter
+
 description: >-
   Filters Android logcat files using ripgrep and a regex pattern. Use directly
   when you want to extract matching lines from a log file without running a full
   workflow. Can also be invoked by the lens-workflow-orchestrator-agent skill automatically.
----
 
 # Android Log Analysis Skill
 
@@ -19,6 +20,7 @@ a configurable maximum.
 ## Step 1 — Ask for Input
 
 Ask the user for:
+
 - **Log file path** (logcat `.txt` or similar)
 - **Pattern** — regex to match (e.g. `WakeLock.*(acquire|release)`)
 - **Context lines** (optional, default 0) — lines before/after each match
